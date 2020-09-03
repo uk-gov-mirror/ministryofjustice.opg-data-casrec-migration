@@ -1,0 +1,22 @@
+---
+version: 2.1
+
+workflows:
+  pull_request:
+    jobs:
+      - cleanup:
+          name: destroy branch environment
+          filters: {branches:{ignore:[master]}}
+orbs:
+  migration:
+    executors:
+      python:
+        docker:
+          - image: circleci/python:3
+jobs:
+  cleanup:
+    executor: migration/python
+    steps:
+      - run:
+          name: cleanup
+          command: echo "running this so job passes as it's requirement to merge"
