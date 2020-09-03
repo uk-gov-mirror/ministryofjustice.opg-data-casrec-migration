@@ -1,0 +1,20 @@
+version: '3.6'
+services:
+  postgres-api-restore:
+    image: postgres:10.11
+    entrypoint: pg_restore
+    volumes: ["./data-snapshot:/data-snapshot"]
+    command:
+      - /data-snapshot/api.backup
+      - --clean
+      - --if-exists
+      - --host=postgres-api
+      - --dbname=api
+      - --username=api
+      - -v
+      - --format=custom
+    environment:
+      POSTGRES_USER: api
+      POSTGRES_PASSWORD: api
+      PGPASSWORD: api
+      POSTGRES_DB: api
