@@ -3,10 +3,7 @@ version: 2.1
 
 workflows:
   pull_request:
-    when: << pipeline.parameters.run_pull_request >>
     jobs:
-      - lint:
-          name: validate the code
       - cleanup:
           name: destroy branch environment
           filters: {branches:{ignore:[master]}}
@@ -17,14 +14,6 @@ orbs:
         docker:
           - image: circleci/python:3
 jobs:
-  lint:
-    executor: migration/python
-    steps:
-      - checkout
-      - run:
-          name: run flake8 - python PEP8 linter, complexity checker
-          command: |
-            flake8 --ignore Q000 lambda_functions
   cleanup:
     executor: migration/python
     steps:
