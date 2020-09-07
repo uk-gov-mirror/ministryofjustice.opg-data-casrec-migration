@@ -3,9 +3,9 @@ services:
   postgres-api-restore:
     image: postgres:10.11
     entrypoint: pg_restore
-    volumes: ["./data-snapshot:/data-snapshot"]
+    volumes: ["./sirius-snapshot:/sirius-snapshot"]
     command:
-      - /data-snapshot/api.backup
+      - /sirius-snapshot/api.backup
       - --clean
       - --if-exists
       - --host=postgres-api
@@ -18,3 +18,13 @@ services:
       POSTGRES_PASSWORD: api
       PGPASSWORD: api
       POSTGRES_DB: api
+  postgres-api:
+    image: postgres:10.11
+    ports:
+    - 5555:5432
+    environment:
+      POSTGRES_USER: api
+      POSTGRES_PASSWORD: api
+      POSTGRES_DB: api
+      PGPASSWORD: api
+
