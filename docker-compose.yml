@@ -36,8 +36,21 @@ services:
     - 6666:5432
     environment:
       POSTGRES_USER: casrec
-      POSTGRES_PASSWORD: casrec
-      POSTGRES_DB: casrec
-      PGPASSWORD: casrec
-
-
+      POSTGRES_PASSWORD: casrec # pragma: allowlist secret
+      POSTGRES_DB: casrec-migration
+      PGPASSWORD: casrec # pragma: allowlist secret
+  localstack:
+    image: localstack/localstack:0.10.9
+    ports:
+        - 4572:4572
+    environment:
+        - SERVICES=s3:4572
+        - DEFAULT_REGION=eu-west-1
+  test_casrec_connec:
+    build:
+      context: ./etl1
+      dockerfile: Dockerfile
+    environment:
+      DB_PASSWORD: casrec # pragma: allowlist secret
+      DB_HOST: casrec_db
+      DB_PORT: 5432

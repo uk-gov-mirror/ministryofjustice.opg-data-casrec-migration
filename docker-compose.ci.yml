@@ -1,0 +1,5 @@
+version: '3.6'
+services:
+  api:
+    image: ${AWS_REGISTRY}/casrec-migration/etl1:${VERSION}
+    build: ./etl1
