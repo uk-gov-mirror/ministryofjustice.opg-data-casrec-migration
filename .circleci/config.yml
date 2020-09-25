@@ -7,11 +7,45 @@ workflows:
       - build:
           name: build
           filters: {branches:{ignore:[master]}}
+      - build_infra:
+          name: build infra development
+          requires: [build]
+          tf_workspace: development
+          tf_command: apply
+          filters: {branches:{ignore:[master]}}
       - cleanup:
           name: destroy branch environment
           filters: {branches:{ignore:[master]}}
 orbs:
   aws-cli: circleci/aws-cli@1.3.0
+  terraform:
+    executors:
+      terraform:
+        docker:
+          - image: circleci/golang:1.12
+        resource_class: small
+        environment:
+          TF_VERSION: 0.13.3
+          TF_SHA256SUM: 35c662be9d32d38815cde5fa4c9fa61a3b7f39952ecd50ebf92fd1b2ddd6109b # pragma: allowlist secret
+          TF_CLI_ARGS_plan: -input=false -lock=false
+          TF_CLI_ARGS_apply: -input=false -auto-approve
+          TF_CLI_ARGS_destroy: -input=false -auto-approve
+          TF_CLI_ARGS_init: -input=false -upgrade=true -reconfigure
+    commands:
+      install:
+        steps:
+          - run:
+              name: Download Terraform
+              command: curl -sfSO https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip
+          - run:
+              name: Add Terraform SHA256SUM
+              command: echo "${TF_SHA256SUM} terraform_${TF_VERSION}_linux_amd64.zip" > SHA256SUMS
+          - run:
+              name: Check Terraform SHA256SUM
+              command: sha256sum -c --status SHA256SUMS
+          - run:
+              name: Install Terraform
+              command: sudo unzip terraform_${TF_VERSION}_linux_amd64.zip -d /bin
   migration:
     executors:
       python:
@@ -60,3 +94,35 @@ jobs:
       - run:
           name: Push images
           command: docker-compose -f docker-compose.ci.yml push
+  build_infra:
+    executor: terraform/terraform
+    resource_class: small
+    parameters:
+      tf_workspace:
+        description: terraform workspace
+        type: string
+        default: ""
+      tf_command:
+        description: terraform command
+        type: string
+    environment:
+      WORKSPACE: << parameters.tf_workspace >>
+    working_directory: ~/project/terraform
+    steps:
+      - checkout:
+          path: ~/project
+      - terraform/install
+      - attach_workspace: {at: ~/project}
+      - run:
+          name: Initialize
+          command: terraform init
+      - run:
+          name: Set environment
+          command: |
+            ~/project/.circleci/set_env.sh >> $BASH_ENV
+      - run:
+          name: Run << parameters.tf_command >>
+          command: terraform << parameters.tf_command >>
+      - run:
+          name: Output
+          command: terraform output -json > terraform.output.json

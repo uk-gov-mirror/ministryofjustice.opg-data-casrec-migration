@@ -46,7 +46,7 @@ services:
     environment:
         - SERVICES=s3:4572
         - DEFAULT_REGION=eu-west-1
-  test_casrec_connec:
+  load_casrec:
     build:
       context: ./etl1
       dockerfile: Dockerfile

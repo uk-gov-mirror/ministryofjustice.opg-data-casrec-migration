@@ -8,3 +8,4 @@ echo "export TF_WORKSPACE=${WORKSPACE}"
 
 VERSION=${VERSION:-$(cat ~/project/VERSION 2>/dev/null)}
 echo "export VERSION=${VERSION}"
+echo "export TF_VAR_image_tag=${VERSION}"
