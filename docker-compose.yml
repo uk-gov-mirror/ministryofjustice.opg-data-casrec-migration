@@ -54,3 +54,4 @@ services:
       DB_PASSWORD: casrec # pragma: allowlist secret
       DB_HOST: casrec_db
       DB_PORT: 5432
+      ENVIRONMENT: local
