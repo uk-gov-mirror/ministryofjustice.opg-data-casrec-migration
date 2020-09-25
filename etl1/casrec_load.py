@@ -150,8 +150,8 @@ def main():
         obj = s3.get_object(Bucket=bucket_name, Key=file)
         df = pd.read_csv(io.BytesIO(obj["Body"].read()))
 
-        file_name = file.split("/")[1]
-        table_name = file_name.split(".")[0]
+        # file_name = file.split("/")[1]
+        table_name = file.split(".")[0]
 
         df_renamed = df.rename(columns={"Unnamed: 0": "Record"})
 
