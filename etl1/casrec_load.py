@@ -139,6 +139,7 @@ def main():
     schema = "etl1"
 
     print(f"Creating schema {schema}")
+    create_schema(schema, engine)
 
     if environment == "local":
         s3_session = localstack_client.session.Session()
