@@ -1,5 +1,18 @@
 import os
+import boto3
 from sqlalchemy import create_engine
+
+
+def list_bucket_contents(bucket_name, s3_session):
+    s3 = s3_session.client("s3")
+    resp = s3.list_objects_v2(Bucket=bucket_name)
+
+    files_in_bucket = []
+
+    for obj in resp["Contents"]:
+        files_in_bucket.append(obj["Key"])
+        print(obj["Key"])
+    return files_in_bucket
 
 
 password = os.environ["DB_PASSWORD"]
@@ -16,6 +29,8 @@ DATABASES = {
         "PORT": port,
     },
 }
+
+bucket_name = "casrec-migration-development"
 
 # choose the database to use
 db = DATABASES["casrec-migration"]
@@ -38,3 +53,8 @@ results = engine.execute(check_exists_statement)
 print(f"Results from test query\n\n")
 for r in results:
     print(r)
+
+s3_session = boto3.session.Session()
+
+for file in list_bucket_contents(bucket_name, s3_session):
+    print(file)
