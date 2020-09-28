@@ -20,7 +20,14 @@ However our approach (as well as this readme) will develop over time!
 4. set the name (I would suggest `sirius_datbase`)
 5. Host: `localhost`
 6. User: `api`
-7. Password: `api`
+7. Password: `api` # pragma: allowlist secret
 8. Click `Test Connection` and it should give you a little green tick
 9. Now behold, the db is over there in the `databases` tab ready for you to work on
 
+### Load local env
+
+-- This is to be improved so it works seamlessly ---
+
+1. `docker-compose up -d`
+2. Enter your virtual env and `cd etl1 && pip3 install -r requirements.txt && python3 load_s3_local.py`
+3. `docker-compose run --rm load_casrec python3 casrec_load.py`
