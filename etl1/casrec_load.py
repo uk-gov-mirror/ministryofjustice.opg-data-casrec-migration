@@ -2,12 +2,11 @@ import pandas as pd
 import io
 import os
 from sqlalchemy import create_engine
-import localstack_client.session
 import boto3
 
 
-def list_bucket_contents(bucket_name, s3_session):
-    s3 = s3_session.client("s3")
+def list_bucket_contents(bucket_name, s3):
+
     resp = s3.list_objects_v2(Bucket=bucket_name)
 
     files_in_bucket = []
@@ -112,7 +111,7 @@ def main():
     environment = os.environ["ENVIRONMENT"]
 
     databases = {
-        "casrec-migration": {
+        "casrecmigration": {
             "NAME": name,
             "USER": "casrec",
             "PASSWORD": password,
@@ -122,7 +121,7 @@ def main():
     }
 
     # choose the database to use
-    db = databases["casrec-migration"]
+    db = databases["casrecmigration"]
 
     # construct an engine connection string
     engine_string = "postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}".format(  # pragma: allowlist secret
@@ -141,17 +140,22 @@ def main():
     print(f"Creating schema {schema}")
     create_schema(schema, engine)
 
+    s3_session = boto3.session.Session()
     if environment == "local":
-        s3_session = localstack_client.session.Session()
+        s3 = s3_session.client(
+            "s3",
+            endpoint_url="http://localstack:4572",
+            aws_access_key_id="fake",
+            aws_secret_access_key="fake",
+        )
     else:
-        s3_session = boto3.session.Session()
-
-    for file in list_bucket_contents(bucket_name, s3_session):
         s3 = s3_session.client("s3")
+
+    for file in list_bucket_contents(bucket_name, s3):
+
         obj = s3.get_object(Bucket=bucket_name, Key=file)
         df = pd.read_csv(io.BytesIO(obj["Body"].read()))
 
-        # file_name = file.split("/")[1]
         table_name = file.split(".")[0]
 
         df_renamed = df.rename(columns={"Unnamed: 0": "Record"})

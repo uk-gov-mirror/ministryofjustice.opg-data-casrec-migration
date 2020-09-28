@@ -8,8 +8,6 @@ variable "management_role" {
 
 variable "image_tag" {}
 
-variable "availability_zones" { default = ["eu-west-1a"] }
-
 locals {
   account = contains(keys(var.accounts), terraform.workspace) ? var.accounts[terraform.workspace] : var.accounts["development"]
 

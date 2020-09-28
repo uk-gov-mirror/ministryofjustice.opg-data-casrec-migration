@@ -96,24 +96,24 @@ def list_bucket_contents(bucket_name, s3_session):
     return files_in_bucket
 
 
-bucket_name = "casrecmigration"
+bucket_name = "casrec-migration-development"
 region = "eu-west-1"
-
-drop_bucket(bucket_name, s3_session)
 
 bucket_exists = False
 for bucket in list_buckets(s3_session, region):
     if bucket_name == bucket:
         bucket_exists = True
-if not bucket_exists:
-    create_bucket(bucket_name, s3_session, region)
-else:
-    print("bucket exists")
+if bucket_exists:
+    print("Dropping bucket")
+    drop_bucket(bucket_name, s3_session)
+
+print("Creating bucket")
+create_bucket(bucket_name, s3_session, region)
 
 anon_data_dir = "./anon_data"
 
 for file in os.listdir(anon_data_dir):
-    file_path = f".{anon_data_dir}/{file}"
+    file_path = f"{anon_data_dir}/{file}"
     s3_file_path = f"{file}"
     upload_file(bucket_name, file_path, s3_session, s3_file_path)
 

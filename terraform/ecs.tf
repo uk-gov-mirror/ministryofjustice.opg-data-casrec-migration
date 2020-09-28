@@ -142,7 +142,12 @@ data "aws_iam_policy_document" "ecs_task_s3" {
     effect    = "Allow"
     resources = ["*"]
 
-    actions = ["s3:*"]
+    actions = [
+      "s3:GetObject",
+      "s3:ListObjectVersions",
+      "s3:ListBucketVersions",
+      "s3:GetObjectTagging"
+    ]
   }
 }
 
