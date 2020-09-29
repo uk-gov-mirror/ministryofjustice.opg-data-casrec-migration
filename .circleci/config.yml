@@ -16,6 +16,18 @@ workflows:
       - cleanup:
           name: destroy branch environment
           filters: {branches:{ignore:[master]}}
+  master:
+    jobs:
+      - build:
+          name: build master
+          filters: {branches:{only:[master]}}
+      - build_infra:
+          name: build infra preproduction
+          requires: [build master]
+          tf_workspace: preproduction
+          tf_command: apply
+          filters: {branches:{only:[master]}}
+
 orbs:
   aws-cli: circleci/aws-cli@1.3.0
   terraform:
