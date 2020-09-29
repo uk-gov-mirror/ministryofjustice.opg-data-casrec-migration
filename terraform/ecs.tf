@@ -123,6 +123,7 @@ data "aws_iam_policy_document" "execution_role" {
 resource "aws_iam_role" "etl1" {
   assume_role_policy = data.aws_iam_policy_document.task_role_assume_policy.json
   name               = "casrec-migration.${local.environment}"
+  tags               = local.default_tags
 }
 
 data "aws_iam_policy_document" "task_role_assume_policy" {
@@ -146,7 +147,9 @@ data "aws_iam_policy_document" "ecs_task_s3" {
       "s3:GetObject",
       "s3:ListObjectVersions",
       "s3:ListBucketVersions",
-      "s3:GetObjectTagging"
+      "s3:GetObjectTagging",
+      "s3:ListObjects",
+      "s3:ListBucket"
     ]
   }
 }

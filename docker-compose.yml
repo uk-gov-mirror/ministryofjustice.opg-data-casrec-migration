@@ -1,39 +1,11 @@
 version: '3.6'
 services:
-  postgres-api:
-    image: postgres:10.11
-    ports:
-      - 5555:5432
-    environment:
-      POSTGRES_USER: api
-      POSTGRES_PASSWORD: api
-      POSTGRES_DB: api
-      PGPASSWORD: api
-  postgres-api-restore:
-    image: postgres:10.11
-    entrypoint: pg_restore
-    volumes: ["./sirius-snapshot:/sirius-snapshot"]
-    command:
-      - /sirius-snapshot/api.backup
-      - --clean
-      - --if-exists
-      - --host=postgres-api
-      - --dbname=api
-      - --username=api
-      - -v
-      - --format=custom
-    environment:
-      POSTGRES_USER: api
-      POSTGRES_PASSWORD: api
-      PGPASSWORD: api
-      POSTGRES_DB: api
-    depends_on: [postgres-api]
   casrec_db:
     build:
       context: ./casrec_db
       dockerfile: Dockerfile
     ports:
-    - 6666:5432
+      - 6666:5432
     environment:
       POSTGRES_USER: casrec
       POSTGRES_PASSWORD: casrec # pragma: allowlist secret
@@ -57,3 +29,34 @@ services:
       DB_PORT: 5432
       ENVIRONMENT: local
     depends_on: [localstack, casrec_db]
+#
+# We can put this back in when we know how we're using it!
+#
+#  postgres-api:
+#    image: postgres:10.11
+#    ports:
+#      - 5555:5432
+#    environment:
+#      POSTGRES_USER: api
+#      POSTGRES_PASSWORD: api
+#      POSTGRES_DB: api
+#      PGPASSWORD: api
+#  postgres-api-restore:
+#    image: postgres:10.11
+#    entrypoint: pg_restore
+#    volumes: ["./sirius-snapshot:/sirius-snapshot"]
+#    command:
+#      - /sirius-snapshot/api.backup
+#      - --clean
+#      - --if-exists
+#      - --host=postgres-api
+#      - --dbname=api
+#      - --username=api
+#      - -v
+#      - --format=custom
+#    environment:
+#      POSTGRES_USER: api
+#      POSTGRES_PASSWORD: api
+#      PGPASSWORD: api
+#      POSTGRES_DB: api
+#    depends_on: [postgres-api]

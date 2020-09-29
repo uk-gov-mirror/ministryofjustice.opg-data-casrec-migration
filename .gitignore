@@ -38,3 +38,4 @@ process.yml
 casrec_data/do_anonymising/change_log.txt
 *PLAY*
 .pg_restore.api.log
+sirius-snapshot
