@@ -5,15 +5,20 @@ from sqlalchemy import create_engine
 import boto3
 
 
-def list_bucket_contents(bucket_name, s3):
+def list_bucket_contents(bucket_name, s3, path):
 
     resp = s3.list_objects_v2(Bucket=bucket_name)
-
     files_in_bucket = []
 
     for obj in resp["Contents"]:
-        files_in_bucket.append(obj["Key"])
-        print(obj["Key"])
+        file_folder = obj["Key"]
+        print(f"full file path is {file_folder}")
+        # folder = file_folder.split("/")[1]
+        # file = file_folder.split("/")[2]
+        file = ""
+        folder = ""
+        if folder == path:
+            files_in_bucket.append(file)
     return files_in_bucket
 
 
@@ -75,7 +80,6 @@ def get_rows_inserted(table_name, schema_name, engine):
     get_count_result = engine.execute(get_count_statement)
     for r in get_count_result:
         count = r.values()[0]
-
         return count
 
 
@@ -109,6 +113,7 @@ def main():
     port = os.environ["DB_PORT"]
     name = os.environ["DB_NAME"]
     environment = os.environ["ENVIRONMENT"]
+    path = os.environ["S3_PATH"]
 
     databases = {
         "casrecmigration": {
@@ -134,7 +139,7 @@ def main():
 
     engine = create_engine(engine_string)
 
-    bucket_name = "casrec-migration-development"
+    bucket_name = f"casrec-migration-{environment}"
     schema = "etl1"
 
     print(f"Creating schema {schema}")
@@ -142,18 +147,23 @@ def main():
 
     s3_session = boto3.session.Session()
     if environment == "local":
+        if db_host == "localhost":
+            stack_host = "localhost"
+        else:
+            stack_host = "localstack"
         s3 = s3_session.client(
             "s3",
-            endpoint_url="http://localstack:4572",
+            endpoint_url=f"http://{stack_host}:4572",
             aws_access_key_id="fake",
             aws_secret_access_key="fake",
         )
     else:
         s3 = s3_session.client("s3")
 
-    for file in list_bucket_contents(bucket_name, s3):
-
-        obj = s3.get_object(Bucket=bucket_name, Key=file)
+    for file in list_bucket_contents(bucket_name, s3, path):
+        file_key = f"/{path}/{file}"
+        print(f'Retrieving "{file}" from bucket')
+        obj = s3.get_object(Bucket=bucket_name, Key=file_key)
         df = pd.read_csv(io.BytesIO(obj["Body"].read()))
 
         table_name = file.split(".")[0]

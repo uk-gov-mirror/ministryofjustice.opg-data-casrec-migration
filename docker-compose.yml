@@ -1,9 +1,7 @@
 version: '3.6'
 services:
   casrec_db:
-    build:
-      context: ./casrec_db
-      dockerfile: Dockerfile
+    image: postgres:10.7
     ports:
       - 6666:5432
     environment:
@@ -18,6 +16,12 @@ services:
     environment:
         - SERVICES=s3:4572
         - DEFAULT_REGION=eu-west-1
+  load_s3:
+    build:
+      context: ./etl1
+      dockerfile: DockerfileS3Load
+    volumes:
+      - ./etl1/anon_data:/anon_data
   load_casrec:
     build:
       context: ./etl1
@@ -28,8 +32,11 @@ services:
       DB_HOST: casrec_db
       DB_PORT: 5432
       ENVIRONMENT: local
+      S3_PATH: anon
     depends_on: [localstack, casrec_db]
-#
+  wait-for-it:
+    build: ./wait-for-it
+
 # We can put this back in when we know how we're using it!
 #
 #  postgres-api:
