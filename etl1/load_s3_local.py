@@ -118,7 +118,7 @@ anon_data_dir = "./anon_data"
 
 for file in os.listdir(anon_data_dir):
     file_path = f"{anon_data_dir}/{file}"
-    s3_file_path = f"/anon/{file}"
+    s3_file_path = f"anon/{file}"
     upload_file(bucket_name, file_path, s3, s3_file_path)
 
 list_bucket_contents(bucket_name, s3)

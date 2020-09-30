@@ -12,13 +12,14 @@ def list_bucket_contents(bucket_name, s3, path):
 
     for obj in resp["Contents"]:
         file_folder = obj["Key"]
-        print(f"full file path is {file_folder}")
-        # folder = file_folder.split("/")[1]
-        # file = file_folder.split("/")[2]
-        file = ""
-        folder = ""
-        if folder == path:
+        print(obj["Key"])
+        folder = file_folder.split("/")[0]
+        file = file_folder.split("/")[1]
+        if folder == path and len(file) > 1:
+            print(f"file is: {file}")
             files_in_bucket.append(file)
+
+    print(f"Total files returned: {len(files_in_bucket)}")
     return files_in_bucket
 
 
@@ -161,8 +162,8 @@ def main():
         s3 = s3_session.client("s3")
 
     for file in list_bucket_contents(bucket_name, s3, path):
-        file_key = f"/{path}/{file}"
-        print(f'Retrieving "{file}" from bucket')
+        file_key = f"{path}/{file}"
+        print(f'Retrieving "{file_key}" from bucket')
         obj = s3.get_object(Bucket=bucket_name, Key=file_key)
         df = pd.read_csv(io.BytesIO(obj["Body"].read()))
 
