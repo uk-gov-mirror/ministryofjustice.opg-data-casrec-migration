@@ -27,7 +27,7 @@ data "aws_iam_policy_document" "state_machine" {
   }
   statement {
     effect    = "Allow"
-    resources = ["arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/etl1-development*"]
+    resources = ["arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/etl1-${terraform.workspace}*"]
     actions   = ["ecs:RunTask"]
   }
   statement {

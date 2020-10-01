@@ -165,7 +165,13 @@ def main():
         file_key = f"{path}/{file}"
         print(f'Retrieving "{file_key}" from bucket')
         obj = s3.get_object(Bucket=bucket_name, Key=file_key)
-        df = pd.read_csv(io.BytesIO(obj["Body"].read()))
+        if file.split(".")[1] == "csv":
+            df = pd.read_csv(io.BytesIO(obj["Body"].read()))
+        elif file.split(".")[1] == "xlsx":
+            df = pd.read_excel(io.BytesIO(obj["Body"].read()), index_col=0)
+        else:
+            print("Unknown file format")
+            exit(1)
 
         table_name = file.split(".")[0]
 
