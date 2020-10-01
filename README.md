@@ -24,10 +24,15 @@ However our approach (as well as this readme) will develop over time!
 8. Click `Test Connection` and it should give you a little green tick
 9. Now behold, the db is over there in the `databases` tab ready for you to work on
 
-### Load local env
+### Load CasRec DB
 
--- This is to be improved so it works seamlessly ---
+To mimic what happens in AWS, we load up a localstack S3 service with anonymised CSV and
+then have a container (with the same build as ECS task in AWS) that runs the scripts in to the etl1 schema in
+casrec.
 
-1. `docker-compose up -d`
-2. Enter your virtual env and `cd etl1 && pip3 install -r requirements.txt && python3 load_s3_local.py`
-3. `docker-compose run --rm load_casrec python3 casrec_load.py`
+For this to work make sure you have a folder called `anon_data` in the `etl1` folder!! This isn't part of the
+repo (and is in a .gitignore file) for security reasons.
+
+To actually run the loads type:
+
+`./load_etl1.sh`

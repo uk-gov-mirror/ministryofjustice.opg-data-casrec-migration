@@ -38,6 +38,7 @@ variable "accounts" {
       vpc_id           = string
       is_production    = bool
       db_subnet_prefix = string
+      s3_path          = string
     })
   )
 }

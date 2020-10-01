@@ -1,20 +1,23 @@
-import localstack_client.session
+import boto3
 import os
 import logging
 from botocore.exceptions import ClientError
 
-s3_session = localstack_client.session.Session()
-
 
 def drop_bucket(bucket_name, s3_session):
-    s3 = s3_session.resource("s3")
-    bucket_to_del = s3.Bucket(bucket_name)
+    s3_res = s3_session.resource(
+        "s3",
+        endpoint_url="http://localstack:4572",
+        aws_access_key_id="fake",
+        aws_secret_access_key="fake",
+    )
+    bucket_to_del = s3_res.Bucket(bucket_name)
     for key in bucket_to_del.objects.all():
         key.delete()
     bucket_to_del.delete()
 
 
-def create_bucket(bucket_name, s3_session, region=None):
+def create_bucket(bucket_name, s3, region=None):
     """Create an S3 bucket in a specified region
 
     If a region is not specified, the bucket is created in the S3 default
@@ -28,14 +31,10 @@ def create_bucket(bucket_name, s3_session, region=None):
     # Create bucket
     try:
         if region is None:
-            s3_client = s3_session.client("s3")
-            s3_client.create_bucket(Bucket=bucket_name)
+            s3.create_bucket(Bucket=bucket_name)
         else:
-            s3_client = s3_session.client("s3", region_name=region)
             location = {"LocationConstraint": region}
-            s3_client.create_bucket(
-                Bucket=bucket_name, CreateBucketConfiguration=location
-            )
+            s3.create_bucket(Bucket=bucket_name, CreateBucketConfiguration=location)
         print("Bucket created")
     except ClientError as e:
         logging.error(e)
@@ -43,7 +42,7 @@ def create_bucket(bucket_name, s3_session, region=None):
     return True
 
 
-def upload_file(bucket, file_name, s3_session, object_name=None):
+def upload_file(bucket, file_name, s3, object_name=None):
     """Upload a file to an S3 bucket
 
     :param file_name: File to upload
@@ -57,10 +56,9 @@ def upload_file(bucket, file_name, s3_session, object_name=None):
         object_name = file_name
 
     # Upload the file
-    s3_client = s3_session.client("s3")
+
     try:
-        response = s3_client.upload_file(file_name, bucket, object_name)
-        print(response)
+        s3.upload_file(file_name, bucket, object_name)
     except ClientError as e:
         logging.error(e)
         return False
@@ -68,9 +66,8 @@ def upload_file(bucket, file_name, s3_session, object_name=None):
     return True
 
 
-def list_buckets(s3_session, region=None):
+def list_buckets(s3, region=None):
     # Retrieve the list of existing buckets
-    s3 = s3_session.client("s3")
     response = s3.list_buckets()
 
     # Output the bucket names
@@ -84,8 +81,7 @@ def list_buckets(s3_session, region=None):
     return buckets
 
 
-def list_bucket_contents(bucket_name, s3_session):
-    s3 = s3_session.client("s3")
+def list_bucket_contents(bucket_name, s3):
     resp = s3.list_objects_v2(Bucket=bucket_name)
 
     files_in_bucket = []
@@ -96,11 +92,19 @@ def list_bucket_contents(bucket_name, s3_session):
     return files_in_bucket
 
 
-bucket_name = "casrec-migration-development"
+bucket_name = "casrec-migration-local"
 region = "eu-west-1"
 
+s3_session = boto3.session.Session()
+s3 = s3_session.client(
+    "s3",
+    endpoint_url="http://localstack:4572",
+    aws_access_key_id="fake",
+    aws_secret_access_key="fake",
+)
+
 bucket_exists = False
-for bucket in list_buckets(s3_session, region):
+for bucket in list_buckets(s3, region):
     if bucket_name == bucket:
         bucket_exists = True
 if bucket_exists:
@@ -108,13 +112,13 @@ if bucket_exists:
     drop_bucket(bucket_name, s3_session)
 
 print("Creating bucket")
-create_bucket(bucket_name, s3_session, region)
+create_bucket(bucket_name, s3, region)
 
 anon_data_dir = "./anon_data"
 
 for file in os.listdir(anon_data_dir):
     file_path = f"{anon_data_dir}/{file}"
-    s3_file_path = f"{file}"
-    upload_file(bucket_name, file_path, s3_session, s3_file_path)
+    s3_file_path = f"anon/{file}"
+    upload_file(bucket_name, file_path, s3, s3_file_path)
 
-list_bucket_contents(bucket_name, s3_session)
+list_bucket_contents(bucket_name, s3)
