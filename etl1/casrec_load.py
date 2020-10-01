@@ -61,7 +61,16 @@ def create_insert_statement(table_name, schema, columns, df):
 
     for i, row in enumerate(df.values.tolist()):
         row = [str(x) for x in row]
-        row = [str(x.replace("'", "''").replace("nan", "")) for x in row]
+        row = [
+            str(
+                x.replace("'", "''")
+                .replace("nan", "")
+                .replace("&", "")
+                .replace(";", "")
+                .replace("%", "")
+            )
+            for x in row
+        ]
         row = [f"'{str(x)}'" for x in row]
         single_row = ", ".join(row)
 
@@ -173,7 +182,7 @@ def main():
             print("Unknown file format")
             exit(1)
 
-        table_name = file.split(".")[0]
+        table_name = file.split(".")[0].lower()
 
         df_renamed = df.rename(columns={"Unnamed: 0": "Record"})
 
@@ -189,10 +198,19 @@ def main():
             print(f"Table {schema}.{table_name} created")
 
         print(f'Inserting records into "{schema}"."{table_name}"')
-        engine.execute(create_insert_statement(table_name, schema, columns, df_renamed))
-        print(
-            f'Rows inserted into "{schema}"."{table_name}": {get_rows_inserted(table_name, schema, engine)}\n\n'
-        )
+        if len(df_renamed.index) > 0:
+            # sql_out = open("insert.sql", "w")
+            # output = create_insert_statement(table_name, schema, columns, df_renamed)
+            # sql_out.write(output)
+
+            engine.execute(
+                create_insert_statement(table_name, schema, columns, df_renamed)
+            )
+            print(
+                f'Rows inserted into "{schema}"."{table_name}": {get_rows_inserted(table_name, schema, engine)}\n\n'
+            )
+        else:
+            print(f"No rows to insert for table {table_name}")
 
 
 if __name__ == "__main__":
