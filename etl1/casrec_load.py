@@ -199,9 +199,6 @@ def main():
 
         print(f'Inserting records into "{schema}"."{table_name}"')
         if len(df_renamed.index) > 0:
-            # sql_out = open("insert.sql", "w")
-            # output = create_insert_statement(table_name, schema, columns, df_renamed)
-            # sql_out.write(output)
 
             engine.execute(
                 create_insert_statement(table_name, schema, columns, df_renamed)
