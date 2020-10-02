@@ -7,11 +7,11 @@ workflows:
       - build:
           name: build
           filters: {branches:{ignore:[master]}}
-      - build_infra:
+      - infrastructure:
           name: build infra development
           requires: [build]
           tf_workspace: development
-          tf_command: apply
+          tf_command: plan
           filters: {branches:{ignore:[master]}}
       - cleanup:
           name: destroy branch environment
@@ -21,7 +21,13 @@ workflows:
       - build:
           name: build master
           filters: {branches:{only:[master]}}
-      - build_infra:
+      - infrastructure:
+          name: build infra development
+          requires: [build master]
+          tf_workspace: development
+          tf_command: apply
+          filters: {branches:{only:[master]}}
+      - infrastructure:
           name: build infra preproduction
           requires: [build master]
           tf_workspace: preproduction
@@ -106,7 +112,7 @@ jobs:
       - run:
           name: Push images
           command: docker-compose -f docker-compose.ci.yml push
-  build_infra:
+  infrastructure:
     executor: terraform/terraform
     resource_class: small
     parameters:

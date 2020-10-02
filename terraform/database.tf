@@ -50,7 +50,17 @@ resource "aws_security_group_rule" "etl_to_db_ingress" {
   from_port                = 5432
   to_port                  = 5432
   protocol                 = "tcp"
-  security_group_id        = aws_security_group.db.id
   source_security_group_id = aws_security_group.etl.id
+  security_group_id        = aws_security_group.db.id
   description              = "ETL to RDS inbound - ETL ECS tasks"
+}
+
+resource "aws_security_group_rule" "cloud9_to_db_ingress" {
+  type                     = "ingress"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  source_security_group_id = data.aws_security_group.cloud9.id
+  security_group_id        = aws_security_group.db.id
+  description              = "Cloud9 to RDS inbound - Shared Dev Cloud9"
 }
