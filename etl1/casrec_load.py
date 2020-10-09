@@ -1,6 +1,7 @@
 import pandas as pd
 import io
 import os
+import re
 import argparse
 from sqlalchemy import create_engine
 import boto3
@@ -192,6 +193,8 @@ def main():
     else:
         s3 = s3_session.client("s3")
 
+    prev_table = ""
+
     for file in get_list_of_files(bucket_name, s3, path, table_list):
         file_key = f"{path}/{file}"
         print(f'Retrieving "{file_key}" from bucket')
@@ -210,14 +213,24 @@ def main():
 
         columns = [x for x in df_renamed.columns.values]
 
-        if check_table_exists(table_name, schema, engine):
-            print(f"Truncating table {schema}.{table_name}")
-            truncate_statement = f'TRUNCATE TABLE "{schema}"."{table_name}"'
-            engine.execute(truncate_statement)
+        # find the last digits
+        if table_name[-1].isdigit():
+            regex = re.compile("[^a-zA-Z]")
+            table_name = regex.sub("", table_name)
+
+        if table_name == prev_table:
+            print("Multpart file table detected")
         else:
-            print(f"Table {schema}.{table_name} doesn't exist. Creating table...")
-            engine.execute(create_table_statement(table_name, schema, columns))
-            print(f"Table {schema}.{table_name} created")
+            if check_table_exists(table_name, schema, engine):
+                print(f"Truncating table {schema}.{table_name}")
+                truncate_statement = f'TRUNCATE TABLE "{schema}"."{table_name}"'
+                engine.execute(truncate_statement)
+            else:
+                print(f"Table {schema}.{table_name} doesn't exist. Creating table...")
+                engine.execute(create_table_statement(table_name, schema, columns))
+                print(f"Table {schema}.{table_name} created")
+
+        prev_table = table_name
 
         print(f'Inserting records into "{schema}"."{table_name}"')
         if len(df_renamed.index) > 0:
