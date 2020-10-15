@@ -81,58 +81,62 @@ resource "aws_sfn_state_machine" "casrec_migration" {
             "Type": "Parallel",
             "End": true,
             "Branches": [
-                "StartAt": "Run ETL1 task1",
-                "States": {
-                    "Run ETL1 task1": {
-                        "Type": "Task",
-                        "Resource": "arn:aws:states:::ecs:runTask.sync",
-                        "Parameters": {
-                            "LaunchType": "FARGATE",
-                            "Cluster": "${aws_ecs_cluster.migration.arn}",
-                            "TaskDefinition": "${aws_ecs_task_definition.etl1.arn}",
-                            "NetworkConfiguration": {
-                                "AwsvpcConfiguration": {
-                                    "Subnets": [${local.subnets_string}],
-                                    "SecurityGroups": ["${aws_security_group.etl.id}"],
-                                    "AssignPublicIp": "DISABLED"
+                {
+                    "StartAt": "Run ETL1 task1",
+                    "States": {
+                        "Run ETL1 task1": {
+                            "Type": "Task",
+                            "Resource": "arn:aws:states:::ecs:runTask.sync",
+                            "Parameters": {
+                                "LaunchType": "FARGATE",
+                                "Cluster": "${aws_ecs_cluster.migration.arn}",
+                                "TaskDefinition": "${aws_ecs_task_definition.etl1.arn}",
+                                "NetworkConfiguration": {
+                                    "AwsvpcConfiguration": {
+                                        "Subnets": [${local.subnets_string}],
+                                        "SecurityGroups": ["${aws_security_group.etl.id}"],
+                                        "AssignPublicIp": "DISABLED"
+                                    }
+                                },
+                                "Overrides": {
+                                    "ContainerOverrides": [{
+                                        "Name": "etl1",
+                                        "Command": ["python3", "casrec_load.py"]
+                                    }]
                                 }
                             },
-                            "Overrides": {
-                                "ContainerOverrides": [{
-                                    "Name": "etl1",
-                                    "Command": ["python3", "casrec_load.py"]
-                                }]
-                            }
-                        },
-                        "End": true
+                            "End": true
+                        }
                     }
                 },
-                "StartAt": "Run ETL1 task2",
-                "States": {
-                    "Run ETL1 task2": {
-                        "Type": "Task",
-                        "Resource": "arn:aws:states:::ecs:runTask.sync",
-                        "Parameters": {
-                            "LaunchType": "FARGATE",
-                            "Cluster": "${aws_ecs_cluster.migration.arn}",
-                            "TaskDefinition": "${aws_ecs_task_definition.etl1.arn}",
-                            "NetworkConfiguration": {
-                                "AwsvpcConfiguration": {
-                                    "Subnets": [${local.subnets_string}],
-                                    "SecurityGroups": ["${aws_security_group.etl.id}"],
-                                    "AssignPublicIp": "DISABLED"
+                {
+                    "StartAt": "Run ETL1 task2",
+                    "States": {
+                        "Run ETL1 task2": {
+                            "Type": "Task",
+                            "Resource": "arn:aws:states:::ecs:runTask.sync",
+                            "Parameters": {
+                                "LaunchType": "FARGATE",
+                                "Cluster": "${aws_ecs_cluster.migration.arn}",
+                                "TaskDefinition": "${aws_ecs_task_definition.etl1.arn}",
+                                "NetworkConfiguration": {
+                                    "AwsvpcConfiguration": {
+                                        "Subnets": [${local.subnets_string}],
+                                        "SecurityGroups": ["${aws_security_group.etl.id}"],
+                                        "AssignPublicIp": "DISABLED"
+                                    }
+                                },
+                                "Overrides": {
+                                    "ContainerOverrides": [{
+                                        "Name": "etl1",
+                                        "Command": ["python3", "casrec_load.py"]
+                                    }]
                                 }
                             },
-                            "Overrides": {
-                                "ContainerOverrides": [{
-                                    "Name": "etl1",
-                                    "Command": ["python3", "casrec_load.py"]
-                                }]
-                            }
-                        },
-                        "End": true
+                            "End": true
+                        }
                     }
-                },
+                }
             ]
         }
     }

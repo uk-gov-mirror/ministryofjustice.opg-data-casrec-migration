@@ -6,6 +6,7 @@ import argparse
 from sqlalchemy import create_engine
 import boto3
 import random as rnd
+import time
 
 
 def get_list_of_files(bucket_name, s3, path, tables):
@@ -237,6 +238,8 @@ def main():
     create_schema(schema, engine)
 
     if not check_table_exists(progress_table, schema, engine):
+        sleep_time = rnd.randint(0, 30)
+        time.sleep(sleep_time)
         print(f"Creating progress table")
         engine.execute(
             create_table_statement(progress_table, schema, progress_table_cols)
