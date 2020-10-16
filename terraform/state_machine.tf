@@ -82,9 +82,9 @@ resource "aws_sfn_state_machine" "casrec_migration" {
             "End": true,
             "Branches": [
                 {
-                    "StartAt": "Run ETL1 task1",
+                    "StartAt": "Run ETL1 Task 1",
                     "States": {
-                        "Run ETL1 task1": {
+                        "Run ETL1 Task 1": {
                             "Type": "Task",
                             "Resource": "arn:aws:states:::ecs:runTask.sync",
                             "Parameters": {
@@ -110,9 +110,37 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                     }
                 },
                 {
-                    "StartAt": "Run ETL1 task2",
+                    "StartAt": "Run ETL1 Task 2",
                     "States": {
-                        "Run ETL1 task2": {
+                        "Run ETL1 Task 2": {
+                            "Type": "Task",
+                            "Resource": "arn:aws:states:::ecs:runTask.sync",
+                            "Parameters": {
+                                "LaunchType": "FARGATE",
+                                "Cluster": "${aws_ecs_cluster.migration.arn}",
+                                "TaskDefinition": "${aws_ecs_task_definition.etl1.arn}",
+                                "NetworkConfiguration": {
+                                    "AwsvpcConfiguration": {
+                                        "Subnets": [${local.subnets_string}],
+                                        "SecurityGroups": ["${aws_security_group.etl.id}"],
+                                        "AssignPublicIp": "DISABLED"
+                                    }
+                                },
+                                "Overrides": {
+                                    "ContainerOverrides": [{
+                                        "Name": "etl1",
+                                        "Command": ["python3", "casrec_load.py"]
+                                    }]
+                                }
+                            },
+                            "End": true
+                        }
+                    }
+                },
+                {
+                    "StartAt": "Run ETL1 Task 3",
+                    "States": {
+                        "Run ETL1 Task 3": {
                             "Type": "Task",
                             "Resource": "arn:aws:states:::ecs:runTask.sync",
                             "Parameters": {
