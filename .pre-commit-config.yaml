@@ -16,13 +16,14 @@ repos:
       - id: trailing-whitespace
       - id: detect-private-key
       - id: flake8
+        args: ['--ignore=W503', 'extend-ignore=E203,W503', 'max-line-length=88']
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
-#  - repo: https://github.com/ambv/black
-#    rev: stable
-#    hooks:
-#      - id: black
-#        language_version: python3
+  - repo: https://github.com/ambv/black
+    rev: stable
+    hooks:
+      - id: black
+        language_version: python3
   - repo: https://github.com/Yelp/detect-secrets
     rev: v0.13.0
     hooks:
