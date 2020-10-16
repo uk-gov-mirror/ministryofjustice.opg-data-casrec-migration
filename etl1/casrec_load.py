@@ -5,6 +5,8 @@ import re
 import argparse
 from sqlalchemy import create_engine
 import boto3
+import random as rnd
+import time
 
 
 def get_list_of_files(bucket_name, s3, path, tables):
@@ -34,6 +36,32 @@ def get_list_of_files(bucket_name, s3, path, tables):
     return files_to_process
 
 
+def get_remaining_files(table_name, schema_name, engine):
+    remaining_files = f"""
+    SELECT file
+    FROM \"{schema_name}\".\"{table_name}\"
+    WHERE state = 'UNPROCESSED';
+    """
+
+    files = engine.execute(remaining_files)
+    file_list = []
+    for r in files:
+        file_list.append(r.values()[0])
+        return file_list
+
+
+def update_progress(table_name, schema_name, engine, file, status="IN_PROGRESS"):
+    row_update = f"""
+    UPDATE \"{schema_name}\".\"{table_name}\"
+    SET state = '{status}'
+    WHERE file = '{file}';
+    """
+
+    response = engine.execute(row_update)
+    if response.rowcount > 0:
+        print(f"Updated {file} to {status}")
+
+
 def check_table_exists(table_name, schema_name, engine):
     check_exists_statement = f"""
     SELECT EXISTS (
@@ -46,7 +74,6 @@ def check_table_exists(table_name, schema_name, engine):
     check_exists_result = engine.execute(check_exists_statement)
     for r in check_exists_result:
         table_exists = r.values()[0]
-
         return table_exists
 
 
@@ -59,6 +86,12 @@ def create_table_statement(table_name, schema, columns):
     create_statement += "); \n\n\n"
 
     return create_statement
+
+
+def truncate_table(table_name, schema, engine):
+    print(f"Truncating table {schema}.{table_name}")
+    truncate_statement = f'TRUNCATE TABLE "{schema}"."{table_name}"'
+    engine.execute(truncate_statement)
 
 
 def create_insert_statement(table_name, schema, columns, df):
@@ -94,10 +127,14 @@ def create_insert_statement(table_name, schema, columns, df):
     return insert_statement
 
 
-def get_rows_inserted(table_name, schema_name, engine):
+def get_row_count(table_name, schema_name, engine, status=None):
     get_count_statement = f"""
-        SELECT COUNT(*) FROM {schema_name}.{table_name};
+        SELECT COUNT(*) FROM {schema_name}.{table_name}
         """
+
+    if status is not None:
+        get_count_statement += f" WHERE state = '{status}'"
+
     get_count_result = engine.execute(get_count_statement)
     for r in get_count_result:
         count = r.values()[0]
@@ -147,6 +184,13 @@ def main():
     name = os.environ["DB_NAME"]
     environment = os.environ["ENVIRONMENT"]
     path = os.environ["S3_PATH"]
+    progress_table = "migration_progress"
+    progress_table_cols = [
+        "file",
+        "state",
+    ]
+
+    processor_id = rnd.randint(0, 99999)
 
     databases = {
         "casrecmigration": {
@@ -172,12 +216,6 @@ def main():
 
     engine = create_engine(engine_string)
 
-    bucket_name = f"casrec-migration-{environment}"
-    schema = "etl1"
-
-    print(f"Creating schema {schema}")
-    create_schema(schema, engine)
-
     s3_session = boto3.session.Session()
     if environment == "local":
         if db_host == "localhost":
@@ -193,9 +231,46 @@ def main():
     else:
         s3 = s3_session.client("s3")
 
-    prev_table = ""
+    bucket_name = f"casrec-migration-{environment}"
+    schema = "etl1"
 
-    for file in get_list_of_files(bucket_name, s3, path, table_list):
+    print(f"Creating schema {schema}")
+    create_schema(schema, engine)
+
+    if not check_table_exists(progress_table, schema, engine):
+        sleep_time = rnd.randint(0, 30)
+        time.sleep(sleep_time)
+        print(f"Creating progress table")
+        engine.execute(
+            create_table_statement(progress_table, schema, progress_table_cols)
+        )
+
+    list_of_files = get_list_of_files(bucket_name, s3, path, table_list)
+
+    progress_df = pd.DataFrame(list_of_files)
+    progress_df["state"] = "UNPROCESSED"
+    progress_df.rename(index={0: "file"})
+
+    if (
+        get_row_count(progress_table, schema, engine) > 0
+        and get_row_count(progress_table, schema, engine, "UNPROCESSED") == 0
+    ):
+        truncate_table(progress_table, schema, engine)
+
+    if get_row_count(progress_table, schema, engine) < 1:
+        engine.execute(
+            create_insert_statement(
+                progress_table, schema, progress_table_cols, progress_df
+            )
+        )
+
+    prev_table = ""
+    while get_row_count(progress_table, schema, engine, status="UNPROCESSED") > 0:
+
+        file = get_remaining_files(progress_table, schema, engine)[0]
+        update_progress(progress_table, schema, engine, file, status="IN_PROGRESS")
+        print(f"Processor {processor_id} has picked up {file}")
+
         file_key = f"{path}/{file}"
         print(f'Retrieving "{file_key}" from bucket')
         obj = s3.get_object(Bucket=bucket_name, Key=file_key)
@@ -222,9 +297,7 @@ def main():
             print("Multpart file table detected")
         else:
             if check_table_exists(table_name, schema, engine):
-                print(f"Truncating table {schema}.{table_name}")
-                truncate_statement = f'TRUNCATE TABLE "{schema}"."{table_name}"'
-                engine.execute(truncate_statement)
+                truncate_table(table_name, schema, engine)
             else:
                 print(f"Table {schema}.{table_name} doesn't exist. Creating table...")
                 engine.execute(create_table_statement(table_name, schema, columns))
@@ -242,10 +315,15 @@ def main():
                     create_insert_statement(table_name, schema, columns, df_chunked)
                 )
                 print(
-                    f'Rows inserted into "{schema}"."{table_name}": {get_rows_inserted(table_name, schema, engine)}\n\n'
+                    f'Rows inserted into "{schema}"."{table_name}": {get_row_count(table_name, schema, engine)}'
                 )
         else:
             print(f"No rows to insert for table {table_name}")
+
+        update_progress(progress_table, schema, engine, file, status="COMPLETE")
+        print(f"Processed {file}\n\n")
+
+    print(f"Processor {processor_id} has finished processing")
 
 
 if __name__ == "__main__":
