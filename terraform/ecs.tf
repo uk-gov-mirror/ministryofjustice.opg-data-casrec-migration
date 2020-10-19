@@ -56,7 +56,7 @@ data "aws_iam_policy_document" "execution_role" {
 
 resource "aws_iam_role" "etl" {
   assume_role_policy = data.aws_iam_policy_document.task_role_assume_policy.json
-  name               = "casrec-migration.${local.environment}"
+  name               = "casrec-migration-${local.environment}"
   tags               = local.default_tags
 }
 
