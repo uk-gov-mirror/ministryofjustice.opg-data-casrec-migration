@@ -50,7 +50,7 @@ services:
   postgres-api-restore:
     image: postgres:10.11
     entrypoint: pg_restore
-    volumes: ["./sirius-snapshot:/sirius-snapshot"]
+    volumes: ["./db-snapshots:/sirius-snapshot"]
     command:
       - /sirius-snapshot/api.backup
       - --clean
