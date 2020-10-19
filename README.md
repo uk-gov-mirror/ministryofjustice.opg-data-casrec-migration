@@ -64,8 +64,6 @@ L - import into Sirius
 
 ## ETL 1 (and build Docker containers)
 
-### Steps 1,2 & 3 below are available as a single script, run:
-
 To mimic what happens in AWS, we load up a localstack S3 service with the anonymised CSV data and then have a container (with the same build as ECS task in AWS) that runs the scripts in to the etl1 schema in casrec.
 
 ```bash
@@ -105,7 +103,7 @@ ETL3 takes the data output of ETL2 and combines with data from the Sirius DB. Fo
 There is NO requirement to run a full instance of Sirius on your development machine, but _get a hold of a DB backup from that team and make sure it is saved to `sb-snapshots/api.backup`_   
 
 ```bash
-./load_etl1.sh
+./etl3.sh
 ```
 
 ## DB connections for clients eg PyCharm and DataGrip:
