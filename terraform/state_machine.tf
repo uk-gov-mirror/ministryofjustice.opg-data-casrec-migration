@@ -19,7 +19,7 @@ data "aws_iam_policy_document" "state_assume" {
 data "aws_iam_policy_document" "state_machine" {
   statement {
     effect    = "Allow"
-    resources = [aws_iam_role.etl1.arn, aws_iam_role.execution_role.arn]
+    resources = [aws_iam_role.etl.arn, aws_iam_role.execution_role.arn]
     actions = [
       "iam:GetRole",
       "iam:PassRole"
@@ -166,6 +166,35 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                     }
                 }
             ]
+            Next: "Run ETL2"
+        },
+        "Run ETL2": {
+            "StartAt": "Run ETL2 Task 1",
+            "States": {
+                "Run ETL2 Task 1": {
+                    "Type": "Task",
+                    "Resource": "arn:aws:states:::ecs:runTask.sync",
+                    "Parameters": {
+                        "LaunchType": "FARGATE",
+                        "Cluster": "${aws_ecs_cluster.migration.arn}",
+                        "TaskDefinition": "${aws_ecs_task_definition.etl2.arn}",
+                        "NetworkConfiguration": {
+                            "AwsvpcConfiguration": {
+                                "Subnets": [${local.subnets_string}],
+                                "SecurityGroups": ["${aws_security_group.etl.id}"],
+                                "AssignPublicIp": "DISABLED"
+                            }
+                        },
+                        "Overrides": {
+                            "ContainerOverrides": [{
+                                "Name": "etl2",
+                                "Command": ["python3", "app.py", "--clear=True"]
+                            }]
+                        }
+                    },
+                    "End": true
+                }
+            }
         }
     }
 }

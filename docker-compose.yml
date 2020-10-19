@@ -35,6 +35,17 @@ services:
       ENVIRONMENT: local
       S3_PATH: anon
     depends_on: [localstack, casrec_db]
+  transform_casrec:
+    build:
+      context: ./etl2
+      dockerfile: Dockerfile
+    environment:
+      DB_PASSWORD: casrec # pragma: allowlist secret
+      DB_NAME: casrecmigration
+      DB_HOST: casrec_db
+      DB_PORT: 5432
+      ENVIRONMENT: local
+    depends_on: [localstack, casrec_db]
   wait-for-it:
     build: ./wait-for-it
 #  Please read the readme in ./sirius-snapshot before building the Sirius db

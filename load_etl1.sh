@@ -13,3 +13,4 @@ P4=$!
 wait $P1 $P2 $P3 $P4
 cat docker_load.log
 rm docker_load.log
+docker-compose run --rm transform_casrec python3 app.py --clear=True

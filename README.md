@@ -8,8 +8,6 @@ injested / inserted into Sirius platform.
 
 However our approach (as well as this readme) will develop over time!
 
-
-
 ## <u>How to do things</u>
 
 ### Run the Sirius DB locally (and access it through PyCharm)
