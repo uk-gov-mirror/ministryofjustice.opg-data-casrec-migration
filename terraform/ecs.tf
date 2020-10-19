@@ -91,7 +91,7 @@ data "aws_iam_policy_document" "ecs_task_s3" {
 resource "aws_iam_role_policy" "etl_task_s3" {
   name   = "casrec-migration-task-logs.${local.environment}"
   policy = data.aws_iam_policy_document.ecs_task_s3.json
-  role   = aws_iam_role.etl1.id
+  role   = aws_iam_role.etl.id
 }
 
 // SECURITY GROUP
