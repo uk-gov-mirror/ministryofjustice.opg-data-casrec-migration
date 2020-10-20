@@ -44,7 +44,7 @@ services:
       DB_NAME: casrecmigration
       DB_HOST: casrec_db
       DB_PORT: 5432
-      ENVIRONMENT: local
+      ENVIRONMENT: docker
     depends_on: [localstack, casrec_db]
   wait-for-it:
     build: ./wait-for-it

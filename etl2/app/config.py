@@ -2,12 +2,6 @@ import os
 
 
 class BaseConfig:
-    password = os.environ["DB_PASSWORD"]
-    db_host = os.environ["DB_HOST"]
-    port = os.environ["DB_PORT"]
-    name = os.environ["DB_NAME"]
-
-    connection_string = f"postgresql://casrec:{password}@{db_host}:{port}/{name}"  # pragma: allowlist secret
     etl1_schema = "etl1"
     etl2_schema = "etl2"
 
@@ -17,11 +11,16 @@ class BaseConfig:
 
 
 class LocalConfig(BaseConfig):
-    local = True
+    connection_string = f"postgresql://casrec:casrec@localhost:6666/casrecmigration"  # pragma: allowlist secret
 
 
 class AWSConfig(BaseConfig):
-    local = False
+    password = os.environ["DB_PASSWORD"]
+    db_host = os.environ["DB_HOST"]
+    port = os.environ["DB_PORT"]
+    name = os.environ["DB_NAME"]
+
+    connection_string = f"postgresql://casrec:{password}@{db_host}:{port}/{name}"  # pragma: allowlist secret
 
 
 def get_config(env="local"):
