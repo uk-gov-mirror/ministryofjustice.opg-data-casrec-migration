@@ -1,9 +1,9 @@
 #!/bin/bash
 echo '-- Building DB containers --';
-docker-compose up --no-deps -d casrec_db postgres-api
+docker-compose up --no-deps -d casrec_db postgres-sirius
 docker-compose run --rm wait-for-it -address casrec_db:5432 --timeout=30 -debug
-docker-compose run --rm wait-for-it -address postgres-api:5432 --timeout=30 -debug
-docker-compose up --no-deps -d casrec_db postgres-api-restore
+docker-compose run --rm wait-for-it -address postgres-sirius:5432 --timeout=30 -debug
+docker-compose up --no-deps -d casrec_db postgres-sirius-restore
 
 echo '-- Build ETL3 schema from a fresh copy of etl2 schema --'
 rm db-snapshots/etl2.sql

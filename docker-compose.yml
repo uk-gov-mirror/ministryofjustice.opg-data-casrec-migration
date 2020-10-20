@@ -49,7 +49,7 @@ services:
   wait-for-it:
     build: ./wait-for-it
 #  Please read the readme in ./sirius-snapshot before building the Sirius db
-  postgres-api:
+  postgres-sirius:
     image: postgres:10.11
     ports:
       - 5555:5432
@@ -58,7 +58,7 @@ services:
       POSTGRES_PASSWORD: api
       POSTGRES_DB: api
       PGPASSWORD: api
-  postgres-api-restore:
+  postgres-sirius-restore:
     image: postgres:10.11
     entrypoint: pg_restore
     volumes: ["./db-snapshots:/sirius-snapshot"]
@@ -66,7 +66,7 @@ services:
       - /sirius-snapshot/api.backup
       - --clean
       - --if-exists
-      - --host=postgres-api
+      - --host=postgres-sirius
       - --dbname=api
       - --username=api
       - -v
@@ -76,4 +76,4 @@ services:
       POSTGRES_PASSWORD: api
       PGPASSWORD: api
       POSTGRES_DB: api
-    depends_on: [postgres-api]
+    depends_on: [postgres-sirius]
