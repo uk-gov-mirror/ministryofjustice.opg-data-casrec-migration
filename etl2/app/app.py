@@ -19,7 +19,7 @@ from tables.person_case.order_deputy import insert_order_deputy
 from tables.person_case.person_caseitem import insert_person_caseitem
 from config import LocalConfig, get_config
 
-environment = os.environ["ENVIRONMENT"]
+environment = os.environ.get("ENVIRONMENT")
 
 config = get_config(env=environment)
 

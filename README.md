@@ -86,7 +86,7 @@ For development purposes you can also run this from the command line as it uses 
 cd etl1 (direnv will load correct env vars)
 python3 casrec_load.py
 
-# 4. (ETL2) cd etl2/app && direnv allow && python3 app.py
+# 4. (ETL2) cd etl2/app && direnv allow && python3 app.py --clear=True
 ```
 
 ## ETL3

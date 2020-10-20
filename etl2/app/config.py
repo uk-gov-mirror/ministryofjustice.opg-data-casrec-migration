@@ -15,10 +15,10 @@ class LocalConfig(BaseConfig):
 
 
 class AWSConfig(BaseConfig):
-    password = os.environ["DB_PASSWORD"]
-    db_host = os.environ["DB_HOST"]
-    port = os.environ["DB_PORT"]
-    name = os.environ["DB_NAME"]
+    password = os.environ.get("DB_PASSWORD")
+    db_host = os.environ.get("DB_HOST")
+    port = os.environ.get("DB_PORT")
+    name = os.environ.get("DB_NAME")
 
     connection_string = f"postgresql://casrec:{password}@{db_host}:{port}/{name}"  # pragma: allowlist secret
 
