@@ -19,16 +19,19 @@ data "aws_iam_policy_document" "state_assume" {
 data "aws_iam_policy_document" "state_machine" {
   statement {
     effect    = "Allow"
-    resources = [aws_iam_role.etl1.arn, aws_iam_role.execution_role.arn]
+    resources = [aws_iam_role.etl.arn, aws_iam_role.execution_role.arn]
     actions = [
       "iam:GetRole",
       "iam:PassRole"
     ]
   }
   statement {
-    effect    = "Allow"
-    resources = ["arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/etl1-${terraform.workspace}*"]
-    actions   = ["ecs:RunTask"]
+    effect = "Allow"
+    resources = [
+      "arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/etl1-${terraform.workspace}*",
+      "arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/etl2-${terraform.workspace}*"
+    ]
+    actions = ["ecs:RunTask"]
   }
   statement {
     effect    = "Allow"
@@ -79,7 +82,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
     "States": {
         "Parrallel ETL1": {
             "Type": "Parallel",
-            "End": true,
+            "Next": "Run ETL2",
             "Branches": [
                 {
                     "StartAt": "Run ETL1 Task 1",
@@ -166,6 +169,29 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                     }
                 }
             ]
+        },
+        "Run ETL2": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::ecs:runTask.sync",
+            "Parameters": {
+                "LaunchType": "FARGATE",
+                "Cluster": "${aws_ecs_cluster.migration.arn}",
+                "TaskDefinition": "${aws_ecs_task_definition.etl2.arn}",
+                "NetworkConfiguration": {
+                    "AwsvpcConfiguration": {
+                        "Subnets": [${local.subnets_string}],
+                        "SecurityGroups": ["${aws_security_group.etl.id}"],
+                        "AssignPublicIp": "DISABLED"
+                    }
+                },
+                "Overrides": {
+                    "ContainerOverrides": [{
+                        "Name": "etl2",
+                        "Command": ["python3", "app.py", "--clear=True"]
+                    }]
+                }
+            },
+            "End": true
         }
     }
 }

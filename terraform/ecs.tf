@@ -3,76 +3,6 @@ resource "aws_ecs_cluster" "migration" {
   tags = local.default_tags
 }
 
-resource "aws_ecs_task_definition" "etl1" {
-  family                   = "etl1-${terraform.workspace}"
-  requires_compatibilities = ["FARGATE"]
-  network_mode             = "awsvpc"
-  cpu                      = 2048
-  memory                   = 4096
-  container_definitions    = "[${local.etl1}]"
-  task_role_arn            = aws_iam_role.etl1.arn
-  execution_role_arn       = aws_iam_role.execution_role.arn
-  tags = merge(local.default_tags,
-    { "Role" = "casrec-migration-${local.environment}" },
-  )
-}
-
-locals {
-  etl1 = jsonencode({
-    cpu       = 0,
-    essential = true,
-    image     = local.images.etl1,
-    name      = "etl1",
-    healthCheck = {
-      command     = ["CMD-SHELL", "echo hello || exit 1"],
-      startPeriod = 30,
-      interval    = 15,
-      timeout     = 10,
-      retries     = 3
-    },
-    logConfiguration = {
-      logDriver = "awslogs",
-      options = {
-        awslogs-group         = aws_cloudwatch_log_group.casrec_migration.name,
-        awslogs-region        = "eu-west-1",
-        awslogs-stream-prefix = "casrec-migration-${local.environment}"
-      }
-    },
-    secrets = [
-      {
-        name      = "DB_PASSWORD",
-        valueFrom = aws_secretsmanager_secret.casrec_migration.arn
-      },
-    ],
-    environment = [
-      {
-        name  = "DB_HOST",
-        value = aws_rds_cluster.cluster_serverless.endpoint
-      },
-      {
-        name  = "DB_PORT",
-        value = tostring(aws_rds_cluster.cluster_serverless.port)
-      },
-      {
-        name  = "DB_NAME",
-        value = aws_rds_cluster.cluster_serverless.database_name
-      },
-      {
-        name  = "DB_USER",
-        value = aws_rds_cluster.cluster_serverless.master_username
-      },
-      {
-        name  = "ENVIRONMENT",
-        value = terraform.workspace
-      },
-      {
-        name  = "S3_PATH",
-        value = local.account.s3_path
-      },
-    ]
-  })
-}
-
 resource "aws_cloudwatch_log_group" "casrec_migration" {
   name              = "casrec-migration-${local.environment}"
   retention_in_days = 180
@@ -124,9 +54,9 @@ data "aws_iam_policy_document" "execution_role" {
 
 //TASK ROLE
 
-resource "aws_iam_role" "etl1" {
+resource "aws_iam_role" "etl" {
   assume_role_policy = data.aws_iam_policy_document.task_role_assume_policy.json
-  name               = "casrec-migration.${local.environment}"
+  name               = "casrec-migration-${local.environment}"
   tags               = local.default_tags
 }
 
@@ -161,7 +91,7 @@ data "aws_iam_policy_document" "ecs_task_s3" {
 resource "aws_iam_role_policy" "etl_task_s3" {
   name   = "casrec-migration-task-logs.${local.environment}"
   policy = data.aws_iam_policy_document.ecs_task_s3.json
-  role   = aws_iam_role.etl1.id
+  role   = aws_iam_role.etl.id
 }
 
 // SECURITY GROUP

@@ -6,8 +6,10 @@ The purpose of this repo is to house all the code that we will use to perform th
 Having investigated AWS Glue & pyspark, we are using pandas dataframes to transform the data set into a form that can then be
 injested / inserted into Sirius platform.
 
-We use AWS Localstack and postgres containers locally 
+We use AWS Localstack and postgres containers locally
 
+## <u>How to do things</u>
+=======
 ## Setup from scratch
 
 All commands are from the root directory of `opg-data-casrec-migration` unless otherwise stated
@@ -15,7 +17,6 @@ All commands are from the root directory of `opg-data-casrec-migration` unless o
 ```bash
 git clone git@github.com:ministryofjustice/opg-data-casrec-migration.git
 cd opg-data-casrec-migration
-
 direnv allow
 ```
 
@@ -49,7 +50,7 @@ mkdir -p etl1/anon_data
 
 However these files are not currently hosted anywhere - see a member of the team for a zip of csv docs to work with. Unzip the docs under etl1/anon_data/*.csv (about 40 files)
 
-## ETL 
+## ETL
 
 'ETL' means Extract, Transform, Load but we are building a series of smaller data transform steps, so it's more like ETTTT(...)L
 
@@ -60,14 +61,14 @@ T - (etl3) row IDs from the Sirius Database are identified and merged in with th
 T - ...probably other  transformations
 T - ...
 L - import into Sirius
-``` 
+```
 
-## ETL 1 (and build Docker containers)
+## ETL 1 and ETL2 (and build Docker containers)
 
 To mimic what happens in AWS, we load up a localstack S3 service with the anonymised CSV data and then have a container (with the same build as ECS task in AWS) that runs the scripts in to the etl1 schema in casrec.
 
 ```bash
-./load_etl1.sh
+./load_etl.sh
 ```
 
 Or do the steps individually:
@@ -81,26 +82,18 @@ docker-compose run --rm load_s3 python3 load_s3_local.py
 
 # 3. (ETL1) Import the csv files into a postgres schema (called etl1) which matches the casrec file structure
 docker-compose run --rm load_casrec python3 casrec_load.py
-```
-
-Or run etl1 directly
-
-```bash
+For development purposes you can also run this from the command line as it uses direnv file to make it runnnable both inside and outside of docker:
 cd etl1 (direnv will load correct env vars)
 python3 casrec_load.py
-```
 
-## ETL2
-
-```bash
-python3 etl2/app.py
+# 4. (ETL2) cd etl2/app && direnv allow && python3 app.py --clear=True
 ```
 
 ## ETL3
 
 ETL3 takes the data output of ETL2 and combines with data from the Sirius DB. For development we therefore build a local instance of the Sirius DB, rebuilt from a backup taken from a Sirius dev environment (normally the result of running `make ingest` in that project)
 
-There is NO requirement to run a full instance of Sirius on your development machine, but _get a hold of a DB backup from that team and make sure it is saved to `sb-snapshots/api.backup`_   
+There is NO requirement to run a full instance of Sirius on your development machine, but _get a hold of a DB backup from that team and make sure it is saved to `sb-snapshots/api.backup`_
 
 ```bash
 ./etl3.sh
