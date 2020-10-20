@@ -1,4 +1,5 @@
 import time
+import os
 
 from sqlalchemy import create_engine
 import click
@@ -18,8 +19,9 @@ from tables.person_case.order_deputy import insert_order_deputy
 from tables.person_case.person_caseitem import insert_person_caseitem
 from config import LocalConfig, get_config
 
+environment = os.environ["ENVIRONMENT"]
 
-config = get_config()
+config = get_config(env=environment)
 
 etl2_db_engine = create_engine(config.connection_string)
 
