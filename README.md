@@ -68,7 +68,7 @@ L - import into Sirius
 To mimic what happens in AWS, we load up a localstack S3 service with the anonymised CSV data and then have a container (with the same build as ECS task in AWS) that runs the scripts in to the etl1 schema in casrec.
 
 ```bash
-./load_etl1.sh
+./load_etl.sh
 ```
 
 Or do the steps individually:
