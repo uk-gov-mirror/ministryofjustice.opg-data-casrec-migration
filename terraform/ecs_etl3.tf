@@ -12,7 +12,7 @@ resource "aws_ecs_task_definition" "etl3" {
   network_mode             = "awsvpc"
   cpu                      = 2048
   memory                   = 4096
-  container_definitions    = [local.etl3]
+  container_definitions    = "[${local.etl3}]"
   task_role_arn            = aws_iam_role.etl.arn
   execution_role_arn       = aws_iam_role.execution_role.arn
   tags = merge(local.default_tags,
