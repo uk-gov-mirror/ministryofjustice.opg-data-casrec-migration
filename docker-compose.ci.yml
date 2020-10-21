@@ -6,3 +6,6 @@ services:
   etl2:
     image: ${AWS_REGISTRY}/casrec-migration/etl2:${VERSION}
     build: ./etl2
+  etl3:
+    image: ${AWS_REGISTRY}/casrec-migration/etl3:${VERSION}
+    build: ./etl3

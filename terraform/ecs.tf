@@ -129,3 +129,20 @@ resource "aws_security_group_rule" "etl_to_db_egress" {
   source_security_group_id = aws_security_group.etl.id
   security_group_id        = aws_security_group.db.id
 }
+
+
+data "aws_security_group" "cas_migrate" {
+  filter {
+    name   = "tag:Name"
+    values = ["rds-api-casmigrate"]
+  }
+}
+
+resource "aws_security_group_rule" "etl_to_sirius_db_egress" {
+  type                     = "egress"
+  protocol                 = "tcp"
+  from_port                = 5432
+  to_port                  = 5432
+  source_security_group_id = aws_security_group.etl.id
+  security_group_id        = data.aws_security_group.cas_migrate.id
+}

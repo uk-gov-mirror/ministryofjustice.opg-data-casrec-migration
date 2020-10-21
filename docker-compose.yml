@@ -77,3 +77,18 @@ services:
       PGPASSWORD: api
       POSTGRES_DB: api
     depends_on: [postgres-sirius]
+  rationalise:
+    build:
+      context: ./etl3
+      dockerfile: Dockerfile
+    environment:
+      DB_PASSWORD: casrec # pragma: allowlist secret
+      DB_NAME: casrecmigration
+      DB_HOST: casrec_db
+      DB_PORT: 5432
+      SIRIUS_DB_PASSWORD: api # pragma: allowlist secret
+      SIRIUS_DB_NAME: api
+      SIRIUS_DB_HOST: postgres-sirius
+      SIRIUS_DB_PORT: 5432
+      ENVIRONMENT: local
+    depends_on: [casrec_db]
