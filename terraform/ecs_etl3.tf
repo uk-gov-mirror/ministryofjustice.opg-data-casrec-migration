@@ -24,7 +24,7 @@ locals {
   etl3 = jsonencode({
     cpu       = 0,
     essential = true,
-    image     = "postgres:10.11",
+    image     = local.images.etl3,
     name      = "etl3",
     healthCheck = {
       command     = ["CMD-SHELL", "echo hello || exit 1"],

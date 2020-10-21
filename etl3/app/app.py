@@ -13,9 +13,9 @@ from sqlalchemy.types import (
     JSON,
 )
 
-from config import LocalConfig, LocalSiriusConfig, SiriusConfig
+from config import CasrecMigConfig, SiriusConfig
 
-etl3_db_engine = create_engine(LocalConfig.connection_string)
+etl3_db_engine = create_engine(CasrecMigConfig.connection_string)
 sirius_db_engine = create_engine(SiriusConfig.connection_string)
 
 if __name__ == "__main__":
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     sirius_persons_keys.to_sql(
         "sirius_map_persons",
         con=etl3_db_engine,
-        schema=LocalConfig.etl3_schema,
+        schema=CasrecMigConfig.etl3_schema,
         if_exists="replace",
         index=False,
     )
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     sirius_cases_keys.to_sql(
         "sirius_map_cases",
         con=etl3_db_engine,
-        schema=LocalConfig.etl3_schema,
+        schema=CasrecMigConfig.etl3_schema,
         if_exists="replace",
         index=False,
         dtype={"sirius_persons_id": Integer},
@@ -66,7 +66,7 @@ if __name__ == "__main__":
     sirius_addresses_keys.to_sql(
         "sirius_map_addresses",
         con=etl3_db_engine,
-        schema=LocalConfig.etl3_schema,
+        schema=CasrecMigConfig.etl3_schema,
         if_exists="replace",
         index=False,
     )
