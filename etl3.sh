@@ -15,5 +15,8 @@ docker exec -i $DOCKER_CASRECDB_CONTAINER_NAME psql -U $DB_CASRECMIGRATION_USER 
 echo '-- Modify ETL3 schema --'
 docker exec -i $DOCKER_CASRECDB_CONTAINER_NAME psql -U $DB_CASRECMIGRATION_USER $DB_CASRECMIGRATION_NAME < etl3/sql/sirius_id_cols.sql
 
+echo '-- Add some fixtures to Sirius --'
+python3 fixtures/app.py
+
 echo '-- Running ETL3 transform --'
 python3 etl3/app.py
