@@ -37,7 +37,7 @@ pip install -r etl1/requirements.txt
 pip install -r etl2/requirements.txt
 ```
 
-### Before you start
+## Before you start
 
 For development we have a sample set of migration data in the same format as the files we will be receiving from Casrec (about 40 files).
 Sensitive data has been removed - hence we call this our 'anonymised csv data'.
@@ -49,6 +49,39 @@ mkdir -p etl1/anon_data
 ```
 
 However these files are not currently hosted anywhere - see a member of the team for a zip of csv docs to work with. Unzip the docs under etl1/anon_data/*.csv (about 40 files)
+
+### Install Sirius project (optional)
+In order to see the results of a migration in the Sirius Front end you'll need the actual Sirius project:
+
+Installing Sirius in a nutshell (refer to Sirius docs for more):
+
+```
+git clone git@github.com:ministryofjustice/opg-sirius.git
+cd opg-sirius
+
+# authenticate with AWS (get ops to help you set this up if you haven't got aws-vault)
+aws-vault exec sirius-dev-operator -- make ecr_login
+
+make clean && make dev-setup
+# (you can re-run make dev-setup if it fails, without doing a make-clean)
+```
+
+You should be able to view Sirius FE at http://localhost:8080
+You should also be able to log in as case.manager@opgtest.com / Password1
+
+If you can't log in, or if the site doesn't appear at all, but your containers seem to be up ok, It sometimes helps to turn it off and on again:
+
+```
+make dev-stop
+make dev-up
+```
+
+You now need to take down the S3 localstack container because it conflicts with ours
+
+```
+docker stop opg-sirius_localstack-s3_1
+```
+
 
 ## ETL
 
@@ -89,14 +122,35 @@ python3 casrec_load.py
 # 4. (ETL2) cd etl2/app && direnv allow && python3 app.py --clear=True
 ```
 
-## ETL3
+## ETL3 (also loads fixtures onto Sirius)
 
-ETL3 takes the data output of ETL2 and combines with data from the Sirius DB. For development we therefore build a local instance of the Sirius DB, rebuilt from a backup taken from a Sirius dev environment (normally the result of running `make ingest` in that project)
-
-There is NO requirement to run a full instance of Sirius on your development machine, but _get a hold of a DB backup from that team and make sure it is saved to `sb-snapshots/api.backup`_
+ETL3:
+ - dumps the ETL2 DB schema to `db-snapshots/etl2.sql` 
+ - drops the ETL3 schema, then rebuilds it from ETL2, with new table columns added to take some Sirius ids
+ - grabs sirius IDs into map tables (eg `sirius_map_persons` maps sirius's persons.id against the casrec number)
+ - uses the maps to import the sirius ids alongside the etl ids into the main tables (eg `persons`)
+ - Loads the first 10 clients into Sirius DB to represent the Skeleton clients that exist on real Sirius. The fields populated in Sirius are an accurate representation of a skeleton record. The following is inserted:
+    - 10 persons (clients)
+    - 10 addresses belonging to those persons
+    - 5 persons' worth of cases
 
 ```bash
 ./etl3.sh
+```
+
+## Load
+
+```
+./load.sh
+```
+
+## Re-index Sirius
+
+Once we've migrated across some data, have Sirius re-index its search, so we can search for the new stuff in the search bar
+
+```
+(In Sirius local dev root)
+docker-compose run --rm queue scripts/elasticsearch/setup.sh
 ```
 
 ## DB connections for clients eg PyCharm and DataGrip:
@@ -114,6 +168,13 @@ port: 5555
 user: api
 pass: api
 schema: etl2
+
+db:   sirius project postgres
+host: localhost
+port: 5432
+user: api
+pass: api
+schema: public
 ```
 
 If you don't see the tables in datagrip/pycharm db client, go across to 'schemas' and check that you have all necessary schemas checked (in this case `etl1`)

@@ -1,11 +1,22 @@
 import time
 import pandas as pd
 from sqlalchemy import create_engine
+from sqlalchemy.types import (
+    Integer,
+    Text,
+    String,
+    Date,
+    DateTime,
+    BigInteger,
+    TIMESTAMP,
+    Boolean,
+    JSON,
+)
 
-from config import LocalConfig, LocalSiriusConfig
+from config import LocalConfig, LocalSiriusConfig, SiriusConfig
 
 etl3_db_engine = create_engine(LocalConfig.connection_string)
-sirius_db_engine = create_engine(LocalSiriusConfig.connection_string)
+sirius_db_engine = create_engine(SiriusConfig.connection_string)
 
 if __name__ == "__main__":
     t = time.process_time()
@@ -44,7 +55,9 @@ if __name__ == "__main__":
         schema=LocalConfig.etl3_schema,
         if_exists="replace",
         index=False,
+        dtype={"sirius_persons_id": Integer},
     )
+    print(sirius_cases_keys)
 
     print("- Addresses")
     sirius_addresses = pd.read_sql_table("addresses", con=sirius_db_engine)
@@ -62,23 +75,32 @@ if __name__ == "__main__":
     print("- Persons")
     sql = """UPDATE etl3.persons persons
     SET sirius_id = map.sirius_persons_id
-    FROM etl3.sirius_map_persons map WHERE map.caserecnumber = persons.caserecnumber"""
+    FROM etl3.sirius_map_persons map
+    WHERE map.caserecnumber = persons.caserecnumber"""
     etl3_db_engine.execute(sql)
 
     print("- Cases & person_caseitem")
-    sql = "UPDATE etl3.cases cases SET ordersubtype = 'hw' WHERE ordersubtype = '2'"
-    etl3_db_engine.execute(sql)
-    sql = "UPDATE etl3.cases cases SET ordersubtype = 'pfa' WHERE ordersubtype != 'hw'"
-    etl3_db_engine.execute(sql)
-
     # anything other than 2 = pfa (CHECK THIS)
     # 2 = hw
+    sql = """UPDATE etl3.cases cases
+    SET ordersubtype = 'hw'
+    WHERE ordersubtype = '2';
+    UPDATE etl3.sirius_map_cases SET sirius_casesubtype = 'hw' WHERE sirius_casesubtype = '2'"""
+    etl3_db_engine.execute(sql)
+    sql = """UPDATE etl3.cases cases
+    SET ordersubtype = 'pfa'
+    WHERE ordersubtype != 'hw';
+    UPDATE etl3.sirius_map_cases
+    SET sirius_casesubtype = 'pfa'
+    WHERE sirius_casesubtype != 'hw'"""
+    etl3_db_engine.execute(sql)
+
     sql = """UPDATE etl3.person_caseitem
     SET sirius_person_id = persons.sirius_id
     FROM etl3.persons WHERE persons.id = CAST(person_caseitem.person_id AS INTEGER)"""
     etl3_db_engine.execute(sql)
     sql = """UPDATE etl3.cases cases
-    ET sirius_id = map.sirius_cases_id
+    SET sirius_id = map.sirius_cases_id
     FROM etl3.person_caseitem, etl3.sirius_map_cases map
     WHERE CAST(person_caseitem.case_id AS INTEGER) = cases.id
     AND map.sirius_persons_id = person_caseitem.sirius_person_id

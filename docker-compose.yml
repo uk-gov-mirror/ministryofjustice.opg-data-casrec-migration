@@ -63,7 +63,7 @@ services:
     entrypoint: pg_restore
     volumes: ["./db-snapshots:/sirius-snapshot"]
     command:
-      - /sirius-snapshot/api.backup
+      - /db-snapshots/api.backup
       - --clean
       - --if-exists
       - --host=postgres-sirius
