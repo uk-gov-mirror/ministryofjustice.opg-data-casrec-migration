@@ -6,8 +6,9 @@ class CasrecMigConfig:
     db_host = os.environ.get("DB_HOST")
     port = os.environ.get("DB_PORT")
     name = os.environ.get("DB_NAME")
+    user = os.environ.get("DB_USER")
 
-    connection_string = f"postgresql://casrec:{password}@{db_host}:{port}/{name}"  # pragma: allowlist secret
+    connection_string = f"postgresql://{user}:{password}@{db_host}:{port}/{name}"  # pragma: allowlist secret
 
     etl1_schema = "etl1"
     etl2_schema = "etl2"
@@ -19,8 +20,9 @@ class SiriusConfig:
     db_host = os.environ.get("SIRIUS_DB_HOST")
     port = os.environ.get("SIRIUS_DB_PORT")
     name = os.environ.get("SIRIUS_DB_NAME")
+    user = os.environ.get("SIRIUS_DB_USER")
 
-    connection_string = f"postgresql://api:{password}@{db_host}:{port}/{name}"  # pragma: allowlist secret
+    connection_string = f"postgresql://{user}:{password}@{db_host}:{port}/{name}"  # pragma: allowlist secret
     sirius_schema = "public"
 
 

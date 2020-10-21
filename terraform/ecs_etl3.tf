@@ -81,6 +81,10 @@ locals {
         value = data.aws_rds_cluster.sirius.database_name
       },
       {
+        name  = "SIRIUS_DB_USER",
+        value = data.aws_rds_cluster.sirius.master_username
+      },
+      {
         name  = "ENVIRONMENT",
         value = terraform.workspace
       }
