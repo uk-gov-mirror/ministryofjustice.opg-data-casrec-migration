@@ -1,7 +1,7 @@
 version: '3.6'
 services:
   casrec_db:
-    image: postgres:10.7
+    image: postgres:10.11
     ports:
       - 6666:5432
     environment:
@@ -61,7 +61,7 @@ services:
   postgres-sirius-restore:
     image: postgres:10.11
     entrypoint: pg_restore
-    volumes: ["./db-snapshots:/sirius-snapshot"]
+    volumes: ["./db-snapshots:/db-snapshots"]
     command:
       - /db-snapshots/api.backup
       - --clean
@@ -77,3 +77,20 @@ services:
       PGPASSWORD: api
       POSTGRES_DB: api
     depends_on: [postgres-sirius]
+  stage_sirius_transform:
+    build:
+      context: ./etl3
+      dockerfile: Dockerfile
+    environment:
+      DB_USER: casrec
+      DB_PASSWORD: casrec # pragma: allowlist secret
+      DB_NAME: casrecmigration
+      DB_HOST: casrec_db
+      DB_PORT: 5432
+      SIRIUS_DB_USER: api
+      SIRIUS_DB_PASSWORD: api # pragma: allowlist secret
+      SIRIUS_DB_NAME: api
+      SIRIUS_DB_HOST: postgres-sirius
+      SIRIUS_DB_PORT: 5432
+      ENVIRONMENT: local
+    depends_on: [casrec_db]
