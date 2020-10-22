@@ -7,6 +7,6 @@ COPY ./requirements.txt /requirements.txt
 RUN pip3 install -r requirements.txt
 COPY ./app /app
 WORKDIR app
-RUN chmod 755 run_rationalise.sh
+RUN chmod 755 stage_sirius_transform.sh
 RUN chmod 755 app.py
 CMD ["tail", "-f", "/dev/null"]

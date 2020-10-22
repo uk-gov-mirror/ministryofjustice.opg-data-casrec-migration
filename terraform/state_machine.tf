@@ -213,7 +213,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                 "Overrides": {
                     "ContainerOverrides": [{
                         "Name": "etl3",
-                        "Command": ["./run_rationalise.sh"]
+                        "Command": ["./stage_sirius_transform.sh"]
                     }]
                 }
             }
