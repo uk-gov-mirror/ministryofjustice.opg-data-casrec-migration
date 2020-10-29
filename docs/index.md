@@ -41,10 +41,24 @@ Your Pages site will use the layout and styles from the Jekyll theme you have se
 Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
 
 
-
 {% for collection in site.collections %}
-### {{ collection.label }}
-<section>
-    <a href="{{ collection.url }}"><h1>{{ collection.label }}</h1></a>
-</section>
-{% endfor %}  <!-- cat -->
+
+  {% assign name = collection.label %}
+
+  {% if name != 'posts' %}
+
+  <section>
+    <h1>{{ name | capitalize}}</h1>
+
+    {% for page in site.[name] %}
+    <ul>
+      <li><a href="{{ page.url }}">{{ page.title }}</a></li>
+      
+    </ul>
+    {% endfor %}
+    
+  </section>
+
+  {% endif %}
+
+{% endfor %}
