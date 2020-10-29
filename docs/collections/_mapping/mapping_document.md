@@ -3,6 +3,7 @@ layout: page
 title:  "Mapping Document"
 date:   2020-10-29 14:51:23 +0000
 categories: mapping
+resouce: true
 ---
 
 Mapping Document
