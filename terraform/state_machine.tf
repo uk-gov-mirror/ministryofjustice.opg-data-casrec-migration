@@ -196,7 +196,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
         },
         "Run ETL3": {
             "Type": "Task",
-            "End": true,
+            "Next": "Run ETL4",
             "Resource": "arn:aws:states:::ecs:runTask.sync",
             "Parameters": {
                 "LaunchType": "FARGATE",
@@ -214,6 +214,30 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                     "ContainerOverrides": [{
                         "Name": "etl3",
                         "Command": ["./stage_sirius_transform.sh"]
+                    }]
+                }
+            }
+        }
+        "Run ETL4": {
+            "Type": "Task",
+            "End": true,
+            "Resource": "arn:aws:states:::ecs:runTask.sync",
+            "Parameters": {
+                "LaunchType": "FARGATE",
+                "PlatformVersion": "1.4.0",
+                "Cluster": "${aws_ecs_cluster.migration.arn}",
+                "TaskDefinition": "${aws_ecs_task_definition.etl4.arn}",
+                "NetworkConfiguration": {
+                    "AwsvpcConfiguration": {
+                        "Subnets": [${local.subnets_string}],
+                        "SecurityGroups": ["${aws_security_group.etl.id}"],
+                        "AssignPublicIp": "DISABLED"
+                    }
+                },
+                "Overrides": {
+                    "ContainerOverrides": [{
+                        "Name": "etl4",
+                        "Command": ["python3", "load.py"]
                     }]
                 }
             }

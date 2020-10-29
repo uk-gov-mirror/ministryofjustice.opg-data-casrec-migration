@@ -7,7 +7,5 @@ RUN pip3 install -r requirements.txt
 COPY ./__init__.py /__init__.py
 COPY ./config.py /config.py
 COPY ./load.py /load.py
-COPY ./run_load.sh /run_load.sh
 RUN chmod 755 *.py
-RUN chmod 755 *.sh
 CMD ["echo", "NO_OP"]

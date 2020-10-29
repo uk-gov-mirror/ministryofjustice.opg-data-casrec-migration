@@ -30,7 +30,7 @@ locals {
       options = {
         awslogs-group         = aws_cloudwatch_log_group.casrec_migration.name,
         awslogs-region        = "eu-west-1",
-        awslogs-stream-prefix = "casrec-migration-${local.environment}"
+        awslogs-stream-prefix = "casrec-migration-etl1-${local.environment}"
       }
     },
     secrets = [

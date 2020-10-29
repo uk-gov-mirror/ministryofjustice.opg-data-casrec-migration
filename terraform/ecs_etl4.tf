@@ -6,13 +6,13 @@ data "aws_rds_cluster" "sirius" {
   cluster_identifier = "api-casmigrate"
 }
 
-resource "aws_ecs_task_definition" "etl3" {
-  family                   = "etl3-${terraform.workspace}"
+resource "aws_ecs_task_definition" "etl4" {
+  family                   = "etl4-${terraform.workspace}"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 2048
   memory                   = 4096
-  container_definitions    = "[${local.etl3}]"
+  container_definitions    = "[${local.etl4}]"
   task_role_arn            = aws_iam_role.etl.arn
   execution_role_arn       = aws_iam_role.execution_role.arn
   tags = merge(local.default_tags,
@@ -21,11 +21,11 @@ resource "aws_ecs_task_definition" "etl3" {
 }
 
 locals {
-  etl3 = jsonencode({
+  etl4 = jsonencode({
     cpu       = 0,
     essential = true,
-    image     = local.images.etl3,
-    name      = "etl3",
+    image     = local.images.etl4,
+    name      = "etl4",
     healthCheck = {
       command     = ["CMD-SHELL", "echo hello || exit 1"],
       startPeriod = 30,
@@ -38,7 +38,7 @@ locals {
       options = {
         awslogs-group         = aws_cloudwatch_log_group.casrec_migration.name,
         awslogs-region        = "eu-west-1",
-        awslogs-stream-prefix = "casrec-migration-etl3-${local.environment}"
+        awslogs-stream-prefix = "casrec-migration-etl4-${local.environment}"
       }
     },
     secrets = [
