@@ -30,7 +30,8 @@ data "aws_iam_policy_document" "state_machine" {
     resources = [
       "arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/etl1-${terraform.workspace}*",
       "arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/etl2-${terraform.workspace}*",
-      "arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/etl3-${terraform.workspace}*"
+      "arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/etl3-${terraform.workspace}*",
+      "arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/etl4-${terraform.workspace}*"
     ]
     actions = ["ecs:RunTask"]
   }
@@ -217,7 +218,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                     }]
                 }
             }
-        }
+        },
         "Run ETL4": {
             "Type": "Task",
             "End": true,
