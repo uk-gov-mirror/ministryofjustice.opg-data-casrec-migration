@@ -1,3 +1,10 @@
+---
+layout: default
+---
+
+{% include_relative _includes/doc_by_category.md %}
+
+
 ## Welcome to GitHub Pages
 
 This is the Casrec Migrations project github pages. 
