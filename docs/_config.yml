@@ -3,6 +3,6 @@ remote_theme: frankieroberto/govuk-jekyll-theme
 
 #collections_dir: collections
 collections:
-  mapping:
+  data_mapping:
     output: true
-    permalink: /mapping/:path
+    permalink: /data_mapping/:path
