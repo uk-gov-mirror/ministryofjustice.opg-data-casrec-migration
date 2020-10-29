@@ -1,22 +1,15 @@
 import json
 import random
 import pandas as pd
-from psycopg2 import errors
 
 
-def do_simple_remap(simple_mapping_dict, source_table_name, source_data):
-    simple_column_remap = [
-        {v["alias"]: k}
-        for k, v in simple_mapping_dict.items()
-        if v["casrec_table"].lower() == source_table_name
-        and v["casrec_column_name"] != "unknown"
-    ]
-    columns = {k: v for d in simple_column_remap for k, v in d.items()}
+def squash_columns(
+    cols_to_squash: list,
+    new_col: str,
+    df: pd.DataFrame,
+    drop_original_cols: bool = True,
+) -> pd.DataFrame:
 
-    return source_data.rename(columns=columns)
-
-
-def squash_columns(cols_to_squash, new_col, df, drop_original_cols=True):
     df[new_col] = df[cols_to_squash].values.tolist()
     df[new_col] = df[new_col].apply(lambda x: json.dumps(x))
 
@@ -26,14 +19,17 @@ def squash_columns(cols_to_squash, new_col, df, drop_original_cols=True):
     return df
 
 
-def convert_to_bool(original_col, new_col, df, drop_original_col=True):
+def convert_to_bool(
+    original_col: str, new_col: str, df: pd.DataFrame, drop_original_col: bool = True,
+) -> pd.DataFrame:
+
     df[new_col] = df[original_col] == "1.0"
     if drop_original_col:
         df = df.drop(columns=original_col)
     return df
 
 
-def unique_number(new_col, df, length=12):
+def unique_number(new_col: str, df: pd.DataFrame, length: int = 12) -> pd.DataFrame:
     df[new_col] = df.apply(
         lambda x: random.randint(10 ** (length - 1), 10 ** length - 1), axis=1
     )
@@ -41,65 +37,14 @@ def unique_number(new_col, df, length=12):
     return df
 
 
-def date_format_standard(original_col, aggregate_col, df):
+def date_format_standard(
+    original_col: str, aggregate_col: str, df: pd.DataFrame
+) -> pd.DataFrame:
     df["new"] = df[original_col].astype(str)
     df["new"] = pd.to_datetime(df["new"], format="%Y-%m-%d %H:%M:%S")
     df["new"] = [x.strftime("%Y-%m-%d") for x in df.new]
 
     df = df.drop(columns=original_col)
     df = df.rename(columns={"new": aggregate_col})
-
-    return df
-
-
-def do_transformations(df, transformations):
-
-    transformed_df = df
-    if len(transformations) > 0:
-        if "squash_columns" in transformations:
-            for t in transformations["squash_columns"]:
-                transformed_df = squash_columns(
-                    t["original_columns"], t["aggregate_col"], transformed_df
-                )
-        if "convert_to_bool" in transformations:
-            for t in transformations["convert_to_bool"]:
-                transformed_df = convert_to_bool(
-                    t["original_columns"], t["aggregate_col"], transformed_df
-                )
-        if "date_format_standard" in transformations:
-            for t in transformations["date_format_standard"]:
-                transformed_df = date_format_standard(
-                    t["original_columns"], t["aggregate_col"], transformed_df
-                )
-        if "unique_number" in transformations:
-            for t in transformations["unique_number"]:
-                transformed_df = unique_number(t["aggregate_col"], transformed_df)
-    else:
-        transformed_df = df
-
-    return transformed_df
-
-
-def populate_required_columns(df, required_cols):
-    for col, details in required_cols.items():
-        df[col] = details["default_value"]
-
-    return df
-
-
-def get_next_id(db_conn, db_schema, sirius_table_name):
-    query = f"select max(id) from {db_schema}.{sirius_table_name};"
-    try:
-        df = pd.read_sql_query(query, db_conn)
-        max_id = df.iloc[0]["max"]
-    except Exception:
-        max_id = 0
-    next_id = int(max_id) + 1
-
-    return next_id
-
-
-def add_incremental_ids(df, column_name, starting_number):
-    df.insert(0, column_name, range(starting_number, starting_number + len(df)))
 
     return df

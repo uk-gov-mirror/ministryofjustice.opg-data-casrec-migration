@@ -1,7 +1,10 @@
+import json
+
 from mapping.mapping import Mapping
 from transformations import transformations_from_mapping
 import pandas as pd
 
+from transformations.generate_source_query import generate_select_string_from_mapping
 
 definition = {
     "sheet_name": "addresses (Client)",
@@ -13,11 +16,15 @@ definition = {
 
 def insert_addresses_clients(config, etl2_db):
 
-    mapping_from_excel = Mapping(
-        excel_doc=config.mapping_document, table_definitions=definition
+    with open("mapping/json_files/addresses_client_mapping.json") as mapping_json:
+        mapping_dict = json.load(mapping_json)
+
+    source_data_query = generate_select_string_from_mapping(
+        mapping=mapping_dict,
+        source_table_name=definition["source_table_name"],
+        additional_columns=definition["source_table_additional_columns"],
+        db_schema=config.etl1_schema,
     )
-    mapping_dict = mapping_from_excel.mapping_definitions()
-    source_data_query = mapping_from_excel.generate_select_string_from_mapping()
 
     source_data_df = pd.read_sql_query(
         sql=source_data_query, con=config.connection_string
