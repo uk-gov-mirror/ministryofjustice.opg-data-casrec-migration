@@ -39,6 +39,7 @@ variable "accounts" {
       is_production    = bool
       db_subnet_prefix = string
       s3_path          = string
+      sirius_db        = string
     })
   )
 }

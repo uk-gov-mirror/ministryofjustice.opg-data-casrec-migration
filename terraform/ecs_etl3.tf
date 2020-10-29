@@ -1,11 +1,3 @@
-data "aws_secretsmanager_secret" "sirius_db" {
-  name = "rds-api-${terraform.workspace}"
-}
-
-data "aws_rds_cluster" "sirius" {
-  cluster_identifier = "api-casmigrate"
-}
-
 resource "aws_ecs_task_definition" "etl3" {
   family                   = "etl3-${terraform.workspace}"
   requires_compatibilities = ["FARGATE"]
@@ -38,7 +30,7 @@ locals {
       options = {
         awslogs-group         = aws_cloudwatch_log_group.casrec_migration.name,
         awslogs-region        = "eu-west-1",
-        awslogs-stream-prefix = "casrec-migration-${local.environment}"
+        awslogs-stream-prefix = "casrec-migration-etl3-${local.environment}"
       }
     },
     secrets = [

@@ -1,10 +1,10 @@
-resource "aws_ecs_task_definition" "etl1" {
-  family                   = "etl1-${terraform.workspace}"
+resource "aws_ecs_task_definition" "etl4" {
+  family                   = "etl4-${terraform.workspace}"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = 2048
   memory                   = 4096
-  container_definitions    = "[${local.etl1}]"
+  container_definitions    = "[${local.etl4}]"
   task_role_arn            = aws_iam_role.etl.arn
   execution_role_arn       = aws_iam_role.execution_role.arn
   tags = merge(local.default_tags,
@@ -13,11 +13,11 @@ resource "aws_ecs_task_definition" "etl1" {
 }
 
 locals {
-  etl1 = jsonencode({
+  etl4 = jsonencode({
     cpu       = 0,
     essential = true,
-    image     = local.images.etl1,
-    name      = "etl1",
+    image     = local.images.etl4,
+    name      = "etl4",
     healthCheck = {
       command     = ["CMD-SHELL", "echo hello || exit 1"],
       startPeriod = 30,
@@ -30,7 +30,7 @@ locals {
       options = {
         awslogs-group         = aws_cloudwatch_log_group.casrec_migration.name,
         awslogs-region        = "eu-west-1",
-        awslogs-stream-prefix = "casrec-migration-etl1-${local.environment}"
+        awslogs-stream-prefix = "casrec-migration-etl4-${local.environment}"
       }
     },
     secrets = [
@@ -38,6 +38,10 @@ locals {
         name      = "DB_PASSWORD",
         valueFrom = aws_secretsmanager_secret.casrec_migration.arn
       },
+      {
+        name      = "SIRIUS_DB_PASSWORD"
+        valueFrom = data.aws_secretsmanager_secret.sirius_db.arn
+      }
     ],
     environment = [
       {
@@ -57,13 +61,25 @@ locals {
         value = aws_rds_cluster.cluster_serverless.master_username
       },
       {
-        name  = "ENVIRONMENT",
-        value = terraform.workspace
+        name  = "SIRIUS_DB_HOST",
+        value = data.aws_rds_cluster.sirius.endpoint
       },
       {
-        name  = "S3_PATH",
-        value = local.account.s3_path
+        name  = "SIRIUS_DB_PORT",
+        value = tostring(data.aws_rds_cluster.sirius.port)
       },
+      {
+        name  = "SIRIUS_DB_NAME",
+        value = data.aws_rds_cluster.sirius.database_name
+      },
+      {
+        name  = "SIRIUS_DB_USER",
+        value = data.aws_rds_cluster.sirius.master_username
+      },
+      {
+        name  = "ENVIRONMENT",
+        value = terraform.workspace
+      }
     ]
   })
 }
