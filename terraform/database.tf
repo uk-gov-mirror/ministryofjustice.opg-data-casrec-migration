@@ -72,5 +72,5 @@ data "aws_secretsmanager_secret" "sirius_db" {
 }
 
 data "aws_rds_cluster" "sirius" {
-  cluster_identifier = "api-casmigrate"
+  cluster_identifier = local.account.sirius_db
 }
