@@ -64,3 +64,13 @@ resource "aws_security_group_rule" "cloud9_to_db_ingress" {
   security_group_id        = aws_security_group.db.id
   description              = "Cloud9 to RDS inbound - Shared Dev Cloud9"
 }
+
+// Sirius Database
+
+data "aws_secretsmanager_secret" "sirius_db" {
+  name = "rds-api-${terraform.workspace}"
+}
+
+data "aws_rds_cluster" "sirius" {
+  cluster_identifier = "api-casmigrate"
+}

@@ -1,11 +1,3 @@
-data "aws_secretsmanager_secret" "sirius_db" {
-  name = "rds-api-${terraform.workspace}"
-}
-
-data "aws_rds_cluster" "sirius" {
-  cluster_identifier = "api-casmigrate"
-}
-
 resource "aws_ecs_task_definition" "etl4" {
   family                   = "etl4-${terraform.workspace}"
   requires_compatibilities = ["FARGATE"]
