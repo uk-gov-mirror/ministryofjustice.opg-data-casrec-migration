@@ -43,9 +43,8 @@ Having trouble with Pages? Check out our [documentation](https://docs.github.com
 
 
 {% for collection in site.collections %}
-    <section markdown="1">
-        <h1>{{ collection.label }}</h1> {{ collection.url}}
-    </section>
-{% endfor %}
-
-
+### {{ collection.label }}
+<section>
+    <a href="{{ collection.url }}"><h1>{{ collection.label }}</h1></a>
+</section>
+{% endfor %}  <!-- cat -->
