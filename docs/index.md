@@ -1,6 +1,4 @@
----
-layout: default
----
+
 
 {% include_relative _includes/doc_by_category.md %}
 
