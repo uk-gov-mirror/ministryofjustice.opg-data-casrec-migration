@@ -10,9 +10,9 @@ class CasrecMigConfig:
 
     connection_string = f"postgresql://{user}:{password}@{db_host}:{port}/{name}"  # pragma: allowlist secret
 
-    etl1_schema = "etl_1"
-    etl2_schema = "etl_2"
-    etl3_schema = "etl_3"
+    etl1_schema = "etl1"
+    etl2_schema = "etl2"
+    etl3_schema = "etl3"
 
 
 class SiriusConfig:

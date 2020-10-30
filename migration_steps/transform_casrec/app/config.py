@@ -2,8 +2,8 @@ import os
 
 
 class BaseConfig:
-    etl1_schema = "etl_1"
-    etl2_schema = "etl_2"
+    etl1_schema = "etl1"
+    etl2_schema = "etl2"
 
     mapping_document = "docs/mapping_doc.xlsx"
     verbose = False
