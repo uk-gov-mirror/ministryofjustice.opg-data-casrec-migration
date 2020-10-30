@@ -27,7 +27,7 @@ if environment in ("local", "development"):
         "SELECT "
         "sirius_id, firstname, surname, createddate, type, caserecnumber, "
         "correspondencebypost, correspondencebyphone, correspondencebyemail, uid "
-        "FROM etl3.persons "
+        "FROM acquire_target_ids.persons "
         "WHERE sirius_id IS NOT NULL "
         "ORDER BY sirius_id DESC LIMIT 10"
     )
@@ -77,7 +77,7 @@ if environment in ("local", "development"):
     print("- Addresses")
     sql = (
         "SELECT sirius_id, sirius_person_id, address_lines, town, county, postcode, isairmailrequired "
-        "FROM etl3.addresses "
+        "FROM acquire_target_ids.addresses "
         "WHERE sirius_id IS NOT NULL "
     )
     addresses_df = pd.read_sql_query(sql, con=migration_db_engine, index_col=None)
@@ -121,7 +121,7 @@ if environment in ("local", "development"):
     sirius_db_engine.execute(updatesql)
 
     print("- Cases")
-    sql = "SELECT *" "FROM etl3.cases " "WHERE sirius_id IS NOT NULL "
+    sql = "SELECT *" "FROM acquire_target_ids.cases " "WHERE sirius_id IS NOT NULL "
     cases_df = pd.read_sql_query(sql, con=migration_db_engine, index_col=None)
     cases_df = cases_df.drop(["id", "c_order_no"], axis=1)
     cases_df = cases_df.rename(columns={"sirius_id": "id"})
@@ -155,7 +155,7 @@ if environment in ("local", "development"):
     sql = (
         "SELECT "
         "firstname, surname, createddate, type, caserecnumber, correspondencebypost, correspondencebyphone, correspondencebyemail, uid "
-        "FROM etl3.persons "
+        "FROM acquire_target_ids.persons "
         "WHERE sirius_id IS NULL "
         "ORDER BY id ASC"
     )
@@ -205,15 +205,15 @@ if environment in ("local", "development"):
     )
 
     # needs an index
-    sql = """UPDATE etl3.addresses SET sirius_person_id = map.id
-        FROM etl3.sirius_map_persons map
+    sql = """UPDATE acquire_target_ids.addresses SET sirius_person_id = map.id
+        FROM acquire_target_ids.sirius_map_persons map
         WHERE map.caserecnumber = addresses.caserecnumber"""
     migration_db_engine.execute(sql)
 
     print("- Addresses")
     sql = (
         "SELECT sirius_person_id, address_lines, town, county, postcode, isairmailrequired "
-        "FROM etl3.addresses "
+        "FROM acquire_target_ids.addresses "
         "WHERE sirius_id IS NULL"
     )
     addresses_df = pd.read_sql_query(sql, con=migration_db_engine, index_col=None)
@@ -242,15 +242,15 @@ if environment in ("local", "development"):
 
     print("- Cases")
     # needs an index
-    sql = """UPDATE etl3.cases
+    sql = """UPDATE acquire_target_ids.cases
             SET sirius_client_id = map.id
-            FROM etl3.sirius_map_persons map
+            FROM acquire_target_ids.sirius_map_persons map
             WHERE map.caserecnumber = cases.caserecnumber"""
     migration_db_engine.execute(sql)
 
     sql = (
         "SELECT *"
-        "FROM etl3.cases "
+        "FROM acquire_target_ids.cases "
         "WHERE sirius_id IS NULL "
         "AND orderdate IS NOT NULL "
         "AND orderissuedate IS NOT NULL "
