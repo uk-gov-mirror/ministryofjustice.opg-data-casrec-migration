@@ -5,18 +5,18 @@ from sqlalchemy import create_engine
 import click
 
 
-from database.clear_database import clear_tables
-from database.db_insert import InsertData
-from tables.cases.cases import insert_cases
-from tables.clients.addresses import insert_addresses_clients
-from tables.clients.persons import insert_persons_clients
-from tables.deputies.addresses import insert_addresses_deputies
+from utilities.clear_database import clear_tables
+from utilities.db_insert import InsertData
+from entities.cases.cases import insert_cases
+from entities.clients.addresses import insert_addresses_clients
+from entities.clients.persons import insert_persons_clients
+from entities.deputies.addresses import insert_addresses_deputies
 
-from tables.deputies.persons import insert_persons_deputies
-from tables.notes.notes import insert_notes
-from tables.notes.persons_note import insert_person_notes
-from tables.person_case.order_deputy import insert_order_deputy
-from tables.person_case.person_caseitem import insert_person_caseitem
+from entities.deputies.persons import insert_persons_deputies
+from entities.notes.notes import insert_notes
+from entities.notes.persons_note import insert_person_notes
+from entities.person_case.order_deputy import insert_order_deputy
+from entities.person_case.person_caseitem import insert_person_caseitem
 from config import LocalConfig, get_config
 
 environment = os.environ.get("ENVIRONMENT")
