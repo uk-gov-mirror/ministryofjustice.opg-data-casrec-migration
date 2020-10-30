@@ -94,9 +94,9 @@ services:
       SIRIUS_DB_PORT: 5432
       ENVIRONMENT: local
     depends_on: [casrec_db]
-  load_sirius:
+  load_to_target:
     build:
-      context: ./etl4
+      context: ./migration_steps/load_to_target
       dockerfile: Dockerfile
     environment:
       DB_USER: casrec
