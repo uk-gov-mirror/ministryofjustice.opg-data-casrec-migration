@@ -158,7 +158,7 @@ def create_schema(schema, engine):
 
     if not exists:
         print(f"Creating schema {schema}...")
-        create_schema_sql = "CREATE SCHEMA load_casrec AUTHORIZATION casrec;"
+        create_schema_sql = f"CREATE SCHEMA {schema} AUTHORIZATION casrec;"
         engine.execute(create_schema_sql)
         print(f"Schema {schema} created\n\n")
     else:
@@ -232,7 +232,7 @@ def main():
         s3 = s3_session.client("s3")
 
     bucket_name = f"casrec-migration-{environment}"
-    schema = "load_casrec"
+    schema = "etl1"
 
     print(f"Creating schema {schema}")
     create_schema(schema, engine)
