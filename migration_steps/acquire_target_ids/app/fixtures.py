@@ -43,7 +43,7 @@ if environment in ("local", "development"):
     sql += "DELETE FROM persons WHERE id > 179; "
     sirius_db_engine.execute(sql)
 
-    sql = "UPDATE acquire_target_ids.persons SET sirius_id = null WHERE sirius_id IS NOT NULL; "
+    sql = "UPDATE etl3.persons SET sirius_id = null WHERE sirius_id IS NOT NULL; "
     migration_db_engine.execute(sql)
 
     print("Loading 10 people into Sirius to simulate skeleton case data")
@@ -51,7 +51,7 @@ if environment in ("local", "development"):
         "SELECT "
         "firstname, CONCAT(surname, ' (LIVELINK SKELETON)') as surname, "
         "createddate, type, caserecnumber, correspondencebypost, correspondencebyphone, correspondencebyemail, uid "
-        "FROM acquire_target_ids.persons "
+        "FROM etl3.persons "
         "WHERE sirius_id IS NULL "
         "ORDER BY id ASC LIMIT 10"
     )
@@ -112,7 +112,7 @@ if environment in ("local", "development"):
     sql = "SELECT id, caserecnumber FROM persons ORDER BY id DESC LIMIT 10"
     persons_fixtures = pd.read_sql_query(sql, con=sirius_db_engine, index_col=None)
 
-    sql = "SELECT * FROM acquire_target_ids.cases WHERE caserecnumber IN (SELECT caserecnumber FROM acquire_target_ids.persons ORDER BY id ASC LIMIT 5)"
+    sql = "SELECT * FROM etl3.cases WHERE caserecnumber IN (SELECT caserecnumber FROM etl3.persons ORDER BY id ASC LIMIT 5)"
     etl_cases_df = pd.read_sql_query(sql, con=migration_db_engine, index_col=None)
 
     cases_df = etl_cases_df.merge(
