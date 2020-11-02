@@ -65,7 +65,7 @@ def update_progress(table_name, schema_name, engine, file, status="IN_PROGRESS")
 def check_table_exists(table_name, schema_name, engine):
     check_exists_statement = f"""
     SELECT EXISTS (
-       SELECT FROM information_schema.entities
+       SELECT FROM information_schema.tables
        WHERE  table_schema = '{schema_name}'
        AND    table_name   = '{table_name}'
     );
@@ -175,7 +175,7 @@ def main():
     )
     args = parser.parse_args()
 
-    table_list = args.tables.split(",")
+    table_list = args.entities.split(",")
     chunk_size = int(args.chunk)
 
     password = os.environ["DB_PASSWORD"]

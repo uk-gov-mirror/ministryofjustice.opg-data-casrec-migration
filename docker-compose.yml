@@ -21,6 +21,9 @@ services:
     build:
       context: ./migration_steps/load_s3
       dockerfile: Dockerfile
+    environment:
+      CSV_FILE_PATH: ./anon_data
+      LOCALSTACK_URL: localstack
     volumes:
       - ./data/anon_data:/anon_data
   load_casrec:

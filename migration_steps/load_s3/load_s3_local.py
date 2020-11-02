@@ -4,13 +4,7 @@ import logging
 from botocore.exceptions import ClientError
 
 
-def drop_bucket(bucket_name, s3_session):
-    s3_res = s3_session.resource(
-        "s3",
-        endpoint_url="http://localstack:4572",
-        aws_access_key_id="fake",
-        aws_secret_access_key="fake",
-    )
+def drop_bucket(bucket_name, s3_res):
     bucket_to_del = s3_res.Bucket(bucket_name)
     for key in bucket_to_del.objects.all():
         key.delete()
@@ -66,7 +60,7 @@ def upload_file(bucket, file_name, s3, object_name=None):
     return True
 
 
-def list_buckets(s3, region=None):
+def list_buckets(s3):
     # Retrieve the list of existing buckets
     response = s3.list_buckets()
 
@@ -96,29 +90,36 @@ bucket_name = "casrec-migration-local"
 region = "eu-west-1"
 
 s3_session = boto3.session.Session()
-s3 = s3_session.client(
+localstack_url = os.getenv("LOCALSTACK_URL")
+s3_client = s3_session.client(
     "s3",
-    endpoint_url="http://localstack:4572",
+    endpoint_url=f"http://{localstack_url}:4572",
+    aws_access_key_id="fake",
+    aws_secret_access_key="fake",
+)
+s3_resource = s3_session.resource(
+    "s3",
+    endpoint_url=f"http://{localstack_url}:4572",
     aws_access_key_id="fake",
     aws_secret_access_key="fake",
 )
 
 bucket_exists = False
-for bucket in list_buckets(s3, region):
+for bucket in list_buckets(s3_client):
     if bucket_name == bucket:
         bucket_exists = True
 if bucket_exists:
     print("Dropping bucket")
-    drop_bucket(bucket_name, s3_session)
+    drop_bucket(bucket_name, s3_resource)
 
 print("Creating bucket")
-create_bucket(bucket_name, s3, region)
+create_bucket(bucket_name, s3_client, region)
 
-anon_data_dir = "./anon_data"
+anon_data_dir = os.getenv("CSV_FILE_PATH")
 
 for file in os.listdir(anon_data_dir):
     file_path = f"{anon_data_dir}/{file}"
     s3_file_path = f"anon/{file}"
-    upload_file(bucket_name, file_path, s3, s3_file_path)
+    upload_file(bucket_name, file_path, s3_client, s3_file_path)
 
-list_bucket_contents(bucket_name, s3)
+list_bucket_contents(bucket_name, s3_client)
