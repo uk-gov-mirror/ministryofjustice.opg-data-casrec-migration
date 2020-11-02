@@ -1,14 +1,14 @@
 version: '3.6'
 services:
   etl1:
-    image: ${AWS_REGISTRY}/casrec-migration/load_casrec:${VERSION}
+    image: ${AWS_REGISTRY}/casrec-migration/etl1:${VERSION}
     build: migration_steps/load_casrec
   etl2:
-    image: ${AWS_REGISTRY}/casrec-migration/transform_casrec:${VERSION}
+    image: ${AWS_REGISTRY}/casrec-migration/etl2:${VERSION}
     build: migration_steps/transform_casrec
   etl3:
-    image: ${AWS_REGISTRY}/casrec-migration/acquire_target_ids:${VERSION}
+    image: ${AWS_REGISTRY}/casrec-migration/etl3:${VERSION}
     build: migration_steps/acquire_target_ids
   etl4:
     image: ${AWS_REGISTRY}/casrec-migration/etl4:${VERSION}
-    build: ./etl4
+    build: migration_steps/load_to_target

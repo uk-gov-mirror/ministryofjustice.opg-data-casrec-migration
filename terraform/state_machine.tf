@@ -80,14 +80,14 @@ resource "aws_sfn_state_machine" "casrec_migration" {
 
   definition = <<EOF
 {
-    "StartAt": "Parrallel ETL1",
+    "StartAt": "Parrallel Load Casrec",
     "States": {
-        "Parrallel ETL1": {
+        "Parrallel Load Casrec": {
             "Type": "Parallel",
-            "Next": "Run ETL2",
+            "Next": "Run Transform Casrec",
             "Branches": [
                 {
-                    "StartAt": "Run ETL1 Task 1",
+                    "StartAt": "Run Load Casrec Task 1",
                     "States": {
                         "Run ETL1 Task 1": {
                             "Type": "Task",
@@ -115,9 +115,9 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                     }
                 },
                 {
-                    "StartAt": "Run ETL1 Task 2",
+                    "StartAt": "Run Load Casrec Task 2",
                     "States": {
-                        "Run ETL1 Task 2": {
+                        "Run Load Casrec Task 2": {
                             "Type": "Task",
                             "Resource": "arn:aws:states:::ecs:runTask.sync",
                             "Parameters": {
@@ -143,7 +143,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                     }
                 },
                 {
-                    "StartAt": "Run ETL1 Task 3",
+                    "StartAt": "Run Load Casrec Task 3",
                     "States": {
                         "Run ETL1 Task 3": {
                             "Type": "Task",
@@ -172,9 +172,9 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                 }
             ]
         },
-        "Run ETL2": {
+        "Run Transform Casrec": {
             "Type": "Task",
-            "Next": "Run ETL3",
+            "Next": "Run Aquire Target IDs",
             "Resource": "arn:aws:states:::ecs:runTask.sync",
             "Parameters": {
                 "LaunchType": "FARGATE",
@@ -195,9 +195,9 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                 }
             }
         },
-        "Run ETL3": {
+        "Run Aquire Target IDs": {
             "Type": "Task",
-            "Next": "Run ETL4",
+            "Next": "Run Load To Target",
             "Resource": "arn:aws:states:::ecs:runTask.sync",
             "Parameters": {
                 "LaunchType": "FARGATE",
@@ -219,7 +219,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                 }
             }
         },
-        "Run ETL4": {
+        "Run Load To Target": {
             "Type": "Task",
             "End": true,
             "Resource": "arn:aws:states:::ecs:runTask.sync",
