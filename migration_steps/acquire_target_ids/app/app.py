@@ -74,7 +74,7 @@ def main():
             index=False,
         )
 
-        print("Update main tables with sirius IDs from map tables...")
+        print("Update main entities with sirius IDs from map entities...")
         print("- Persons")
         sql = """UPDATE etl3.persons persons
         SET sirius_id = map.sirius_persons_id

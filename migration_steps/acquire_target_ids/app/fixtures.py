@@ -20,7 +20,7 @@ environment = os.environ.get("ENVIRONMENT")
 migration_db_engine = create_engine(CasrecMigConfig.connection_string)
 sirius_db_engine = create_engine(SiriusConfig.connection_string)
 
-# Sirius tables are not tied to their sequence. Expect Sirius to fix this by the time of Migration
+# Sirius entities are not tied to their sequence. Expect Sirius to fix this by the time of Migration
 
 if environment in ("local", "development"):
     sql = "ALTER TABLE persons ALTER COLUMN id SET DEFAULT nextval('persons_id_seq')"

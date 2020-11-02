@@ -4,6 +4,7 @@ import pandas as pd
 
 from utilities import transformations_from_mapping
 from utilities.generate_source_query import generate_select_string_from_mapping
+from utilities.json_helpers import get_mapping_file
 
 definition = {
     "sheet_name": "notes",
@@ -15,9 +16,7 @@ definition = {
 
 def insert_notes(config, etl2_db):
 
-    with open(
-        "migration_steps/transform_casrec/app/mapping_definitions/notes_mapping.json"
-    ) as mapping_json:
+    with open(get_mapping_file(file_name="notes_mapping")) as mapping_json:
         mapping_dict = json.load(mapping_json)
 
     source_data_query = generate_select_string_from_mapping(

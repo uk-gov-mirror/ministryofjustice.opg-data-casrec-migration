@@ -5,6 +5,7 @@ import pandas as pd
 from logger import custom_logger
 from utilities import transformations_from_mapping
 from utilities.generate_source_query import generate_select_string_from_mapping
+from utilities.json_helpers import get_mapping_file
 
 definition = {
     "sheet_name": "addresses (Deputy)",
@@ -18,9 +19,7 @@ log = custom_logger()
 
 def insert_addresses_deputies(config, etl2_db):
 
-    with open(
-        "migration_steps/transform_casrec/app/mapping_definitions/addresses_deputy_mapping.json"
-    ) as mapping_json:
+    with open(get_mapping_file(file_name="addresses_deputy_mapping")) as mapping_json:
         mapping_dict = json.load(mapping_json)
 
     source_data_query = generate_select_string_from_mapping(

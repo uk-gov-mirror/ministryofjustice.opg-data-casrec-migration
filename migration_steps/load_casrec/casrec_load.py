@@ -27,7 +27,7 @@ def get_list_of_files(bucket_name, s3, path, tables):
         print("Will process all files")
         files_to_process.extend(files_in_bucket)
     else:
-        print("Bring back specific tables")
+        print("Bring back specific entities")
         for bucket_file in files_in_bucket:
             if bucket_file.split(".")[0].lower() in tables:
                 files_to_process.append(bucket_file)
@@ -65,7 +65,7 @@ def update_progress(table_name, schema_name, engine, file, status="IN_PROGRESS")
 def check_table_exists(table_name, schema_name, engine):
     check_exists_statement = f"""
     SELECT EXISTS (
-       SELECT FROM information_schema.tables
+       SELECT FROM information_schema.entities
        WHERE  table_schema = '{schema_name}'
        AND    table_name   = '{table_name}'
     );
@@ -168,7 +168,7 @@ def create_schema(schema, engine):
 def main():
     parser = argparse.ArgumentParser(description="Load into casrec.")
     parser.add_argument(
-        "--tables", default="all", help="list of tables to load",
+        "--entities", default="all", help="list of entities to load",
     )
     parser.add_argument(
         "--chunk", default="50000", help="chunk size",
