@@ -13,6 +13,10 @@ workflows:
           tf_workspace: development
           tf_command: plan
           filters: {branches:{ignore:[master]}}
+      - reset_sirius:
+          name: reset the sirius fixtures
+          tf_workspace: casmigrate
+          filters: {branches:{ignore:[master]}}
       - cleanup:
           name: destroy branch environment
           filters: {branches:{ignore:[master]}}
@@ -92,6 +96,24 @@ jobs:
       - run:
           name: cleanup
           command: echo "running this so job passes as it's requirement to merge"
+  reset_sirius:
+    executor: terraform/terraform
+    resource_class: small
+    parameters:
+      tf_workspace:
+        description: terraform workspace
+        type: string
+        default: ""
+    steps:
+      - run:
+          name: Initialize
+          command: terraform init
+      - run:
+          name: Checkout sirius infra
+          command: git clone git@github.com:ministryofjustice/opg-sirius-infrastructure.git
+      - run:
+          name: Output terraform
+          command: terraform output -json > terraform.output.json
   build:
     executor: migration/python
     resource_class: small
