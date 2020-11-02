@@ -4,15 +4,15 @@ version: 2.1
 workflows:
   pull_request:
     jobs:
-      - build:
-          name: build
-          filters: {branches:{ignore:[master]}}
-      - infrastructure:
-          name: plan infra development
-          requires: [build]
-          tf_workspace: development
-          tf_command: plan
-          filters: {branches:{ignore:[master]}}
+#      - build:
+#          name: build
+#          filters: {branches:{ignore:[master]}}
+#      - infrastructure:
+#          name: plan infra development
+#          requires: [build]
+#          tf_workspace: development
+#          tf_command: plan
+#          filters: {branches:{ignore:[master]}}
       - reset_sirius:
           name: reset the sirius fixtures
           tf_workspace: casmigrate
@@ -105,12 +105,13 @@ jobs:
         type: string
         default: ""
     steps:
-      - run:
-          name: Initialize
-          command: terraform init
+      - terraform/install
       - run:
           name: Checkout sirius infra
           command: git clone git@github.com:ministryofjustice/opg-sirius-infrastructure.git
+      - run:
+         name: Initialize
+         command: terraform init
       - run:
           name: Output terraform
           command: terraform output -json > terraform.output.json
