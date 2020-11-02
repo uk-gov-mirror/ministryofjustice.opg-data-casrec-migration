@@ -19,13 +19,16 @@ services:
         - DEFAULT_REGION=eu-west-1
   load_s3:
     build:
-      context: ./etl1
-      dockerfile: DockerfileS3Load
+      context: ./migration_steps/load_s3
+      dockerfile: Dockerfile
+    environment:
+      CSV_FILE_PATH: ./anon_data
+      LOCALSTACK_URL: localstack
     volumes:
-      - ./etl1/anon_data:/anon_data
+      - ./data/anon_data:/anon_data
   load_casrec:
     build:
-      context: ./etl1
+      context: ./migration_steps/load_casrec
       dockerfile: Dockerfile
     environment:
       DB_PASSWORD: casrec # pragma: allowlist secret
@@ -37,7 +40,7 @@ services:
     depends_on: [localstack, casrec_db]
   transform_casrec:
     build:
-      context: ./etl2
+      context: ./migration_steps/transform_casrec
       dockerfile: Dockerfile
     environment:
       DB_PASSWORD: casrec # pragma: allowlist secret
@@ -77,9 +80,9 @@ services:
       PGPASSWORD: api
       POSTGRES_DB: api
     depends_on: [postgres-sirius]
-  stage_sirius_transform:
+  acquire_target_ids:
     build:
-      context: ./etl3
+      context: migration_steps/acquire_target_ids
       dockerfile: Dockerfile
     environment:
       DB_USER: casrec
@@ -94,9 +97,9 @@ services:
       SIRIUS_DB_PORT: 5432
       ENVIRONMENT: local
     depends_on: [casrec_db]
-  load_sirius:
+  load_to_target:
     build:
-      context: ./etl4
+      context: ./migration_steps/load_to_target
       dockerfile: Dockerfile
     environment:
       DB_USER: casrec

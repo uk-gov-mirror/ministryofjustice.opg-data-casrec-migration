@@ -18,13 +18,6 @@ locals {
     essential = true,
     image     = local.images.etl3,
     name      = "etl3",
-    healthCheck = {
-      command     = ["CMD-SHELL", "echo hello || exit 1"],
-      startPeriod = 30,
-      interval    = 15,
-      timeout     = 10,
-      retries     = 3
-    },
     logConfiguration = {
       logDriver = "awslogs",
       options = {
