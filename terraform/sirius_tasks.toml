@@ -1,0 +1,57 @@
+{
+  "Role": {
+    "sensitive": false,
+    "type": "string",
+    "value": "arn:aws:iam::${account}:role/sirius-ci"
+  },
+  "Tasks": {
+    "sensitive": false,
+    "value": {
+      "import-fixtures-api": {
+        "Cluster": "${cluster}",
+        "LaunchType": "FARGATE",
+        "NetworkConfiguration": {
+          "AwsvpcConfiguration": {
+            "SecurityGroups": [
+              "${sec_group}"
+            ],
+            "Subnets": [
+              "${subnets}"
+            ]
+          }
+        },
+        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/import-fixtures-api-${cluster}:1"
+      },
+      "migrate-api": {
+        "Cluster": "${cluster}",
+        "LaunchType": "FARGATE",
+        "NetworkConfiguration": {
+          "AwsvpcConfiguration": {
+            "SecurityGroups": [
+              "${sec_group}"
+            ],
+            "Subnets": [
+              "${subnets}"
+            ]
+          }
+        },
+        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/migrate-api-${cluster}:1"
+      },
+      "reset-api": {
+        "Cluster": "${cluster}",
+        "LaunchType": "FARGATE",
+        "NetworkConfiguration": {
+          "AwsvpcConfiguration": {
+            "SecurityGroups": [
+              "${sec_group}"
+            ],
+            "Subnets": [
+              "${subnets}"
+            ]
+          }
+        },
+        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/reset-api-${cluster}:1"
+      }
+    }
+  }
+}

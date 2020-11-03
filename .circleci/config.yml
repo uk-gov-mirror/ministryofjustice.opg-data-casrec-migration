@@ -21,6 +21,14 @@ workflows:
       - build:
           name: build master
           filters: {branches:{only:[master]}}
+      - reset_sirius:
+          name: reset the sirius fixtures
+          tf_workspace: development
+          filters: {branches:{only:[master]}}
+      - reset_sirius:
+          name: reset the sirius fixtures
+          tf_workspace: development
+          filters: {branches:{only:[master]}}
       - infrastructure:
           name: build infra development
           requires: [build master]
@@ -92,6 +100,44 @@ jobs:
       - run:
           name: cleanup
           command: echo "running this so job passes as it's requirement to merge"
+  reset_sirius:
+    executor: terraform/terraform
+    resource_class: small
+    parameters:
+      tf_workspace:
+        description: terraform workspace
+        type: string
+        default: "development"
+    working_directory: ~/project/terraform
+    steps:
+      - checkout:
+          path: ~/project
+      - terraform/install
+      - run:
+         name: Initialize
+         command: terraform init
+      - run:
+          name: Get template file
+          command: |
+            # Image tag is not important but is needed for build
+            export TF_VAR_image_tag=fake-tag
+            terraform apply -target=local_file.output
+      - run:
+          name: Install ecs-runner
+          command: |
+            wget https://github.com/ministryofjustice/opg-ecs-helper/releases/download/v0.2.0/opg-ecs-helper_Linux_x86_64.tar.gz -O $HOME/opg-ecs-helper.tar.gz
+            sudo tar -xvf $HOME/opg-ecs-helper.tar.gz -C /usr/local/bin
+            sudo chmod +x /usr/local/bin/ecs-stabilizer
+            sudo chmod +x /usr/local/bin/ecs-runner
+      - run:
+          name: Reset Api
+          command: ecs-runner -task reset-api -timeout 600
+      - run:
+          name: Migrate Api
+          command: ecs-runner -task migrate-api -timeout 600
+      - run:
+          name: Import Fixtures to Api
+          command: ecs-runner -task import-fixtures-api -timeout 600
   build:
     executor: migration/python
     resource_class: small

@@ -89,7 +89,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                 {
                     "StartAt": "Run Load Casrec Task 1",
                     "States": {
-                        "Run ETL1 Task 1": {
+                        "Run Load Casrec Task 1": {
                             "Type": "Task",
                             "Resource": "arn:aws:states:::ecs:runTask.sync",
                             "Parameters": {
@@ -145,7 +145,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                 {
                     "StartAt": "Run Load Casrec Task 3",
                     "States": {
-                        "Run ETL1 Task 3": {
+                        "Run Load Casrec Task 3": {
                             "Type": "Task",
                             "Resource": "arn:aws:states:::ecs:runTask.sync",
                             "Parameters": {
@@ -214,7 +214,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                 "Overrides": {
                     "ContainerOverrides": [{
                         "Name": "etl3",
-                        "Command": ["./stage_sirius_transform.sh"]
+                        "Command": ["./acquire_target_ids.sh"]
                     }]
                 }
             }

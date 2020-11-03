@@ -1,7 +1,8 @@
 import pandas as pd
 import os
+
+from config import CasrecMigConfig, SiriusConfig, load_env_vars
 from sqlalchemy import create_engine
-from config import CasrecMigConfig, SiriusConfig
 from sqlalchemy.types import (
     Integer,
     Text,
@@ -13,6 +14,8 @@ from sqlalchemy.types import (
     Boolean,
     JSON,
 )
+
+load_env_vars()
 
 environment = os.environ.get("ENVIRONMENT")
 

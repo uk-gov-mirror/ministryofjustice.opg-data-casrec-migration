@@ -22,7 +22,7 @@ services:
       context: ./migration_steps/load_s3
       dockerfile: Dockerfile
     environment:
-      CSV_FILE_PATH: ./anon_data
+      CSV_DIR_SUFFIX: ./anon_data
       LOCALSTACK_URL: localstack
     volumes:
       - ./data/anon_data:/anon_data

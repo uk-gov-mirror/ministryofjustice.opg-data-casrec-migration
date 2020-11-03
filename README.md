@@ -125,7 +125,7 @@ python3 casrec_load.py
 ## ETL3 (also loads fixtures onto Sirius)
 
 ETL3:
- - dumps the ETL2 DB schema to `db-snapshots/etl2.sql` 
+ - dumps the ETL2 DB schema to `db-snapshots/etl2.sql`
  - drops the ETL3 schema, then rebuilds it from ETL2, with new table columns added to take some Sirius ids
  - grabs sirius IDs into map tables (eg `sirius_map_persons` maps sirius's persons.id against the casrec number)
  - uses the maps to import the sirius ids alongside the etl ids into the main tables (eg `persons`)
@@ -178,3 +178,15 @@ schema: public
 ```
 
 If you don't see the tables in datagrip/pycharm db client, go across to 'schemas' and check that you have all necessary schemas checked (in this case `etl1`)
+
+## Reset DB fixtures
+wget https://github.com/ministryofjustice/opg-ecs-helper/releases/download/v0.2.0/opg-ecs-helper_Linux_x86_64.tar.gz -O $HOME/opg-ecs-helper.tar.gz
+wget https://github.com/ministryofjustice/opg-ecs-helper/releases/download/v0.2.0/opg-ecs-helper_Darwin_x86_64.tar.gz -O $HOME/opg-ecs-helper.tar.gz
+sudo tar -xvf $HOME/opg-ecs-helper.tar.gz -C /usr/local/bin
+sudo chmod +x /usr/local/bin/ecs-stabilizer
+sudo chmod +x /usr/local/bin/ecs-runner
+cd environment
+export TF_WORKSPACE=casmigrate
+ecs-runner -task reset-api -timeout 600
+ecs-runner -task migrate-api -timeout 600
+ecs-runner -task import-fixtures-api -timeout 600

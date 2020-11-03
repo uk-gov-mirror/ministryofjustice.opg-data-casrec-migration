@@ -3,3 +3,4 @@ psycopg2
 boto3
 pandas
 xlrd
+python-dotenv

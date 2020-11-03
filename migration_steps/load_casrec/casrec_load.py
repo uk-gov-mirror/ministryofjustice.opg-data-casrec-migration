@@ -6,7 +6,8 @@ import argparse
 from sqlalchemy import create_engine
 import boto3
 import random as rnd
-import time
+from pathlib import Path
+from dotenv import load_dotenv
 
 
 def get_list_of_files(bucket_name, s3, path, tables):
@@ -177,6 +178,10 @@ def main():
 
     table_list = args.entities.split(",")
     chunk_size = int(args.chunk)
+
+    current_path = Path(os.path.dirname(os.path.realpath(__file__)))
+    env_path = current_path / ".env"
+    load_dotenv(dotenv_path=env_path)
 
     password = os.environ["DB_PASSWORD"]
     db_host = os.environ["DB_HOST"]
