@@ -13,9 +13,15 @@ workflows:
 #          tf_workspace: development
 #          tf_command: plan
 #          filters: {branches:{ignore:[master]}}
+      - infrastructure:
+          name: build infra development
+          requires: [build master]
+          tf_workspace: development
+          tf_command: apply
+          filters: {branches:{only:[master]}}
       - reset_sirius:
           name: reset the sirius fixtures
-          tf_workspace: casmigrate
+          tf_workspace: development
           filters: {branches:{ignore:[master]}}
       - cleanup:
           name: destroy branch environment
@@ -103,18 +109,32 @@ jobs:
       tf_workspace:
         description: terraform workspace
         type: string
-        default: ""
+        default: "development"
+    working_directory: ~/project/terraform
     steps:
       - terraform/install
-      - run:
-          name: Checkout sirius infra
-          command: git clone git@github.com:ministryofjustice/opg-sirius-infrastructure.git
       - run:
          name: Initialize
          command: terraform init
       - run:
-          name: Output terraform
-          command: terraform output -json > terraform.output.json
+          name: Get template file
+          command: terraform apply -target=local_file.output
+      - run:
+          name: Install ecs-runner
+          command: |
+            wget https://github.com/ministryofjustice/opg-ecs-helper/releases/download/v0.2.0/opg-ecs-helper_Linux_x86_64.tar.gz -O $HOME/opg-ecs-helper.tar.gz
+            sudo tar -xvf $HOME/opg-ecs-helper.tar.gz -C /usr/local/bin
+            sudo chmod +x /usr/local/bin/ecs-stabilizer
+            sudo chmod +x /usr/local/bin/ecs-runner
+      - run:
+          name: Reset Api
+          command: ecs-runner -task reset-api -timeout 600
+      - run:
+          name: Migrate Api
+          command: ecs-runner -task migrate-api -timeout 600
+      - run:
+          name: Import Fixtures to Api
+          command: ecs-runner -task import-fixtures-api -timeout 600
   build:
     executor: migration/python
     resource_class: small

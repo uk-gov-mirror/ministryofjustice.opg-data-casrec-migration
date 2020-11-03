@@ -72,5 +72,5 @@ data "aws_secretsmanager_secret" "sirius_db" {
 }
 
 data "aws_rds_cluster" "sirius" {
-  cluster_identifier = local.account.sirius_db
+  cluster_identifier = "api-${local.account.sirius_env}"
 }
