@@ -1,8 +1,15 @@
+data "aws_security_group" "sirius_ecs_api" {
+  filter {
+    name   = "tag:Name"
+    values = ["api-ecs-${local.account.sirius_env}"]
+  }
+}
+
 resource "local_file" "output" {
   content = templatefile("${path.module}/sirius_tasks.toml",
     {
       cluster   = local.account.sirius_env,
-      sec_group = tolist(data.aws_rds_cluster.sirius.vpc_security_group_ids)[0],
+      sec_group = data.aws_security_group.sirius_ecs_api.id,
       subnets   = join("\", \"", data.aws_subnet_ids.private.ids),
       account   = local.account.account_id
   })

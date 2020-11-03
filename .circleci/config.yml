@@ -4,32 +4,30 @@ version: 2.1
 workflows:
   pull_request:
     jobs:
-#      - build:
-#          name: build
-#          filters: {branches:{ignore:[master]}}
+      - build:
+          name: build
+          filters: {branches:{ignore:[master]}}
+      - reset_sirius:
+          name: reset the sirius fixtures
+          tf_workspace: development
+          filters: {branches:{ignore:[master]}}
 #      - infrastructure:
 #          name: plan infra development
 #          requires: [build]
 #          tf_workspace: development
 #          tf_command: plan
 #          filters: {branches:{ignore:[master]}}
-      - infrastructure:
-          name: build infra development
-          requires: [build master]
-          tf_workspace: development
-          tf_command: apply
-          filters: {branches:{only:[master]}}
-      - reset_sirius:
-          name: reset the sirius fixtures
-          tf_workspace: development
-          filters: {branches:{ignore:[master]}}
-      - cleanup:
-          name: destroy branch environment
-          filters: {branches:{ignore:[master]}}
+#      - cleanup:
+#          name: destroy branch environment
+#          filters: {branches:{ignore:[master]}}
   master:
     jobs:
       - build:
           name: build master
+          filters: {branches:{only:[master]}}
+      - reset_sirius:
+          name: reset the sirius fixtures
+          tf_workspace: development
           filters: {branches:{only:[master]}}
       - infrastructure:
           name: build infra development
@@ -112,13 +110,18 @@ jobs:
         default: "development"
     working_directory: ~/project/terraform
     steps:
+      - checkout:
+          path: ~/project
       - terraform/install
       - run:
          name: Initialize
          command: terraform init
       - run:
           name: Get template file
-          command: terraform apply -target=local_file.output
+          command: |
+            # Image tag is not important but is needed for build
+            export TF_VAR_image_tag=fake-tag
+            terraform apply -target=local_file.output
       - run:
           name: Install ecs-runner
           command: |

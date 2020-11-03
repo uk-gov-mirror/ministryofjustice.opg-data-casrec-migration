@@ -35,7 +35,8 @@ if environment in ("local", "development"):
     sirius_db_engine.execute(sql)
 
     # RESET DB - FOR LOCALDEV ONLY - DONT COMMIT THIS
-    sql = "DELETE FROM addresses WHERE person_id > 179; "
+
+    sql = "DELETE FROM addresses WHERE person_id > (SELECT MAX(id) FROM persons); "
     sql += "DELETE FROM person_note WHERE person_id > 179; "
     sql += "DELETE FROM person_caseitem WHERE person_id > 179; "
     sql += "DELETE FROM notes WHERE id > 16; "
