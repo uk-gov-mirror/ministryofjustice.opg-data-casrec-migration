@@ -179,14 +179,16 @@ schema: public
 
 If you don't see the tables in datagrip/pycharm db client, go across to 'schemas' and check that you have all necessary schemas checked (in this case `etl1`)
 
-## Reset DB fixtures
-wget https://github.com/ministryofjustice/opg-ecs-helper/releases/download/v0.2.0/opg-ecs-helper_Linux_x86_64.tar.gz -O $HOME/opg-ecs-helper.tar.gz
+## Reset DB fixtures on sirius manually
+```
 wget https://github.com/ministryofjustice/opg-ecs-helper/releases/download/v0.2.0/opg-ecs-helper_Darwin_x86_64.tar.gz -O $HOME/opg-ecs-helper.tar.gz
 sudo tar -xvf $HOME/opg-ecs-helper.tar.gz -C /usr/local/bin
-sudo chmod +x /usr/local/bin/ecs-stabilizer
 sudo chmod +x /usr/local/bin/ecs-runner
-cd environment
-export TF_WORKSPACE=casmigrate
+cd terraform
+export TF_WORKSPACE=development
+terraform apply -target=local_file.output
+# Open the file and change the user to a role you can assume
 ecs-runner -task reset-api -timeout 600
 ecs-runner -task migrate-api -timeout 600
 ecs-runner -task import-fixtures-api -timeout 600
+```
