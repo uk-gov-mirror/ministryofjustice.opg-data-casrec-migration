@@ -7,23 +7,23 @@ workflows:
       - build:
           name: build
           filters: {branches:{ignore:[master]}}
-      - reset_sirius:
-          name: reset the sirius fixtures
+      - infrastructure:
+          name: plan infra development
+          requires: [build]
           tf_workspace: development
+          tf_command: plan
           filters: {branches:{ignore:[master]}}
-#      - infrastructure:
-#          name: plan infra development
-#          requires: [build]
-#          tf_workspace: development
-#          tf_command: plan
-#          filters: {branches:{ignore:[master]}}
-#      - cleanup:
-#          name: destroy branch environment
-#          filters: {branches:{ignore:[master]}}
+      - cleanup:
+          name: destroy branch environment
+          filters: {branches:{ignore:[master]}}
   master:
     jobs:
       - build:
           name: build master
+          filters: {branches:{only:[master]}}
+      - reset_sirius:
+          name: reset the sirius fixtures
+          tf_workspace: development
           filters: {branches:{only:[master]}}
       - reset_sirius:
           name: reset the sirius fixtures
