@@ -4,7 +4,6 @@ import os
 from sqlalchemy import create_engine
 import click
 
-
 from utilities.clear_database import clear_tables
 from utilities.db_insert import InsertData
 from entities.cases.cases import insert_cases
@@ -18,6 +17,13 @@ from entities.notes.persons_note import insert_person_notes
 from entities.person_case.order_deputy import insert_order_deputy
 from entities.person_case.person_caseitem import insert_person_caseitem
 from config import LocalConfig, get_config
+from pathlib import Path
+from dotenv import load_dotenv
+
+
+current_path = Path(os.path.dirname(os.path.realpath(__file__)))
+env_path = current_path / ".env"
+load_dotenv(dotenv_path=env_path)
 
 environment = os.environ.get("ENVIRONMENT")
 

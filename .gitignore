@@ -41,3 +41,4 @@ casrec_data/do_anonymising/change_log.txt
 sirius-snapshot
 data/anon_data/
 *terraform.output.json
+*etl*.sql

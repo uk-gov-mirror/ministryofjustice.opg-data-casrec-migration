@@ -2,6 +2,8 @@ import boto3
 import os
 import logging
 from botocore.exceptions import ClientError
+from pathlib import Path
+from dotenv import load_dotenv
 
 
 def drop_bucket(bucket_name, s3_res):
@@ -56,7 +58,7 @@ def upload_file(bucket, file_name, s3, object_name=None):
     except ClientError as e:
         logging.error(e)
         return False
-    print(f"Uploaded {file_name}")
+    print(f"Uploaded {file_name.split('/')[-1]}")
     return True
 
 
@@ -115,7 +117,13 @@ if bucket_exists:
 print("Creating bucket")
 create_bucket(bucket_name, s3_client, region)
 
-anon_data_dir = os.getenv("CSV_FILE_PATH")
+current_path = Path(os.path.dirname(os.path.realpath(__file__)))
+env_path = current_path / ".env"
+load_dotenv(dotenv_path=env_path)
+
+csv_dir_suffix = os.getenv("CSV_DIR_SUFFIX")
+
+anon_data_dir = current_path / csv_dir_suffix
 
 for file in os.listdir(anon_data_dir):
     file_path = f"{anon_data_dir}/{file}"

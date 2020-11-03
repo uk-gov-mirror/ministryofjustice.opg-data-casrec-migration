@@ -14,10 +14,12 @@ from sqlalchemy.types import (
     JSON,
 )
 
-from config import CasrecMigConfig, SiriusConfig
+from config import CasrecMigConfig, SiriusConfig, load_env_vars
 
 
 def main():
+    load_env_vars()
+
     environment = os.environ.get("ENVIRONMENT")
 
     if environment in ("local", "development"):

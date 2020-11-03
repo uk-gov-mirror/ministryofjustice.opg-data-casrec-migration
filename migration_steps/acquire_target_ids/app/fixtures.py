@@ -1,6 +1,6 @@
 import pandas as pd
 from sqlalchemy import create_engine
-from config import CasrecMigConfig, SiriusConfig
+from config import CasrecMigConfig, SiriusConfig, load_env_vars
 from sqlalchemy.types import (
     Integer,
     Text,
@@ -14,6 +14,8 @@ from sqlalchemy.types import (
 )
 import json
 import os
+
+load_env_vars()
 
 environment = os.environ.get("ENVIRONMENT")
 
@@ -36,7 +38,7 @@ if environment in ("local", "development"):
 
     # RESET DB - FOR LOCALDEV ONLY - DONT COMMIT THIS
 
-    sql = "DELETE FROM addresses WHERE person_id > (SELECT MAX(id) FROM persons); "
+    sql = "DELETE FROM addresses WHERE person_id > 179; "
     sql += "DELETE FROM person_note WHERE person_id > 179; "
     sql += "DELETE FROM person_caseitem WHERE person_id > 179; "
     sql += "DELETE FROM notes WHERE id > 16; "
