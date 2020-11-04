@@ -1,5 +1,1 @@
-sqlalchemy
-psycopg2
-pandas
-xlrd
-python-dotenv
+

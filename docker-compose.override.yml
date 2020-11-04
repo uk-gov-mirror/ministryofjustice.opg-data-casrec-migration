@@ -1,0 +1,26 @@
+version: "3.6"
+
+#docker-compose.override.yml is loaded and merged with docker-compose.yml by default when calling docker-compose up.
+#This file won't be merged when using docker-compose -f docker-compose.yml up (or using any other compose file).
+services:
+
+  load_s3:
+    volumes:
+      - ./migration_steps/load_s3/load_s3_local.py:/load_s3_local.py
+
+  load_casrec:
+    volumes:
+      - ./migration_steps/load_casrec/casrec_load.py:/casrec_load.py
+
+  transform_casrec:
+    volumes:
+      - ./migration_steps/transform_casrec/app/:/app
+
+  acquire_target_ids:
+    volumes:
+      - ./migration_steps/acquire_target_ids/app:/app
+
+  load_to_target:
+    volumes:
+      - ./migration_steps/load_to_target/config.py:/config.py
+      - ./migration_steps/load_to_target/load.py:/load.py
