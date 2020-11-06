@@ -2,3 +2,5 @@ click
 beeprint
 sqlalchemy
 tabulate
+config
+colorlog
