@@ -44,18 +44,15 @@ if environment in ("local", "development"):
     sql = "ALTER TABLE notes ALTER COLUMN id SET DEFAULT nextval('notes_id_seq')"
     sirius_db_engine.execute(sql)
 
-    # RESET DB - FOR LOCALDEV ONLY - DONT COMMIT THIS
+    # To be reworked for LIVE!!
 
     sql = "SELECT MAX(id) FROM persons WHERE coalesce(clientsource, '') <> 'SKELETON'"
     max_orig_person_id = get_single_sql_value(sirius_db_engine, sql)
 
-    sql = f"SELECT MIN(id) FROM CASES WHERE client_id > {max_orig_person_id}"
-    min_new_case_id = get_single_sql_value(sirius_db_engine, sql)
-
     sql = f"DELETE FROM addresses WHERE person_id > {max_orig_person_id}; "
     sql += f"DELETE FROM person_note WHERE person_id > {max_orig_person_id}; "
     sql += f"DELETE FROM person_caseitem WHERE person_id > {max_orig_person_id}; "
-    # sql += "DELETE FROM notes WHERE id > 16; "
+    sql += f"DELETE FROM notes WHERE id in (SELECT note_id FROM person_note WHERE person_id > {max_orig_person_id}); "
     sql += f"DELETE FROM cases WHERE client_id > {max_orig_person_id}; "
     sql += f"DELETE FROM persons WHERE id > {max_orig_person_id}; "
     sirius_db_engine.execute(sql)

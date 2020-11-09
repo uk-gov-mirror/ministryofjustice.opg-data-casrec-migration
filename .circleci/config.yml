@@ -165,7 +165,7 @@ jobs:
       - run:
           name: Run unit tests
           command: |
-            export PYTHONPATH=~/project/migration_steps/transform_casrec/:~/project/migration_steps/transform_casrec/app
+            export PYTHONPATH=~/project/migration_steps/transform_casrec:~/project/migration_steps/transform_casrec/app
             pip3 install -r migration_steps/transform_casrec/tests/requirements.txt
             python3 -m pytest migration_steps/transform_casrec/tests
       - run:
