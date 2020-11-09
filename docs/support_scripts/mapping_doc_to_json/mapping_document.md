@@ -1,8 +1,16 @@
 # Mapping Document
 
+## Worksheets
 
+The default is one per table, however you can add more if they are required.
 
-## Spreadsheet format
+For example, We are considering `clients` and `deputies` as two seperate entities, so it makes sense to split the `persons` transformations into two parts. In this case we can create an extra worksheet, so we have `persons_client` and `persons_deputy`. These both have the same Sirius details, but with different mapping info for the entities.
+
+We can do this as much as we need, as long as each sheet has a unique name. You can also remove sheets if you want to but it doesn't matter to the mapping - if they are not populated with mapping info then they are not exported.
+
+If something goes wrong with a sheet, we can recreate them using the little script in `docs/support_scripts/generate_mapping_doc`
+
+## Worksheet format
 
 
 |          | Column Name             | Populated By | Details                         |
@@ -48,6 +56,10 @@
 * `unique_number` generates a unique 12 digit number
 
   These are just the basics at the moment, more will be added as we need them.
+
+#### lookup_table
+
+​	For lookup tables. Not sure how this works yet but we know we're going to need it.
 
 #### default_value
 
