@@ -4,6 +4,9 @@ version: 2.1
 workflows:
   pull_request:
     jobs:
+      - cancel_redundant_builds:
+          name: cancel redundant builds
+          filters: {branches:{ignore:[master]}}
       - build:
           name: build and unit tests
           filters: {branches:{ignore:[master]}}
@@ -22,7 +25,7 @@ workflows:
           name: build and unit tests master
           filters: {branches:{only:[master]}}
       - reset_sirius:
-          name: reset the sirius fixtures
+          name: reset the sirius fixtures master
           tf_workspace: development
           filters: {branches:{only:[master]}}
       - infrastructure:
@@ -89,6 +92,34 @@ orbs:
             auth:
               username: $DOCKER_USER
               password: $DOCKER_ACCESS_TOKEN
+    commands:
+      login_codeartifact:
+        steps:
+          - run:
+              name: install aws cli
+              command: |
+                pip3 install awscli --upgrade --user
+          - run:
+              name: login to code artifact for pip
+              command: ./login_code_artifact.sh -a 288342028542 -t pip
+              working_directory: ~/project/docs/ci_scripts
+      cancel_redundant_builds:
+        steps:
+          - run:
+              name: install cancel build requirements
+              command: pip3 install -r requirements.txt
+              working_directory: ~/project/docs/ci_scripts
+          - run:
+              name: cancel previous builds
+              command: |
+                python3 cancel_builds.py \
+                --circle_project_username="${CIRCLE_PROJECT_USERNAME}" \
+                --circle_project_reponame="${CIRCLE_PROJECT_REPONAME}" \
+                --circle_branch="${CIRCLE_BRANCH}" \
+                --circle_builds_token="${CIRCLE_BUILDS_TOKEN}" \
+                --terms_to_waitfor="plan infra" \
+                --prod_job_terms="build infra ,master"
+              working_directory: ~/project/docs/ci_scripts
 jobs:
   cleanup:
     executor: migration/python
@@ -96,6 +127,13 @@ jobs:
       - run:
           name: cleanup
           command: echo "running this so job passes as it's requirement to merge"
+  cancel_redundant_builds:
+    executor: terraform/terraform
+    resource_class: small
+    steps:
+      - checkout
+      - migration/login_codeartifact
+      - migration/cancel_redundant_builds
   reset_sirius:
     executor: terraform/terraform
     resource_class: small
@@ -177,6 +215,9 @@ jobs:
       - run:
           name: Build images
           command: docker-compose -f docker-compose.ci.yml build --parallel
+      - run:
+          name: Full local run through
+          command: ./migrate.sh
       - run:
           name: Push images
           command: docker-compose -f docker-compose.ci.yml push
