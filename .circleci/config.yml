@@ -128,7 +128,7 @@ jobs:
           name: cleanup
           command: echo "running this so job passes as it's requirement to merge"
   cancel_redundant_builds:
-    executor: terraform/terraform
+    executor: migration/python
     resource_class: small
     steps:
       - checkout
@@ -217,7 +217,11 @@ jobs:
           command: docker-compose -f docker-compose.ci.yml build --parallel
       - run:
           name: Full local run through
-          command: ./migrate.sh
+          command: |
+            echo "Removig override so we do not use volume mounts"
+            rm docker-compose.override.yml
+            echo "Running migrate.sh"
+            ./migrate.sh
       - run:
           name: Push images
           command: docker-compose -f docker-compose.ci.yml push

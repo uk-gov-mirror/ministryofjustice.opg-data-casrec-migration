@@ -1,4 +1,5 @@
 #!/bin/bash
+# Docker compose file for circle build
 docker build base_image -t opg_casrec_migration_base_image:latest > /dev/null
 docker-compose up --no-deps -d casrec_db localstack postgres-sirius
 docker-compose run --rm wait-for-it -address postgres-sirius:5432 --timeout=30 -debug
