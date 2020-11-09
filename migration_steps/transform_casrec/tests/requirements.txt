@@ -11,3 +11,4 @@ tabulate
 config
 pytest
 colorlog
+pytest_cases

@@ -15,6 +15,14 @@ from sqlalchemy.types import (
 import json
 import os
 
+
+def get_single_sql_value(engine, sql):
+    results = engine.execute(sql)
+    for r in results:
+        return_value = r.values()[0]
+        return return_value
+
+
 load_env_vars()
 
 environment = os.environ.get("ENVIRONMENT")
@@ -38,12 +46,18 @@ if environment in ("local", "development"):
 
     # RESET DB - FOR LOCALDEV ONLY - DONT COMMIT THIS
 
-    sql = "DELETE FROM addresses WHERE person_id > 179; "
-    sql += "DELETE FROM person_note WHERE person_id > 179; "
-    sql += "DELETE FROM person_caseitem WHERE person_id > 179; "
-    sql += "DELETE FROM notes WHERE id > 16; "
-    sql += "DELETE FROM cases WHERE id > 61; "
-    sql += "DELETE FROM persons WHERE id > 179; "
+    sql = "SELECT MAX(id) FROM persons WHERE coalesce(clientsource, '') <> 'SKELETON'"
+    max_orig_person_id = get_single_sql_value(sirius_db_engine, sql)
+
+    sql = f"SELECT MIN(id) FROM CASES WHERE client_id > {max_orig_person_id}"
+    min_new_case_id = get_single_sql_value(sirius_db_engine, sql)
+
+    sql = f"DELETE FROM addresses WHERE person_id > {max_orig_person_id}; "
+    sql += f"DELETE FROM person_note WHERE person_id > {max_orig_person_id}; "
+    sql += f"DELETE FROM person_caseitem WHERE person_id > {max_orig_person_id}; "
+    # sql += "DELETE FROM notes WHERE id > 16; "
+    sql += f"DELETE FROM cases WHERE client_id > {max_orig_person_id}; "
+    sql += f"DELETE FROM persons WHERE id > {max_orig_person_id}; "
     sirius_db_engine.execute(sql)
 
     sql = "UPDATE etl3.persons SET sirius_id = null WHERE sirius_id IS NOT NULL; "
@@ -108,14 +122,19 @@ if environment in ("local", "development"):
         dtype={"person_id": Integer, "isairmailrequired": Boolean},
     )
     default_address = json.dumps(["", "", ""], separators=(",", ", "))
-    sql = f"UPDATE addresses SET address_lines = '{default_address}' WHERE person_id > 179"
+    sql = f"UPDATE addresses SET address_lines = '{default_address}' WHERE person_id > {max_orig_person_id}"
     sirius_db_engine.execute(sql)
 
     print("- Associated cases")
     sql = "SELECT id, caserecnumber FROM persons ORDER BY id DESC LIMIT 10"
     persons_fixtures = pd.read_sql_query(sql, con=sirius_db_engine, index_col=None)
 
-    sql = "SELECT * FROM etl3.cases WHERE caserecnumber IN (SELECT caserecnumber FROM etl3.persons ORDER BY id ASC LIMIT 5)"
+    sql = """
+    SELECT *
+    FROM etl3.cases
+    WHERE caserecnumber
+    IN (SELECT caserecnumber FROM etl3.persons ORDER BY id ASC LIMIT 5)
+    """
     etl_cases_df = pd.read_sql_query(sql, con=migration_db_engine, index_col=None)
 
     cases_df = etl_cases_df.merge(
@@ -154,9 +173,11 @@ if environment in ("local", "development"):
         },
     )
 
-    sql = """SELECT client_id, id
-        FROM cases WHERE caserecnumber IN
-        (SELECT caserecnumber FROM persons ORDER BY id DESC LIMIT 5)"""
+    sql = """
+    SELECT client_id, id
+    FROM cases WHERE caserecnumber IN
+    (SELECT caserecnumber FROM persons ORDER BY id DESC LIMIT 5)
+    """
     person_caseitems_df = etl_cases_df = pd.read_sql_query(
         sql, con=sirius_db_engine, index_col=None
     )

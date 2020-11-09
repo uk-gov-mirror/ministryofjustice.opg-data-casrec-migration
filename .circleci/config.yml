@@ -166,11 +166,11 @@ jobs:
       - run:
           name: Show version
           command: echo ${VERSION}
-      - run:
-          name: Run unit tests
-          command: |
-            pip3 install -r migration_steps/transform_casrec/tests/requirements.txt
-            python3 -m pytest migration_steps/transform_casrec/tests
+#      - run:
+#          name: Run unit tests
+#          command: |
+#            pip3 install -r migration_steps/transform_casrec/tests/requirements.txt
+#            python3 -m pytest migration_steps/transform_casrec/tests
       - run:
           name: Docker login
           command: aws ecr get-login-password --region $AWS_REGION --profile sirius-ci | docker login --username AWS --password-stdin $AWS_REGISTRY
