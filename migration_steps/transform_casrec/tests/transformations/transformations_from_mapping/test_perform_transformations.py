@@ -11,8 +11,8 @@ from utilities.transformations_from_mapping import (
 from pytest_cases import parametrize_with_cases
 
 test_source_data_dict = {
-    "Remarks": ["row1", "row2", "row3"],
-    "Logdate": ["blah", "blah", "blah"],
+    "Remarks": ["row1", "row2", "row3", "row4", "row5"],
+    "Logdate": ["blah", "blah", "blah", "blah", "blah"],
 }
 
 test_source_data_df = pd.DataFrame(

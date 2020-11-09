@@ -1,10 +1,14 @@
+import logging
+
 import pytest
 
-from custom_logger import custom_logger
+import custom_logger
 from utilities import transformations_from_mapping
 import pandas as pd
 
-logger = custom_logger(name="transformation_test")
+logger = logging.getLogger("tests")
+logger.addHandler(custom_logger.MyHandler())
+logger.setLevel("INFO")
 
 
 @pytest.fixture()
