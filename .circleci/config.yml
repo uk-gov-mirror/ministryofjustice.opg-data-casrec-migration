@@ -9,7 +9,7 @@ workflows:
           filters: {branches:{ignore:[master]}}
       - infrastructure:
           name: plan infra development
-          requires: [build]
+          requires: [build and unit tests]
           tf_workspace: development
           tf_command: plan
           filters: {branches:{ignore:[master]}}
