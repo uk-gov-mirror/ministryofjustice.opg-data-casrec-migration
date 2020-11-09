@@ -218,8 +218,9 @@ jobs:
       - run:
           name: Full local run through
           command: |
-            echo "Removig override so we do not use volume mounts"
+            echo "Switching override so we do not use volume mounts"
             rm docker-compose.override.yml
+            mv docker-compose.override.ci.yml docker-compose.override.yml
             echo "Running migrate.sh"
             ./migrate.sh
       - run:
