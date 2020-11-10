@@ -146,6 +146,13 @@ data "aws_security_group" "sirius_db" {
   }
 }
 
+data "aws_security_group" "sirius_membrane" {
+  filter {
+    name   = "tag:Name"
+    values = ["membrane-ecs-${local.account.sirius_env}"]
+  }
+}
+
 resource "aws_security_group_rule" "etl_to_sirius_db_ingress" {
   type                     = "ingress"
   protocol                 = "tcp"
