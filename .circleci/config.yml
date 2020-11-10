@@ -4,18 +4,22 @@ version: 2.1
 workflows:
   pull_request:
     jobs:
-      - cancel_redundant_builds:
-          name: cancel redundant builds
-          filters: {branches:{ignore:[master]}}
-      - build:
-          name: build and unit tests
-          filters: {branches:{ignore:[master]}}
-      - infrastructure:
-          name: plan infra development
-          requires: [build and unit tests]
+#      - cancel_redundant_builds:
+#          name: cancel redundant builds
+#          filters: {branches:{ignore:[master]}}
+      - reset_sirius:
+          name: reset the sirius fixtures master
           tf_workspace: development
-          tf_command: plan
           filters: {branches:{ignore:[master]}}
+#      - build:
+#          name: build and unit tests
+#          filters: {branches:{ignore:[master]}}
+#      - infrastructure:
+#          name: plan infra development
+#          requires: [build and unit tests]
+#          tf_workspace: development
+#          tf_command: plan
+#          filters: {branches:{ignore:[master]}}
       - cleanup:
           name: destroy branch environment
           filters: {branches:{ignore:[master]}}
@@ -172,6 +176,15 @@ jobs:
       - run:
           name: Import Fixtures to Api
           command: ecs-runner -task import-fixtures-api -timeout 600
+      - run:
+          name: Ingest Users
+          command: ecs-runner -task ingest-users -timeout 3600
+      - run:
+          name: Ingest Cases
+          command: ecs-runner -task ingest-cases -timeout 3600
+      - run:
+          name: Reset Elasticache
+          command: ecs-runner -task reset-elasticache -timeout 3600
   build:
     executor: migration/python
     resource_class: small
