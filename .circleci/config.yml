@@ -4,24 +4,20 @@ version: 2.1
 workflows:
   pull_request:
     jobs:
-#      - cancel_redundant_builds:
-#          name: cancel redundant builds
-#          filters: {branches:{ignore:[master]}}
-      - reset_sirius:
-          name: reset the sirius fixtures master
-          tf_workspace: development
+      - cancel_redundant_builds:
+          name: cancel redundant builds
           filters: {branches:{ignore:[master]}}
-#      - build:
-#          name: build and unit tests
-#          filters: {branches:{ignore:[master]}}
-#      - infrastructure:
-#          name: plan infra development
-#          requires: [build and unit tests]
-#          tf_workspace: development
-#          tf_command: plan
-#          filters: {branches:{ignore:[master]}}
+      - build:
+          name: build and unit tests
+          filters: {branches:{ignore:[master]}}
       - cleanup:
           name: destroy branch environment
+          filters: {branches:{ignore:[master]}}
+      - infrastructure:
+          name: plan infra development
+          requires: [build and unit tests]
+          tf_workspace: development
+          tf_command: plan
           filters: {branches:{ignore:[master]}}
   master:
     jobs:
@@ -167,33 +163,33 @@ jobs:
             sudo tar -xvf $HOME/opg-ecs-helper.tar.gz -C /usr/local/bin
             sudo chmod +x /usr/local/bin/ecs-stabilizer
             sudo chmod +x /usr/local/bin/ecs-runner
-#      - run:
-#          name: Reset Api
-#          command: ecs-runner -task reset-api -timeout 600
-#      - run:
-#          name: Reset Membrane
-#          command: ecs-runner -task reset-membrane -timeout 600
-#      - run:
-#          name: Migrate Api
-#          command: ecs-runner -task migrate-api -timeout 600
-#      - run:
-#          name: Migrate Membrane
-#          command: ecs-runner -task migrate-membrane -timeout 600
-#      - run:
-#          name: Import Fixtures to Api
-#          command: ecs-runner -task import-fixtures-api -timeout 600
-#      - run:
-#          name: Import Fixtures to Membrane
-#          command: ecs-runner -task import-fixtures-membrane -timeout 600
-#      - run:
-#          name: Ingest Users
-#          command: ecs-runner -task ingest-users -timeout 600
-#      - run:
-#          name: Ingest Cases
-#          command: ecs-runner -task ingest-cases -timeout 600
       - run:
-          name: Reset Elasticache
-          command: ecs-runner -task reset-elasticache -timeout 600
+          name: Reset Api
+          command: ecs-runner -task reset-api -timeout 600
+      - run:
+          name: Reset Membrane
+          command: ecs-runner -task reset-membrane -timeout 600
+      - run:
+          name: Migrate Api
+          command: ecs-runner -task migrate-api -timeout 600
+      - run:
+          name: Migrate Membrane
+          command: ecs-runner -task migrate-membrane -timeout 600
+      - run:
+          name: Import Fixtures to Api
+          command: ecs-runner -task import-fixtures-api -timeout 600
+      - run:
+          name: Import Fixtures to Membrane
+          command: ecs-runner -task import-fixtures-membrane -timeout 600
+      - run:
+          name: Ingest Users
+          command: ecs-runner -task ingest-users -timeout 600
+      - run:
+          name: Ingest Cases
+          command: ecs-runner -task ingest-cases -timeout 600
+      - run:
+          name: Reset Elastic search
+          command: ecs-runner -task reset-elasticsearch -timeout 600
   build:
     executor: migration/python
     resource_class: small
