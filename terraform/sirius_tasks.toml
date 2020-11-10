@@ -51,6 +51,96 @@
           }
         },
         "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/reset-api-${cluster}:1"
+      },
+      "ingest-cases": {
+        "Cluster": "${cluster}",
+        "LaunchType": "FARGATE",
+        "NetworkConfiguration": {
+          "AwsvpcConfiguration": {
+            "SecurityGroups": [
+              "${sec_group}"
+            ],
+            "Subnets": [
+              "${subnets}"
+            ]
+          }
+        },
+        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/ingest-cases-${cluster}:1"
+      },
+      "ingest-users": {
+        "Cluster": "${cluster}",
+        "LaunchType": "FARGATE",
+        "NetworkConfiguration": {
+          "AwsvpcConfiguration": {
+            "SecurityGroups": [
+              "${sec_group}"
+            ],
+            "Subnets": [
+              "${subnets}"
+            ]
+          }
+        },
+        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/ingest-users-${cluster}:1"
+      },
+      "migrate-membrane": {
+        "Cluster": "${cluster}",
+        "LaunchType": "FARGATE",
+        "NetworkConfiguration": {
+          "AwsvpcConfiguration": {
+            "SecurityGroups": [
+              "${sec_group_membrane}"
+            ],
+            "Subnets": [
+              "${subnets}"
+            ]
+          }
+        },
+        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/migrate-membrane-${cluster}:1"
+      },
+      "import-fixtures-membrane": {
+        "Cluster": "${cluster}",
+        "LaunchType": "FARGATE",
+        "NetworkConfiguration": {
+          "AwsvpcConfiguration": {
+            "SecurityGroups": [
+              "${sec_group_membrane}"
+            ],
+            "Subnets": [
+              "${subnets}"
+            ]
+          }
+        },
+        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/import-fixtures-membrane-${cluster}:1"
+      },
+      "reset-membrane": {
+        "Cluster": "${cluster}",
+        "LaunchType": "FARGATE",
+        "NetworkConfiguration": {
+          "AwsvpcConfiguration": {
+            "SecurityGroups": [
+              "${sec_group_membrane}"
+            ],
+            "Subnets": [
+              "${subnets}"
+            ]
+          }
+        },
+        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/reset-membrane-${cluster}:1"
+      },
+      "reset-elasticsearch": {
+        "Cluster": "${cluster}",
+        "LaunchType": "FARGATE",
+        "NetworkConfiguration": {
+          "AwsvpcConfiguration": {
+            "SecurityGroups": [
+              "${sec_group}"
+            ],
+            "Subnets": [
+              "${subnets}"
+            ]
+          }
+        },
+        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/reset-elasticsearch-${cluster}:1"
       }
     }
   }

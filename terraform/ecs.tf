@@ -142,7 +142,14 @@ resource "aws_security_group_rule" "etl_to_sirius_db_egress" {
 data "aws_security_group" "sirius_db" {
   filter {
     name   = "tag:Name"
-    values = ["rds-api-casmigrate"]
+    values = ["rds-api-${local.account.sirius_env}"]
+  }
+}
+
+data "aws_security_group" "sirius_membrane" {
+  filter {
+    name   = "tag:Name"
+    values = ["membrane-ecs-${local.account.sirius_env}"]
   }
 }
 

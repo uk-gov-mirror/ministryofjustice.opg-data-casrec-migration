@@ -166,6 +166,26 @@ def create_schema(schema, engine):
         print(f"Schema {schema} already exists\n\n")
 
 
+def dev_sirius_session():
+
+    client = boto3.client("sts")
+    account_id = client.get_caller_identity()["Account"]
+    print(f"Current users account: {account_id}")
+
+    role_to_assume = "arn:aws:iam::288342028542:role/sirius-ci"
+    response = client.assume_role(
+        RoleArn=role_to_assume, RoleSessionName="assumed_role"
+    )
+
+    session = boto3.Session(
+        aws_access_key_id=response["Credentials"]["AccessKeyId"],
+        aws_secret_access_key=response["Credentials"]["SecretAccessKey"],
+        aws_session_token=response["Credentials"]["SessionToken"],
+    )
+
+    return session
+
+
 def main():
     parser = argparse.ArgumentParser(description="Load into casrec.")
     parser.add_argument(
@@ -194,6 +214,7 @@ def main():
         "file",
         "state",
     ]
+    ci = os.getenv("CI")
 
     processor_id = rnd.randint(0, 99999)
 
@@ -233,11 +254,16 @@ def main():
             aws_access_key_id="fake",
             aws_secret_access_key="fake",
         )
+    elif ci == "true":
+        s3_session = dev_sirius_session()
+        s3 = s3_session.client("s3")
     else:
         s3 = s3_session.client("s3")
 
     bucket_name = f"casrec-migration-{environment}"
     schema = "etl1"
+
+    print(f"Using bucket {bucket_name}")
 
     print(f"Creating schema {schema}")
     create_schema(schema, engine)
