@@ -13,14 +13,29 @@ from sqlalchemy.types import (
     Boolean,
     JSON,
 )
+from config import get_config, CasrecMigConfig, SiriusConfig, load_env_vars
+from pathlib import Path
+from dotenv import load_dotenv
 
-from config import CasrecMigConfig, SiriusConfig, load_env_vars
+current_path = Path(os.path.dirname(os.path.realpath(__file__)))
+sql_path = current_path / 'sql'
+
+
+def load_env_vars():
+    env_path = current_path / "../.env"
+    load_dotenv(dotenv_path=env_path)
+
+
+load_env_vars()
+environment = os.environ.get("ENVIRONMENT")
+config = get_config(environment)
+
+etl3_db_engine = create_engine(CasrecMigConfig.connection_string)
+sirius_db_engine = create_engine(SiriusConfig.connection_string)
 
 
 def main():
-    load_env_vars()
 
-    environment = os.environ.get("ENVIRONMENT")
     print("Fetching Sirius IDs...")
 
     print("- Persons (Clients)")

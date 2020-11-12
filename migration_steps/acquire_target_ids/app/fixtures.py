@@ -1,6 +1,6 @@
 import pandas as pd
 from sqlalchemy import create_engine
-from config import CasrecMigConfig, SiriusConfig, load_env_vars
+from config import get_config, CasrecMigConfig, SiriusConfig, load_env_vars
 from sqlalchemy.types import (
     Integer,
     Text,
@@ -14,18 +14,21 @@ from sqlalchemy.types import (
 )
 import json
 import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+current_path = Path(os.path.dirname(os.path.realpath(__file__)))
+sql_path = current_path / 'sql'
 
 
-def get_single_sql_value(engine, sql):
-    results = engine.execute(sql)
-    for r in results:
-        return_value = r.values()[0]
-        return return_value
+def load_env_vars():
+    env_path = current_path / "../.env"
+    load_dotenv(dotenv_path=env_path)
 
 
 load_env_vars()
-
 environment = os.environ.get("ENVIRONMENT")
+config = get_config(environment)
 
 migration_db_engine = create_engine(CasrecMigConfig.connection_string)
 sirius_db_engine = create_engine(SiriusConfig.connection_string)
