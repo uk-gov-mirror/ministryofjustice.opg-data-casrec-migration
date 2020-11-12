@@ -31,6 +31,7 @@ migration_db_engine = create_engine(CasrecMigConfig.connection_string)
 sirius_db_engine = create_engine(SiriusConfig.connection_string)
 
 
+def main():
     sql = "SELECT MAX(uid) FROM persons"
     max_person_uid = get_single_sql_value(sirius_db_engine, sql)
 
@@ -159,5 +160,14 @@ sirius_db_engine = create_engine(SiriusConfig.connection_string)
     #     index=False,
     #     dtype={"person_id": Integer, "case_id": Integer},
     # )
-else:
-    print(f"Environment '{environment}'not ready to run this stage yet")
+
+
+if __name__ == "__main__":
+    t = time.process_time()
+
+    if environment in ("local", "development"):
+        main()
+    else:
+        print(f"This step is not designed to run on environment '{environment}'")
+
+    print(f"Total time: {round(time.process_time() - t, 2)}")
