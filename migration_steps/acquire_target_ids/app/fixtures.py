@@ -30,36 +30,9 @@ environment = os.environ.get("ENVIRONMENT")
 migration_db_engine = create_engine(CasrecMigConfig.connection_string)
 sirius_db_engine = create_engine(SiriusConfig.connection_string)
 
-# Sirius entities are not tied to their sequence. Expect Sirius to fix this by the time of Migration
 
-if environment in ("local", "development"):
-    sql = "ALTER TABLE persons ALTER COLUMN id SET DEFAULT nextval('persons_id_seq')"
-    sirius_db_engine.execute(sql)
-    sql = (
-        "ALTER TABLE addresses ALTER COLUMN id SET DEFAULT nextval('addresses_id_seq')"
-    )
-    sirius_db_engine.execute(sql)
-    # sql = "ALTER TABLE cases ALTER COLUMN id SET DEFAULT nextval('cases_id_seq')"
-    # sirius_db_engine.execute(sql)
-    # sql = "ALTER TABLE notes ALTER COLUMN id SET DEFAULT nextval('notes_id_seq')"
-    # sirius_db_engine.execute(sql)
-
-    # To be reworked for LIVE!!
-
-    sql = "SELECT MAX(id) FROM persons WHERE coalesce(clientsource, '') NOT IN ('SKELETON', 'CASRECMIGRATION')"
-    max_orig_person_id = get_single_sql_value(sirius_db_engine, sql)
     sql = "SELECT MAX(uid) FROM persons"
     max_person_uid = get_single_sql_value(sirius_db_engine, sql)
-
-    sql = f"DELETE FROM addresses WHERE person_id > {max_orig_person_id}; "
-    sql += f"DROP TABLE if exists addresses_migrated; "
-    # sql += f"DELETE FROM person_note WHERE person_id > {max_orig_person_id}; "
-    # sql += f"DELETE FROM person_caseitem WHERE person_id > {max_orig_person_id}; "
-    # sql += f"DELETE FROM notes WHERE id in (SELECT note_id FROM person_note WHERE person_id > {max_orig_person_id}); "
-    # sql += f"DELETE FROM cases WHERE client_id > {max_orig_person_id}; "
-    sql += f"DELETE FROM persons WHERE id > {max_orig_person_id}; "
-    sql += f"DROP TABLE if exists persons_migrated; "
-    sirius_db_engine.execute(sql)
 
     sql = "UPDATE etl3.persons SET sirius_id = null WHERE sirius_id IS NOT NULL; "
     migration_db_engine.execute(sql)

@@ -16,6 +16,10 @@ services:
     volumes:
       - ./migration_steps/transform_casrec/app/:/app
 
+  prepare_target:
+    volumes:
+      - ./migration_steps/prepare_target/app:/app
+
   acquire_target_ids:
     volumes:
       - ./migration_steps/acquire_target_ids/app:/app
