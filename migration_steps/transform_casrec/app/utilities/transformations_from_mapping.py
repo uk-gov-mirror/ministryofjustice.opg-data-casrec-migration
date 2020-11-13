@@ -1,6 +1,9 @@
+import json
+
 import pandas as pd
 from beeprint import pp
 
+from utilities.helpers import get_lookup_file
 from utilities.standard_transformations import (
     unique_number,
     squash_columns,
@@ -77,6 +80,23 @@ def add_required_columns(
     return source_data_df
 
 
+def map_lookup_tables(
+    lookup_tables: dict, source_data_df: pd.DataFrame
+) -> pd.DataFrame:
+
+    for col, details in lookup_tables.items():
+        with open(get_lookup_file(file_name=details["lookup_table"])) as lookup_json:
+            lookup_dict = json.load(lookup_json)
+
+            better_lookup_dict = {
+                k: v["sirius_mapping"] for k, v in lookup_dict.items()
+            }
+
+            source_data_df = source_data_df.replace({col: better_lookup_dict})
+
+    return source_data_df
+
+
 def add_unique_id(
     db_conn_string: str,
     db_schema: str,
@@ -88,6 +108,8 @@ def add_unique_id(
     db_schema = db_schema
     destination_table_name = table_definition["destination_table_name"]
     unique_column_name = "id"
+
+    log.log(config.VERBOSE, destination_table_name)
 
     query = (
         f"select max({unique_column_name}) from {db_schema}.{destination_table_name};"
@@ -140,6 +162,10 @@ def get_default_values(mapping_definitions: dict) -> dict:
     }
 
 
+def get_lookup_tables(mapping_definitions: dict) -> dict:
+    return {k: v for k, v in mapping_definitions.items() if v["lookup_table"] != ""}
+
+
 def perform_transformations(
     mapping_definitions: dict,
     table_definition: dict,
@@ -152,6 +178,7 @@ def perform_transformations(
     simple_mapping = get_simple_mapping(mapping_definitions)
     transformations = get_transformations(mapping_definitions)
     required_columns = get_default_values(mapping_definitions)
+    lookup_tables = get_lookup_tables(mapping_definitions)
 
     if len(simple_mapping) > 0:
         final_df = do_simple_mapping(simple_mapping, table_definition, final_df)
@@ -161,6 +188,9 @@ def perform_transformations(
 
     if len(required_columns) > 0:
         final_df = add_required_columns(required_columns, final_df)
+
+    if len(lookup_tables) > 0:
+        final_df = map_lookup_tables(lookup_tables, final_df)
 
     final_df = add_unique_id(db_conn_string, db_schema, table_definition, final_df)
 
