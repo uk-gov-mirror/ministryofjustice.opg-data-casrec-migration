@@ -2,16 +2,20 @@ import os
 import psycopg2
 from pathlib import Path
 import pandas as pd
+import numpy as np
+
+from psycopg2.extensions import register_adapter, AsIs
+psycopg2.extensions.register_adapter(np.int64, psycopg2._psycopg.AsIs)
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sql_path = current_path / 'sql'
 
 
-def execute_sql_file(filename, conn, return_cursor=False):
+def execute_sql_file(filename, conn, schema='public', return_cursor=False):
     cursor = conn.cursor()
     sql_file = open(sql_path / filename, 'r')
     try:
-        cursor.execute(sql_file.read())
+        cursor.execute(sql_file.read().replace('{schema}', str(schema)))
         conn.commit()
     except (Exception, psycopg2.DatabaseError) as error:
         print("Error: %s" % error)
