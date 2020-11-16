@@ -197,7 +197,7 @@ if environment in ("local", "development"):
     sirius_persons.to_sql(
         "sirius_map_persons",
         con=migration_db_engine,
-        schema=CasrecMigConfig.etl3_schema,
+        schema=CasrecMigConfig.pre_migrate_schema,
         if_exists="replace",
         index=False,
         chunksize=500,

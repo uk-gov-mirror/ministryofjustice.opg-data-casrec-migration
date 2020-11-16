@@ -28,7 +28,7 @@ class CasrecMigConfig:
 
     etl1_schema = "etl1"
     etl2_schema = "etl2"
-    etl3_schema = "etl3"
+    pre_migrate_schema = "pre_migrate"
 
 
 class SiriusConfig:

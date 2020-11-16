@@ -1,13 +1,7 @@
 import os
+import logging
 from pathlib import Path
 from dotenv import load_dotenv
-
-
-def get_config(env="local"):
-    if env == "local":
-        config = CasrecMigConfig()
-
-    return config
 
 
 def load_env_vars():
@@ -16,28 +10,69 @@ def load_env_vars():
     load_dotenv(dotenv_path=env_path)
 
 
-class CasrecMigConfig:
+class BaseConfig:
     load_env_vars()
-    password = os.environ.get("DB_PASSWORD")
-    db_host = os.environ.get("DB_HOST")
-    port = os.environ.get("DB_PORT")
-    name = os.environ.get("DB_NAME")
-    user = os.environ.get("DB_USER")
+    db_config = {
+        "migration": {
+            "host": os.environ.get("DB_HOST"),
+            "port": os.environ.get("DB_PORT"),
+            "name": os.environ.get("DB_NAME"),
+            "user": os.environ.get("DB_USER"),
+            "password": os.environ.get("DB_PASSWORD")
+        },
+        "target": {
+            "host": os.environ.get("SIRIUS_DB_HOST"),
+            "port": os.environ.get("SIRIUS_DB_PORT"),
+            "name": os.environ.get("SIRIUS_DB_NAME"),
+            "user": os.environ.get("SIRIUS_DB_USER"),
+            "password": os.environ.get("SIRIUS_DB_PASSWORD")
+        }
+    }
 
-    connection_string = f"postgresql://{user}:{password}@{db_host}:{port}/{name}"  # pragma: allowlist secret
+    schemas = {
+        "pre_transform": "etl1",
+        "pre_merge": "etl2",
+        "pre_migrate": "pre_migrate",
+        "public": "public"
+    }
 
-    etl1_schema = "etl1"
-    etl2_schema = "etl2"
-    etl3_schema = "etl3"
+    row_limit = 5
+    VERBOSE = 5
+    DATA = 2
+    verbosity_levels = {0: "INFO", 1: "DEBUG", 2: "VERBOSE"}
+
+    def verbose(self, msg, *args, **kwargs):
+        if logging.getLogger().isEnabledFor(self.VERBOSE):
+            logging.log(self.VERBOSE, msg)
+
+    def custom_log_level(self):
+        logging.addLevelName(self.VERBOSE, "VERBOSE")
+        logging.Logger.verbose = self.verbose
+
+    def get_db_connection_string(self, db, schema=schemas['public']):
+        return f"postgresql://{self.db_config[db]['user']}:{self.db_config[db]['password']}@" \
+               f"{self.db_config[db]['host']}:{self.db_config[db]['port']}" \
+               f"/{self.db_config[db]['name']}"  # pragma: allowlist secret
 
 
-class SiriusConfig:
-    load_env_vars()
-    password = os.environ.get("SIRIUS_DB_PASSWORD")
-    db_host = os.environ.get("SIRIUS_DB_HOST")
-    port = os.environ.get("SIRIUS_DB_PORT")
-    name = os.environ.get("SIRIUS_DB_NAME")
-    user = os.environ.get("SIRIUS_DB_USER")
+class LocalConfig(BaseConfig):
+    verbosity_levels = {0: "INFO", 1: "DEBUG", 2: "VERBOSE", 3: "DATA"}
 
-    connection_string = f"postgresql://{user}:{password}@{db_host}:{port}/{name}"  # pragma: allowlist secret
-    sirius_schema = "public"
+    def data(self, msg, *args, **kwargs):
+        if logging.getLogger().isEnabledFor(self.DATA):
+            logging.log(self.DATA, msg)
+
+    def custom_log_level(self):
+        logging.addLevelName(self.VERBOSE, "VERBOSE")
+        logging.Logger.verbose = self.verbose
+
+        logging.addLevelName(self.DATA, "DATA")
+        logging.Logger.data = self.data
+
+
+def get_config(env="local"):
+    if env == "local":
+        config = LocalConfig()
+    else:
+        config = BaseConfig()
+    return config
