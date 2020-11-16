@@ -26,5 +26,4 @@ services:
 
   load_to_target:
     volumes:
-      - ./migration_steps/load_to_target/config.py:/config.py
-      - ./migration_steps/load_to_target/load.py:/load.py
+      - ./migration_steps/load_to_target/app:/app

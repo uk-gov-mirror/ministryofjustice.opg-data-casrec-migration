@@ -32,6 +32,6 @@ wait $P1 $P2 $P3 $P4
 cat docker_load.log
 rm docker_load.log
 docker-compose run --rm transform_casrec python3 app.py --clear=True
-docker-compose run --rm acquire_target_ids ./acquire_target_ids.sh
-docker-compose run --rm load_to_target python3 load.py
 docker-compose run --rm prepare_target python3 app.py
+docker-compose run --rm acquire_target_ids ./acquire_target_ids.sh
+docker-compose run --rm load_to_target python3 app.py
