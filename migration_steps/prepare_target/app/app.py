@@ -4,7 +4,7 @@ import psycopg2
 from config import get_config
 from pathlib import Path
 from dotenv import load_dotenv
-from helpers import execute_sql_file, result_from_sql_file, execute_generated_sql
+from helpers import *
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 env_path = current_path / "../.env"
