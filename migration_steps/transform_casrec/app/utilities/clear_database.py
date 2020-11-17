@@ -1,5 +1,5 @@
 import logging
-import sys
+
 import psycopg2
 
 log = logging.getLogger("root")

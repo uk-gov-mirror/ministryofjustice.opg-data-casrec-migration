@@ -17,7 +17,6 @@ from utilities.db_insert import InsertData
 environment = os.environ.get("ENVIRONMENT")
 config = get_config(env=environment)
 
-
 # logging
 log = logging.getLogger("root")
 log.addHandler(custom_logger.MyHandler())

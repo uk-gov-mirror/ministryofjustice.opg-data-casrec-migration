@@ -1,14 +1,12 @@
-import re
-from beeprint import pp
-import os
 import logging
+import os
 
-from config import get_config
+from get_shared_utilities import shared
 
 log = logging.getLogger("root")
 environment = os.environ.get("ENVIRONMENT")
 
-config = get_config(env=environment)
+config = shared.get_config(env=environment)
 
 
 def additional_cols(additional_columns: list) -> list:
