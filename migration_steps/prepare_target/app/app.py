@@ -4,11 +4,9 @@ import psycopg2
 from config import get_config
 from pathlib import Path
 from dotenv import load_dotenv
-from entities import client
-from entities import address
+from helpers import *
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
-sql_path = current_path / 'sql'
 env_path = current_path / "../.env"
 load_dotenv(dotenv_path=env_path)
 
@@ -17,16 +15,21 @@ config = get_config(environment)
 
 
 def main():
-    conn_migration = psycopg2.connect(config.get_db_connection_string("migration"))
     conn_target = psycopg2.connect(config.get_db_connection_string("target"))
 
-    print("Fetch matching IDs from target (Sirius)")
-    client.fetch_target_ids(config, conn_migration, conn_target)
-    address.fetch_target_ids(config, conn_migration, conn_target)
+    # operations which need to be performed on Sirius DB ahead of the final Casrec Migration
+    execute_sql_file('prepare_sirius.sql', conn_target)
 
-    print("Merge target IDs in with pre_migrate data")
-    client.merge_target_ids(config, conn_migration, conn_target)
-    address.merge_target_ids(config, conn_migration, conn_target)
+    # roll back previous migration
+    max_orig_person_id = result_from_sql_file('get_max_orig_person_id.sql', conn_target)
+    execute_generated_sql(
+        'rollback_fixtures.template.sql',
+        '{max_orig_person_id}',
+        max_orig_person_id,
+        conn_target
+    )
+
+    conn_target.close()
 
 
 if __name__ == "__main__":

@@ -20,13 +20,21 @@ def main():
     conn_migration = psycopg2.connect(config.get_db_connection_string("migration"))
     conn_target = psycopg2.connect(config.get_db_connection_string("target"))
 
-    print("Fetch matching IDs from target (Sirius)")
-    client.fetch_target_ids(config, conn_migration, conn_target)
-    address.fetch_target_ids(config, conn_migration, conn_target)
+    print("Updating the skeleton clients")
+    client.target_update(config, conn_migration, conn_target)
+    address.target_update(config, conn_migration, conn_target)
 
-    print("Merge target IDs in with pre_migrate data")
-    client.merge_target_ids(config, conn_migration, conn_target)
-    address.merge_target_ids(config, conn_migration, conn_target)
+    print("Add new clients")
+    client.target_add(config, conn_migration, conn_target)
+
+    print("Re-index newly added clients")
+    client.reindex_target_ids(config, conn_migration, conn_target)
+    address.reindex_target_ids(config, conn_migration)
+
+    print("Add new addresses")
+    address.target_add(config, conn_migration, conn_target)
+
+    print("Migration complete.")
 
 
 if __name__ == "__main__":

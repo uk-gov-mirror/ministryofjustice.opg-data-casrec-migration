@@ -29,13 +29,6 @@ class BaseConfig:
         }
     }
 
-    schemas = {
-        "pre_transform": "etl1",
-        "pre_merge": "etl2",
-        "pre_migrate": "pre_migrate",
-        "public": "public"
-    }
-
     row_limit = 5
     VERBOSE = 5
     DATA = 2
@@ -49,7 +42,7 @@ class BaseConfig:
         logging.addLevelName(self.VERBOSE, "VERBOSE")
         logging.Logger.verbose = self.verbose
 
-    def get_db_connection_string(self, db, schema=schemas['public']):
+    def get_db_connection_string(self, db):
         return f"postgresql://{self.db_config[db]['user']}:{self.db_config[db]['password']}@" \
                f"{self.db_config[db]['host']}:{self.db_config[db]['port']}" \
                f"/{self.db_config[db]['name']}"  # pragma: allowlist secret
