@@ -20,6 +20,7 @@ def clear_tables(config):
         "person_caseitem",
         "person_note",
         "order_deputy",
+        "phonenumbers",
     ]
 
     for t in tables:

@@ -59,8 +59,8 @@
         "casrec_column_name": "",
         "alias": "",
         "requires_transformation": "",
-        "default_value": "Todays Date",
-        "calculated": "",
+        "default_value": "",
+        "calculated": "current_date",
         "is_pk": "",
         "fk_parents": "",
         "is_complete": true
