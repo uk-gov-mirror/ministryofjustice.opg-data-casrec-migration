@@ -57,17 +57,8 @@ def df_from_sql_file(filename, conn, schema="public"):
     return pd.read_sql_query(sql, con=conn, index_col=None)
 
 
-# https://naysan.ca/2020/05/09/pandas-to-postgresql-using-psycopg2-bulk-insert-performance-benchmark/
-def execute_mogrify(conn, df, table):
-    """
-    Using cursor.mogrify() to build the bulk insert query
-    then cursor.execute() to execute the query
-    """
-
-    # Create a list of tupples from the dataframe values
+def execute_insert(conn, df, table):
     tuples = [tuple(x) for x in df.to_numpy()]
-
-    # Comma-separated dataframe columns
     cols = ','.join(list(df.columns))
 
     cursor = conn.cursor()
@@ -84,3 +75,18 @@ def execute_mogrify(conn, df, table):
         cursor.close()
         return 1
     cursor.close()
+
+
+def log_title(message: str) -> str:
+    total_length = 100
+    padded_word = f" {message} "
+    left_filler_length = round((total_length - len(padded_word)) / 2)
+    right_filler_length = total_length - len(padded_word) - left_filler_length
+
+    left_filler = "=" * left_filler_length
+    right_filler = "=" * right_filler_length
+
+    log_string = left_filler + padded_word.upper() + right_filler
+
+    return log_string
+

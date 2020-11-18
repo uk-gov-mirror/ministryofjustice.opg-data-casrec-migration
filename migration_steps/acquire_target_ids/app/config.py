@@ -37,9 +37,12 @@ class BaseConfig:
     }
 
     row_limit = 5
-    VERBOSE = 5
-    DATA = 2
-    verbosity_levels = {0: "INFO", 1: "DEBUG", 2: "VERBOSE"}
+
+    INFO = 0
+    DEBUG = 1
+    VERBOSE = 2
+    DATA = 3
+    verbosity_levels = {0: "INFO", 1: "DEBUG", 2: "VERBOSE", 3: "DATA"}
 
     def verbose(self, msg, *args, **kwargs):
         if logging.getLogger().isEnabledFor(self.VERBOSE):
