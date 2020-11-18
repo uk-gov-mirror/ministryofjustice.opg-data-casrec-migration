@@ -80,7 +80,7 @@ def do_calculations(
     if "current_date" in calculated_fields:
         for t in calculated_fields["current_date"]:
             calculations_df = current_date(
-                t["original_columns"], t["aggregate_col"], calculations_df
+                t["original_col"], t["final_col"], calculations_df
             )
 
     return calculations_df
