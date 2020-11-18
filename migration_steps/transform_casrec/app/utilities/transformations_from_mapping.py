@@ -79,9 +79,7 @@ def do_calculations(
 
     if "current_date" in calculated_fields:
         for t in calculated_fields["current_date"]:
-            calculations_df = current_date(
-                t["original_col"], t["final_col"], calculations_df
-            )
+            calculations_df = current_date(t["column_name"], calculations_df)
 
     return calculations_df
 
@@ -186,7 +184,7 @@ def get_calculations(mapping_definitions: dict) -> dict:
     calculations = {}
     for k, v in requires_calculation.items():
         tr = v["calculated"]
-        d = {"original_col": v["casrec_column_name"], "final_col": k}
+        d = {"column_name": k}
         if tr in calculations:
             calculations[tr].append(d)
         else:

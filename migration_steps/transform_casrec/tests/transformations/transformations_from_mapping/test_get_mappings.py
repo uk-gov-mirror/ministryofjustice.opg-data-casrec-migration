@@ -137,7 +137,7 @@ expected_transformations_dict = {
 }
 
 expected_calculated_fields_dict = {
-    "current_date": [{"original_col": "", "final_col": "todays_date",},],
+    "current_date": [{"column_name": "todays_date",},],
 }
 
 

@@ -45,7 +45,7 @@ def mock_standard_transformations(monkeypatch):
 
 @pytest.fixture()
 def mock_calculations(monkeypatch):
-    def mock_current_date(original_col, final_col, df):
+    def mock_current_date(column_name, df):
         logger.info("mock current_date")
         return df
 
