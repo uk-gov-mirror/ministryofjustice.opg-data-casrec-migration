@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pytest_cases import case
 
 module_name = "client_phonenumbers"
@@ -52,3 +54,23 @@ def case_clients_phonenos_2(get_config):
     """
 
     return (defaults, source_query, module_name)
+
+
+@case(tags="calculated")
+def case_clients_phonenos_3(get_config):
+    today = datetime.today().strftime("%Y-%m-%d")
+
+    calculated_fields = {
+        "updateddate": today,
+    }
+
+    config = get_config
+    source_columns = [f'"{x}"' for x in calculated_fields.keys()]
+
+    source_query = f"""
+        SELECT
+            {', '.join(source_columns)}
+        FROM {config.etl2_schema}.{destination_table}
+    """
+
+    return (calculated_fields, source_query, module_name)

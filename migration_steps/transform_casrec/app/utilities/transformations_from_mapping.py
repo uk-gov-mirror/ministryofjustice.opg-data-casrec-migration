@@ -175,6 +175,11 @@ def perform_transformations(
 ) -> pd.DataFrame:
     final_df = source_data_df
 
+    log.log(
+        config.DATA,
+        f"Data before transformations\n{final_df.sample(n=config.row_limit).to_markdown()}",
+    )
+
     simple_mapping = get_simple_mapping(mapping_definitions)
     transformations = get_transformations(mapping_definitions)
     required_columns = get_default_values(mapping_definitions)
@@ -194,6 +199,9 @@ def perform_transformations(
 
     final_df = add_unique_id(db_conn_string, db_schema, table_definition, final_df)
 
-    log.log(config.DATA, f"\n{final_df.sample(n=config.row_limit).to_markdown()}")
+    log.log(
+        config.DATA,
+        f"Data after transformations\n{final_df.sample(n=config.row_limit).to_markdown()}",
+    )
 
     return final_df
