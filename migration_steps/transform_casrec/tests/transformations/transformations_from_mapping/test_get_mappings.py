@@ -2,6 +2,7 @@ from utilities.transformations_from_mapping import (
     get_simple_mapping,
     get_transformations,
     get_default_values,
+    get_calculations,
 )
 
 
@@ -12,6 +13,7 @@ test_mapping = {
         "alias": "Case",
         "requires_transformation": "",
         "default_value": "",
+        "calculated": "",
         "test_comments": "standard column",
     },
     "uid": {
@@ -20,6 +22,7 @@ test_mapping = {
         "alias": "",
         "requires_transformation": "unique_number",
         "default_value": "",
+        "calculated": "",
         "test_comments": "has 'unique_number' transformation",
     },
     "another_uid": {
@@ -28,6 +31,7 @@ test_mapping = {
         "alias": "",
         "requires_transformation": "unique_number",
         "default_value": "",
+        "calculated": "",
         "test_comments": "repeated 'unique_number' transformation",
     },
     "type": {
@@ -36,6 +40,7 @@ test_mapping = {
         "alias": "",
         "requires_transformation": "",
         "default_value": "order",
+        "calculated": "",
         "test_comments": "has a default value",
     },
     "orderdate": {
@@ -44,6 +49,7 @@ test_mapping = {
         "alias": "Made Date",
         "requires_transformation": "",
         "default_value": "",
+        "calculated": "",
         "test_comments": "standard column",
     },
     "orderexpirydate": {
@@ -52,6 +58,7 @@ test_mapping = {
         "alias": "Made Date 1",
         "requires_transformation": "",
         "default_value": "",
+        "calculated": "",
         "test_comments": "repeated column name",
     },
     "dob": {
@@ -60,7 +67,17 @@ test_mapping = {
         "alias": "DOB",
         "requires_transformation": "date_format_standard",
         "default_value": "",
+        "calculated": "",
         "test_comments": "has 'date_format_standard' transformation",
+    },
+    "todays_date": {
+        "casrec_table": "",
+        "casrec_column_name": "",
+        "alias": "",
+        "requires_transformation": "",
+        "default_value": "",
+        "calculated": "current_date",
+        "test_comments": "has 'current_date' calculation",
     },
 }
 
@@ -112,11 +129,23 @@ expected_default_values_dict = {
 }
 
 
-expected_transformations_dict_2 = {
+expected_transformations_dict = {
     "unique_number": [
         {"original_columns": "", "aggregate_col": "uid",},
         {"original_columns": "", "aggregate_col": "another_uid",},
     ],
+}
+
+expected_calculated_fields_dict = {
+    "todays_date": {
+        "casrec_table": "",
+        "casrec_column_name": "",
+        "alias": "",
+        "requires_transformation": "",
+        "default_value": "",
+        "calculated": "current_date",
+        "test_comments": "has 'current_date' calculation",
+    },
 }
 
 
@@ -135,4 +164,10 @@ def test_get_default_values():
 def test_get_transformations():
 
     result = get_transformations(mapping_definitions=test_mapping)
-    assert result == expected_transformations_dict_2
+    assert result == expected_transformations_dict
+
+
+def test_get_calculations():
+
+    result = get_calculations(mapping_definitions=test_mapping)
+    assert result == expected_calculated_fields_dict

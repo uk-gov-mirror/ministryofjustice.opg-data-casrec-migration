@@ -162,6 +162,10 @@ def get_default_values(mapping_definitions: dict) -> dict:
     }
 
 
+def get_calculations(mapping_definitions: dict) -> dict:
+    return {k: v for k, v in mapping_definitions.items() if v["calculated"] != ""}
+
+
 def get_lookup_tables(mapping_definitions: dict) -> dict:
     return {k: v for k, v in mapping_definitions.items() if v["lookup_table"] != ""}
 
