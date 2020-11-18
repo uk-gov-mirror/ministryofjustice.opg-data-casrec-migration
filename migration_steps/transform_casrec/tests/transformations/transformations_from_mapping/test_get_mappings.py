@@ -137,15 +137,7 @@ expected_transformations_dict = {
 }
 
 expected_calculated_fields_dict = {
-    "todays_date": {
-        "casrec_table": "",
-        "casrec_column_name": "",
-        "alias": "",
-        "requires_transformation": "",
-        "default_value": "",
-        "calculated": "current_date",
-        "test_comments": "has 'current_date' calculation",
-    },
+    "current_date": [{"original_col": "", "final_col": "todays_date",},],
 }
 
 
