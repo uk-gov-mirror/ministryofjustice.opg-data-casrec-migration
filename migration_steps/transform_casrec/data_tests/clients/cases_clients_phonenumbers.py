@@ -41,7 +41,7 @@ def case_clients_phonenos_2(get_config):
     defaults = {
         "type": "Home",
         "is_default": False,
-        "updateddate": "Todays Date",
+        # "updateddate": "Todays Date",
     }
 
     config = get_config
