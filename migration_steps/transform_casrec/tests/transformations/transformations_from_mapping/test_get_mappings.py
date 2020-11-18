@@ -89,6 +89,7 @@ expected_simple_mapping_dict = {
         "alias": "Case",
         "requires_transformation": "",
         "default_value": "",
+        "calculated": "",
         "test_comments": "standard column",
     },
     "orderdate": {
@@ -97,6 +98,7 @@ expected_simple_mapping_dict = {
         "alias": "Made Date",
         "requires_transformation": "",
         "default_value": "",
+        "calculated": "",
         "test_comments": "standard column",
     },
     "orderexpirydate": {
@@ -105,6 +107,7 @@ expected_simple_mapping_dict = {
         "alias": "Made Date 1",
         "requires_transformation": "",
         "default_value": "",
+        "calculated": "",
         "test_comments": "repeated column name",
     },
     "dob": {
@@ -113,6 +116,7 @@ expected_simple_mapping_dict = {
         "alias": "DOB",
         "requires_transformation": "date_format_standard",
         "default_value": "",
+        "calculated": "",
         "test_comments": "has 'date_format_standard' transformation",
     },
 }
@@ -124,6 +128,7 @@ expected_default_values_dict = {
         "alias": "",
         "requires_transformation": "",
         "default_value": "order",
+        "calculated": "",
         "test_comments": "has a default value",
     },
 }
