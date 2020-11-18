@@ -7,3 +7,5 @@ ALTER TABLE notes ALTER COLUMN id SET DEFAULT nextval('notes_id_seq');
 ALTER TABLE persons ALTER COLUMN correspondencebypost SET DEFAULT FALSE;
 ALTER TABLE persons ALTER COLUMN correspondencebyphone SET DEFAULT FALSE;
 ALTER TABLE persons ALTER COLUMN correspondencebyemail SET DEFAULT FALSE;
+
+-- create a sequence for persons.uid

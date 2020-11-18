@@ -4,8 +4,12 @@ import psycopg2
 from config import get_config
 from pathlib import Path
 from dotenv import load_dotenv
+from helpers import log_title
 from entities import client
 from entities import address
+import logging
+import custom_logger
+import click
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sql_path = current_path / 'sql'
@@ -15,13 +19,33 @@ load_dotenv(dotenv_path=env_path)
 environment = os.environ.get("ENVIRONMENT")
 config = get_config(environment)
 
+# logging
+log = logging.getLogger("root")
+log.addHandler(custom_logger.MyHandler())
+config.custom_log_level()
+verbosity_levels = config.verbosity_levels
 
-def main():
+def set_logging_level(verbose):
+    try:
+        log.setLevel(verbosity_levels[verbose])
+    except KeyError:
+        log.setLevel("INFO")
+        log.info(f"{verbose} is not a valid verbosity level")
+
+
+@click.command()
+@click.option("-v", "--verbose", count=True)
+def main(verbose):
+    set_logging_level(verbose)
+    log.info(log_title(message="Migration Step: Fixtures"))
+
     conn_migration = psycopg2.connect(config.get_db_connection_string("migration"))
     conn_target = psycopg2.connect(config.get_db_connection_string("target"))
 
-    print("Loading 10 people into Sirius to simulate skeleton case data")
+    log.info("Add fixtures into Sirius DB to replicate Skeleton Clients")
+    log.info("- Clients")
     client.load_fixtures(config, conn_migration, conn_target)
+    log.info("- Addresses")
     address.load_fixtures(config, conn_target)
     # case.loadFixtures(config, conn_target)
 
@@ -29,9 +53,12 @@ def main():
 if __name__ == "__main__":
     t = time.process_time()
 
+    log.setLevel(1)
+    log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
+
     if environment in ("local", "development"):
         main()
     else:
-        print(f"This step is not designed to run on environment '{environment}'")
+        log.warning("Skipping step not designed to run on environment %s", environment)
 
     print(f"Total time: {round(time.process_time() - t, 2)}")

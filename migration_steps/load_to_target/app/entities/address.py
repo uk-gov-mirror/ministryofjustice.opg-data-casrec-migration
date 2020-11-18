@@ -1,27 +1,8 @@
 from helpers import *
 
 
-# def load_fixtures(self, conn_target):
-#     print("- Associated addresses")
-#     execute_sql_file('fixtures_add_addresses.sql', conn_target)
-#
-#
-# def fetch_target_ids(config, conn_migration, conn_target):
-#     schema = config.schemas['pre_migrate']
-#     print("- Associated Addresses")
-#     sirius_addresses_df = df_from_sql_file('select_sirius_addresses.sql', conn_target)
-#     execute_mogrify(conn_migration, sirius_addresses_df, f"{schema}.sirius_map_addresses")
-#
-#
-# def merge_target_ids(config, conn_migration, conn_target):
-#     schema = config.schemas['pre_migrate']
-#     print("- Associated addresses")
-#     execute_sql_file('merge_target_addresses.sql', conn_migration, schema)
-
-
 def target_update(config, conn_migration, conn_target):
     schema = config.schemas['pre_migrate']
-    print("- Addresses")
     addresses_df = df_from_sql_file('get_skeleton_addresses.sql', conn_migration, schema)
 
     # transpose id column
@@ -40,7 +21,6 @@ def target_update(config, conn_migration, conn_target):
 
 def target_add(config, conn_migration, conn_target):
     schema = config.schemas['pre_migrate']
-    print("- Addresses")
     addresses_df = df_from_sql_file('get_new_addresses.sql', conn_migration, schema)
 
     # don't send id
@@ -61,5 +41,4 @@ def target_add(config, conn_migration, conn_target):
 
 def reindex_target_ids(config, conn_migration):
     schema = config.schemas['pre_migrate']
-    print("- Re-merge target Client IDs")
     execute_sql_file('merge_target_addresses.sql', conn_migration, schema)

@@ -3,7 +3,6 @@ from helpers import *
 
 def target_update(config, conn_migration, conn_target):
     schema = config.schemas['pre_migrate']
-    print("- Clients")
     persons_df = df_from_sql_file('get_skeleton_clients.sql', conn_migration, schema)
 
     # transpose id column
@@ -18,7 +17,6 @@ def target_update(config, conn_migration, conn_target):
 
 def target_add(config, conn_migration, conn_target):
     schema = config.schemas['pre_migrate']
-    print("- Clients")
     persons_df = df_from_sql_file('get_new_clients.sql', conn_migration, schema)
 
     # don't send id
@@ -38,7 +36,6 @@ def target_add(config, conn_migration, conn_target):
 
 def reindex_target_ids(config, conn_migration, conn_target):
     schema = config.schemas['pre_migrate']
-    print("- Re-index target Client IDs")
     sirius_persons_df = df_from_sql_file('select_sirius_clients.sql', conn_target)
 
     cursor = conn_migration.cursor()
