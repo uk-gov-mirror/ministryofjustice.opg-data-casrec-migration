@@ -29,6 +29,13 @@ class BaseConfig:
         }
     }
 
+    schemas = {
+        "pre_transform": "etl1",
+        "pre_merge": "etl2",
+        "pre_migrate": "pre_migrate",
+        "public": "public"
+    }
+
     row_limit = 5
 
     INFO = 0
