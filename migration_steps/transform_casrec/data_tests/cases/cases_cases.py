@@ -96,35 +96,31 @@ def case_cases_2(get_config):
     return (defaults, source_query, module_name)
 
 
-# @case(tags="lookups")
-# def case_casess_3(get_config):
-#     lookup_fields = {
-#         "Ord Type": {
-#             "casesubtype": get_lookup_dict(file_name="order_type_lookup")
-#         },
-#         "Ord Type": {
-#             "ordersubtype": get_lookup_dict(file_name="order_subtype_lookup")
-#         }
-#     }
-#     merge_columns = {"source": "Case", "transformed": "caserecnumber"}
-#
-#     config = get_config
-#
-#     source_columns = [f'"{x}"' for x in lookup_fields.keys()]
-#     transformed_columns = [f'"{y}"' for x in lookup_fields.values() for y in x]
-#
-#     source_query = f"""
-#         SELECT
-#             "{merge_columns['source']}",
-#             {', '.join(source_columns)}
-#         FROM {config.etl1_schema}.{source_table}
-#     """
-#
-#     transformed_query = f"""
-#         SELECT
-#             {merge_columns['transformed']},
-#             {', '.join(transformed_columns)}
-#         FROM {config.etl2_schema}.{destination_table}
-#     """
-#
-#     return (lookup_fields, merge_columns, source_query, transformed_query, module_name)
+@case(tags="lookups")
+def case_cases_3(get_config):
+    lookup_fields = {
+        "casesubtype": {"Ord Type": "order_type_lookup"},
+        "ordersubtype": {"Ord Type": "order_subtype_lookup"},
+    }
+    merge_columns = {"source": "Case", "transformed": "caserecnumber"}
+
+    config = get_config
+
+    source_columns = list(set([f'"{y}"' for x in lookup_fields.values() for y in x]))
+    transformed_columns = [f'"{x}"' for x in lookup_fields.keys()]
+
+    source_query = f"""
+        SELECT
+            "{merge_columns['source']}",
+            {', '.join(source_columns)}
+        FROM {config.etl1_schema}.{source_table}
+    """
+
+    transformed_query = f"""
+        SELECT
+            {merge_columns['transformed']},
+            {', '.join(transformed_columns)}
+        FROM {config.etl2_schema}.{destination_table}
+    """
+
+    return (lookup_fields, merge_columns, source_query, transformed_query, module_name)
