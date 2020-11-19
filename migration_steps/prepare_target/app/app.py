@@ -14,7 +14,6 @@ import click
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 env_path = current_path / "../.env"
 sql_path = current_path / 'sql'
-
 load_dotenv(dotenv_path=env_path)
 
 environment = os.environ.get("ENVIRONMENT")

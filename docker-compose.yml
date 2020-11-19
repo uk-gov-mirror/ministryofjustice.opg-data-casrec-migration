@@ -99,8 +99,8 @@ services:
     depends_on: [postgres-sirius]
   acquire_target_ids:
     build:
-      context: migration_steps/acquire_target_ids
-      dockerfile: Dockerfile
+      context: ./migration_steps
+      dockerfile: acquire_target_ids-dockerfile
     environment:
       DB_USER: casrec
       DB_PASSWORD: casrec # pragma: allowlist secret

@@ -1,8 +1,8 @@
 FROM opg_casrec_migration_base_image:latest
-COPY prepare_target/requirements.txt /migration_steps/requirements.txt
-COPY prepare_target/.env /migration_steps/.env
-RUN pip3 install -r /migration_steps/requirements.txt
-COPY prepare_target/app /migration_steps/app
+COPY prepare_target/requirements.txt /migration/requirements.txt
+COPY prepare_target/.env /migration/.env
+RUN pip3 install -r /migration/requirements.txt
+COPY prepare_target/app /migration/app
 COPY shared /shared
-WORKDIR /migration_steps/app
+WORKDIR /migration/app
 CMD ["echo", "NO_OP"]
