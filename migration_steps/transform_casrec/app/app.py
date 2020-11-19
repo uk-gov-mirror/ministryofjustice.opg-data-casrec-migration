@@ -7,7 +7,7 @@ from sqlalchemy import create_engine
 
 import custom_logger
 from config import get_config
-from entities import clients
+from entities import clients, cases
 from utilities.clear_database import clear_tables
 from utilities.db_insert import InsertData
 
@@ -72,6 +72,9 @@ def main(clear, entity_list, verbose):
     # Data - each entity can be run independently
     if len(allowed_entities) == 0 or "clients" in allowed_entities:
         clients.runner(config, etl2_db)
+
+    if len(allowed_entities) == 0 or "cases" in allowed_entities:
+        cases.runner(config, etl2_db)
 
 
 if __name__ == "__main__":
