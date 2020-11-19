@@ -19,7 +19,7 @@ class MyHandler(colourlog.StreamHandler):
                 "INFO": "green",
                 "WARNING": "yellow",
                 "ERROR": "red",
-                "CRITICAL": "red,bg_white",
+                "CRITICAL": "black,bg_green",
                 "VERBOSE": "yellow",
                 "DATA": "red",
             },

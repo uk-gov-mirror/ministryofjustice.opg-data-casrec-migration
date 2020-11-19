@@ -37,28 +37,17 @@ class BaseConfig:
     }
 
     row_limit = 5
-
-    INFO = 0
-    DEBUG = 1
-    VERBOSE = 2
-    DATA = 3
-    CRITICAL = 4
-    verbosity_levels = {0: "INFO", 1: "DEBUG", 2: "VERBOSE", 3: "DATA", 4: "CRITICAL"}
+    VERBOSE = 5
+    DATA = 2
+    verbosity_levels = {0: "INFO", 1: "DEBUG", 2: "VERBOSE"}
 
     def verbose(self, msg, *args, **kwargs):
         if logging.getLogger().isEnabledFor(self.VERBOSE):
             logging.log(self.VERBOSE, msg)
 
-    def critical(self, msg, *args, **kwargs):
-        if logging.getLogger().isEnabledFor(self.CRITICAL):
-            logging.log(self.CRITICAL, msg)
-
     def custom_log_level(self):
         logging.addLevelName(self.VERBOSE, "VERBOSE")
         logging.Logger.verbose = self.verbose
-
-        logging.addLevelName(self.CRITICAL, "CRITICAL")
-        logging.Logger.critical = self.critical
 
     def get_db_connection_string(self, db):
         return f"postgresql://{self.db_config[db]['user']}:{self.db_config[db]['password']}@" \

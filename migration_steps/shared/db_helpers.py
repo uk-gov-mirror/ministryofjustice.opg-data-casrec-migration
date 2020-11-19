@@ -72,3 +72,22 @@ def execute_insert(conn, df, table):
         cursor.close()
         return 1
     cursor.close()
+
+
+def execute_update(conn, df, table):
+    # Just ensure that the primary key is the first column of the dataframe
+
+    cols = list(df.columns)
+    pk_col = cols.pop(0)
+    colstring = '=%s,'.join(cols)
+    colstring += '=%s'
+    update_template = f'UPDATE {table} SET {colstring} WHERE {pk_col}='
+
+    cursor = conn.cursor()
+
+    for vals in df.to_numpy():
+        query = cursor.mogrify(update_template+str(vals[0]), vals[1:]).decode('utf8')
+        cursor.execute(query)
+
+    conn.commit()
+    cursor.close()

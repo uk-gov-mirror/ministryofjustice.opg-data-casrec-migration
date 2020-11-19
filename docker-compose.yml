@@ -116,8 +116,8 @@ services:
     depends_on: [casrec_db, postgres-sirius]
   load_to_target:
     build:
-      context: ./migration_steps/load_to_target
-      dockerfile: Dockerfile
+      context: ./migration_steps
+      dockerfile: load_to_target-dockerfile
     environment:
       DB_USER: casrec
       DB_PASSWORD: casrec # pragma: allowlist secret
