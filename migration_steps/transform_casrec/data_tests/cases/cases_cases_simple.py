@@ -51,7 +51,6 @@ def case_cases_2(get_config):
 
 
 @case(tags="lookups")
-# title is commented out because the anon data is wrong so it will never pass
 def case_casess_3(get_config):
 
     lookup_fields = {}
