@@ -2,6 +2,7 @@ import os
 import time
 import psycopg2
 from config import get_config
+import get_shared_utilities
 from pathlib import Path
 from dotenv import load_dotenv
 from helpers import *
