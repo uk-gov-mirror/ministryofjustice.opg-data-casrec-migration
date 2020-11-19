@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pytest_cases import case
 
 from data_tests.helpers import get_lookup_dict
@@ -50,7 +52,7 @@ def case_clients_2(get_config):
         "isreplacementattorney": False,
         "istrustcorporation": False,
         "clientstatus": "Active",
-        "statusdate": "Todays date",
+        # "statusdate": "Todays date",
         "correspondencebywelsh": False,
         "newsletter": False,
         "specialcorrespondencerequirements_audiotape": False,
@@ -62,7 +64,7 @@ def case_clients_2(get_config):
         "casesmanagedashybrid": False,
         "supervisioncaseowner_id": 10,
         "clientsource": "Casrec",
-        "updateddate": "Todays date",
+        # "updateddate": "Todays date",
     }
 
     config = get_config
@@ -115,3 +117,25 @@ def case_clients_3(get_config):
     """
 
     return (lookup_fields, merge_columns, source_query, transformed_query, module_name)
+
+
+@case(tags="calculated")
+def case_clients_4(get_config):
+
+    today = datetime.today().strftime("%Y-%m-%d")
+
+    calculated_fields = {
+        "statusdate": today,
+        "updateddate": today,
+    }
+
+    config = get_config
+    source_columns = [f'"{x}"' for x in calculated_fields.keys()]
+
+    source_query = f"""
+        SELECT
+            {', '.join(source_columns)}
+        FROM {config.etl2_schema}.persons
+    """
+
+    return (calculated_fields, source_query, module_name)

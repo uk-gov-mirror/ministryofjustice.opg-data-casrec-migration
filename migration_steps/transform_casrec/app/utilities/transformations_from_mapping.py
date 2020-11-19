@@ -3,6 +3,7 @@ import json
 import pandas as pd
 from beeprint import pp
 
+from utilities.calculated_fields import current_date
 from utilities.helpers import get_lookup_file
 from utilities.standard_transformations import (
     unique_number,
@@ -68,6 +69,19 @@ def do_simple_transformations(
             transformed_df = unique_number(t["aggregate_col"], transformed_df)
 
     return transformed_df
+
+
+def do_calculations(
+    calculated_fields: dict, source_data_df: pd.DataFrame
+) -> pd.DataFrame:
+    log.log(config.VERBOSE, "starting to apply calculations")
+    calculations_df = source_data_df
+
+    if "current_date" in calculated_fields:
+        for t in calculated_fields["current_date"]:
+            calculations_df = current_date(t["column_name"], calculations_df)
+
+    return calculations_df
 
 
 def add_required_columns(
@@ -162,6 +176,23 @@ def get_default_values(mapping_definitions: dict) -> dict:
     }
 
 
+def get_calculations(mapping_definitions: dict) -> dict:
+    requires_calculation = {
+        k: v for k, v in mapping_definitions.items() if v["calculated"] != ""
+    }
+
+    calculations = {}
+    for k, v in requires_calculation.items():
+        tr = v["calculated"]
+        d = {"column_name": k}
+        if tr in calculations:
+            calculations[tr].append(d)
+        else:
+            calculations[tr] = [d]
+
+    return calculations
+
+
 def get_lookup_tables(mapping_definitions: dict) -> dict:
     return {k: v for k, v in mapping_definitions.items() if v["lookup_table"] != ""}
 
@@ -175,9 +206,15 @@ def perform_transformations(
 ) -> pd.DataFrame:
     final_df = source_data_df
 
+    log.log(
+        config.DATA,
+        f"Data before transformations\n{final_df.sample(n=config.row_limit).to_markdown()}",
+    )
+
     simple_mapping = get_simple_mapping(mapping_definitions)
     transformations = get_transformations(mapping_definitions)
     required_columns = get_default_values(mapping_definitions)
+    calculated_fields = get_calculations(mapping_definitions)
     lookup_tables = get_lookup_tables(mapping_definitions)
 
     if len(simple_mapping) > 0:
@@ -189,11 +226,17 @@ def perform_transformations(
     if len(required_columns) > 0:
         final_df = add_required_columns(required_columns, final_df)
 
+    if len(calculated_fields) > 0:
+        final_df = do_calculations(calculated_fields, final_df)
+
     if len(lookup_tables) > 0:
         final_df = map_lookup_tables(lookup_tables, final_df)
 
     final_df = add_unique_id(db_conn_string, db_schema, table_definition, final_df)
 
-    log.log(config.DATA, f"\n{final_df.sample(n=config.row_limit).to_markdown()}")
+    log.log(
+        config.DATA,
+        f"Data after transformations\n{final_df.sample(n=config.row_limit).to_markdown()}",
+    )
 
     return final_df
