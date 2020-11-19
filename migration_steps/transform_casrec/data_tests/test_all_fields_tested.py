@@ -32,17 +32,19 @@ def test_all_fields(complete_status):
                 expected_fields[key_name] = [
                     k
                     for k, v in def_dict.items()
-                    if v["is_complete"] is complete_status
-                    and v["is_pk"] is not True
-                    and len(v["fk_parents"]) == 0
+                    if v["mapping_status"]["is_complete"] is complete_status
+                    and v["sirius_details"]["is_pk"] is not True
+                    and len(v["sirius_details"]["fk_parents"]) == 0
                 ]
     errors = {}
-    for k in expected_fields.keys():
-        assert k in fields_dict
 
-        diff = list(set(expected_fields[k]) - set(fields_dict[k]))
-        if len(diff) > 0:
-            errors[k] = diff
+    for k in expected_fields.keys():
+
+        if k in fields_dict:
+            diff = list(set(expected_fields[k]) - set(fields_dict[k]))
+            if len(diff) > 0:
+                errors[k] = diff
+            print(f"module_name: {k} with {len(diff)} errors")
 
     print(
         ("\n").join(

@@ -31,8 +31,9 @@ def test_simple_transformations(
     transformed_query,
     module_name,
 ):
-    # print(f"source_query: {source_query}")
-    # print(f"transformed_query: {transformed_query}")
+    print(f"module_name: {module_name}")
+    print(f"source_query: {source_query}")
+    print(f"transformed_query: {transformed_query}")
 
     add_to_tested_list(
         module_name=module_name,

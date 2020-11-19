@@ -14,6 +14,7 @@ from data_tests.helpers import get_data_from_query
     has_tag="calculated",
 )
 def test_default_values(get_config, calculated_fields, source_query, module_name):
+    print(f"module_name: {module_name}")
 
     # print(f"source_query: {source_query}")
 

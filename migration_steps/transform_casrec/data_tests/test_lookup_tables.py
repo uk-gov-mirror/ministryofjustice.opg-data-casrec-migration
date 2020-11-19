@@ -31,9 +31,7 @@ def test_map_lookup_tables(
     transformed_query,
     module_name,
 ):
-    print(f"source_query: {source_query}")
-    print(f"transformed_query: {transformed_query}")
-
+    print(f"module_name: {module_name}")
     add_to_tested_list(
         module_name=module_name,
         tested_fields=[y for x in lookup_fields.values() for y in x]
