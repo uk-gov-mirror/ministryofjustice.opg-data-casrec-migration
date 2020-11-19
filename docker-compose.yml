@@ -51,8 +51,8 @@ services:
     depends_on: [localstack, casrec_db]
   prepare_target:
     build:
-      context: ./migration_steps/prepare_target
-      dockerfile: Dockerfile
+      context: ./migration_steps
+      dockerfile: prepare_target-dockerfile
     environment:
       DB_USER: casrec
       DB_PASSWORD: casrec # pragma: allowlist secret
