@@ -14,36 +14,32 @@ from data_tests.helpers import (
 
 @parametrize_with_cases(
     (
-        "simple_matches",
-        "merge_columns",
+        "module_name",
         "source_query",
         "transformed_query",
-        "module_name",
+        "merge_columns",
+        "match_columns",
     ),
     cases=list_of_test_cases,
-    has_tag="simple",
+    has_tag="many_to_one_join",
 )
-def test_simple_transformations(
+def test_complex_joins(
     get_config,
-    simple_matches,
-    merge_columns,
+    module_name,
     source_query,
     transformed_query,
-    module_name,
+    merge_columns,
+    match_columns,
 ):
     print(f"module_name: {module_name}")
-
-    add_to_tested_list(
-        module_name=module_name,
-        tested_fields=[y for x in simple_matches.values() for y in x]
-        + [merge_columns["transformed"]],
-    )
 
     config = get_config
 
     source_sample_df = get_data_from_query(
         query=source_query, config=config, sort_col=merge_columns["source"], sample=True
     )
+
+    # print(source_sample_df.to_markdown())
 
     assert source_sample_df.shape[0] > 0
 
@@ -64,17 +60,19 @@ def test_simple_transformations(
         transformed_df[merge_columns["transformed"]].isin(sample_caserefs)
     ]
 
+    # print(transformed_sample_df.to_markdown())
+
     result_df = merge_source_and_transformed_df(
         source_df=source_sample_df,
         transformed_df=transformed_sample_df,
         merge_columns=merge_columns,
     )
 
+    # print(result_df.to_markdown())
     print(f"Checking {result_df.shape[0]} rows of data ({SAMPLE_PERCENTAGE}%) ")
     assert result_df.shape[0] > 0
-    for k, v in simple_matches.items():
-        for i in v:
-            match = result_df[k].equals(result_df[i])
-            print(f"checking {k} == {i}.... {'OK' if match is True else 'oh no'} ")
+    for k, v in match_columns.items():
+        match = result_df[k].equals(result_df[v])
+        print(f"checking {k} == {v}.... {'OK' if match is True else 'oh no'} ")
 
-            assert match is True
+        assert match is True
