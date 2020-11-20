@@ -2,15 +2,14 @@ import json
 import logging
 import os
 import random
-
+import get_shared_utilities
+from config import get_config
 import pandas as pd
-
-from get_shared_utilities import shared
 
 log = logging.getLogger("root")
 environment = os.environ.get("ENVIRONMENT")
 
-config = shared.get_config(env=environment)
+config = get_config(env=environment)
 
 
 def squash_columns(

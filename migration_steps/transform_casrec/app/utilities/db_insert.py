@@ -1,13 +1,13 @@
 import logging
 import os
 import time
-
-from get_shared_utilities import shared
+import get_shared_utilities
+from config import get_config
 
 log = logging.getLogger("root")
 environment = os.environ.get("ENVIRONMENT")
 
-config = shared.get_config(env=environment)
+config = get_config(env=environment)
 
 
 class InsertData:

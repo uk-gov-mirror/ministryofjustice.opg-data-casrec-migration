@@ -1,12 +1,12 @@
 import logging
 import os
-
-from get_shared_utilities import shared
+import get_shared_utilities
+from config import get_config
 
 log = logging.getLogger("root")
 environment = os.environ.get("ENVIRONMENT")
 
-config = shared.get_config(env=environment)
+config = get_config(env=environment)
 
 
 def additional_cols(additional_columns: list) -> list:

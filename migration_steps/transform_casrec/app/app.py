@@ -4,15 +4,20 @@ import time
 
 import click
 from sqlalchemy import create_engine
-
+import get_shared_utilities
 import custom_logger
+from helpers import log_title
 from config import get_config
+from pathlib import Path
+from dotenv import load_dotenv
 from entities import clients, cases
 from utilities.clear_database import clear_tables
 from utilities.db_insert import InsertData
 
 # set config
-
+current_path = Path(os.path.dirname(os.path.realpath(__file__)))
+env_path = current_path / "../.env"
+load_dotenv(dotenv_path=env_path)
 
 environment = os.environ.get("ENVIRONMENT")
 config = get_config(env=environment)
@@ -46,7 +51,6 @@ etl2_db = InsertData(db_engine=etl2_db_engine, schema=config.etl2_schema)
 )
 @click.option("-v", "--verbose", count=True)
 def main(clear, entity_list, verbose):
-
     try:
         log.setLevel(verbosity_levels[verbose])
         log.info(f"{verbosity_levels[verbose]} logging enabled")
@@ -55,6 +59,7 @@ def main(clear, entity_list, verbose):
         log.info(f"{verbose} is not a valid verbosity level")
         log.info(f"INFO logging enabled")
 
+    log.info(log_title(message="Migration Step: Transform Casrec Data"))
     log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
 
     if clear:
