@@ -31,7 +31,6 @@ def test_one_to_one_joins(
     module_name,
 ):
     print(f"module_name: {module_name}")
-    print(f"[x for x in join_columns.values()]: {[x for x in join_columns.keys()]}")
 
     add_to_tested_list(
         module_name=module_name, tested_fields=[x for x in join_columns.keys()]
