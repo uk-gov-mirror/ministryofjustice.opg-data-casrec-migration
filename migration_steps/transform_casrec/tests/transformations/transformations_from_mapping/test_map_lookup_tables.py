@@ -21,8 +21,8 @@ test_source_data_dict = {
 }
 
 expected_result_data_dict = {
-    "name": ["Buffy", "Willow", "Xander", "Giles", "Oz"],
-    "salutation": ["Miss", "Ms", "Mr", "Sir", "Mr"],
+    "name": ["Buffy", "Willow", "Xander", "Giles", "Oz", "Dawn"],
+    "salutation": ["Miss", "Ms", "Mr", "Sir", "Mr", ""],
 }
 
 test_source_data_df = pd.DataFrame(

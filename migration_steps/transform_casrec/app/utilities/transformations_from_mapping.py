@@ -98,7 +98,9 @@ def map_lookup_tables(
     for col, details in lookup_tables.items():
         lookup_dict = helpers.get_lookup_dict(file_name=details["lookup_table"])
 
-        source_data_df = source_data_df.replace({col: lookup_dict})
+        source_data_df[col] = source_data_df[col].map(lookup_dict)
+
+        source_data_df[col] = source_data_df[col].fillna("")
 
     return source_data_df
 
