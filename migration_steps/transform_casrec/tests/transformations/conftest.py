@@ -1,7 +1,7 @@
 import logging
 
 import pytest
-
+import get_shared_utilities
 import custom_logger
 from utilities import transformations_from_mapping, helpers
 
@@ -9,7 +9,6 @@ from utilities import transformations_from_mapping, helpers
 logger = logging.getLogger("tests")
 logger.addHandler(custom_logger.MyHandler())
 logger.setLevel("INFO")
-
 
 @pytest.fixture()
 def mock_standard_transformations(monkeypatch):
