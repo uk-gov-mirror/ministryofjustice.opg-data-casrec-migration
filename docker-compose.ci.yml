@@ -5,10 +5,16 @@ services:
     build: migration_steps/load_casrec
   etl2:
     image: ${AWS_REGISTRY}/casrec-migration/etl2:${VERSION}
-    build: migration_steps/transform_casrec
+    build:
+      context: ./migration_steps
+      dockerfile: transform_casrec-dockerfile
   etl3:
     image: ${AWS_REGISTRY}/casrec-migration/etl3:${VERSION}
-    build: migration_steps/acquire_target_ids
+    build:
+      context: ./migration_steps
+      dockerfile: acquire_target_ids-dockerfile
   etl4:
     image: ${AWS_REGISTRY}/casrec-migration/etl4:${VERSION}
-    build: migration_steps/load_to_target
+    build:
+      context: ./migration_steps
+      dockerfile: load_to_target-dockerfile
