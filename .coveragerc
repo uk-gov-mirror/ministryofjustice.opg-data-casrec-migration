@@ -1,0 +1,2 @@
+[run]
+omit = migration_steps/transform_casrec/app/entities/*,migration_steps/transform_casrec/tests/*,migration_steps/transform_casrec/data-tests/*,venv/*

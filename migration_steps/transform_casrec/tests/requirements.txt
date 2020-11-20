@@ -12,3 +12,4 @@ config
 pytest
 colorlog
 pytest_cases
+pytest-cov
