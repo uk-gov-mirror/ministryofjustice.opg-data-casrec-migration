@@ -39,9 +39,6 @@ def test_map_lookup_tables(
         + [merge_columns["transformed"]],
     )
 
-    print(source_query)
-    print(transformed_query)
-
     config = get_config
 
     source_sample_df = get_data_from_query(

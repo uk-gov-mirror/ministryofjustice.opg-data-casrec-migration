@@ -1,0 +1,97 @@
+from datetime import datetime
+
+from pytest_cases import case
+
+
+module_name = "supervision_level_log"
+source_table = "order"
+destination_table = "supervision_level_log"
+
+
+# @case(tags="simple")
+# def case_supervision_log_simple(get_config):
+#     simple_matches = {
+#         # "Ord Type": ["casesubtype"],  # actually a lookup
+#         "Made Date": ["orderdate"],
+#         "Issue Date": ["orderissuedate"],
+#         # "Ord Stat": ["orderstatus"],  # actually a transformation
+#         "Case": ["caserecnumber"],
+#         "Spvn Received": ["receiptdate"],
+#         "Expiry Date": ["orderexpirydate"],
+#         # "Ord Type": ["ordersubtype"],  # actualy a lookup
+#         "Clause Expiry": ["clauseexpirydate"],
+#     }
+#     merge_columns = {"source": "Order No", "transformed": "c_order_no"}
+#
+#     config = get_config
+#
+#     source_columns = [f'"{x}"' for x in simple_matches.keys()]
+#     transformed_columns = [f'"{y}"' for x in simple_matches.values() for y in x]
+#
+#     source_query = f"""
+#         SELECT
+#             "{merge_columns['source']}",
+#             {', '.join(source_columns)}
+#         FROM {config.etl1_schema}.{source_table}
+#     """
+#
+#     transformed_query = f"""
+#         SELECT
+#             {merge_columns['transformed']},
+#             {', '.join(transformed_columns)}
+#         FROM {config.etl2_schema}.{destination_table}
+#     """
+#
+#     return (simple_matches, merge_columns, source_query, transformed_query, module_name)
+
+
+@case(tags="lookups")
+def case_supervision_log_lookups(get_config):
+    lookup_fields = {
+        "supervisionlevel": {"Ord Risk Lvl": "supervision_level_lookup"},
+        "assetlevel": {"Ord Risk Lvl": "asset_level_lookup"},
+    }
+    merge_columns = {"source": "Case", "transformed": "c_case"}
+
+    config = get_config
+
+    source_columns = list(set([f'"{y}"' for x in lookup_fields.values() for y in x]))
+    transformed_columns = [f'"{x}"' for x in lookup_fields.keys()]
+
+    source_query = f"""
+        SELECT
+            "{merge_columns['source']}",
+            {', '.join(source_columns)}
+        FROM {config.etl1_schema}.{source_table}
+    """
+
+    transformed_query = f"""
+        SELECT
+            {merge_columns['transformed']},
+            {', '.join(transformed_columns)}
+        FROM {config.etl2_schema}.{destination_table}
+    """
+
+    return (lookup_fields, merge_columns, source_query, transformed_query, module_name)
+
+
+@case(tags="calculated")
+def case_supervision_log_calcs(get_config):
+
+    today = datetime.today().strftime("%Y-%m-%d")
+
+    calculated_fields = {
+        "appliesfrom": today,
+        "createddate": today,
+    }
+
+    config = get_config
+    source_columns = [f'"{x}"' for x in calculated_fields.keys()]
+
+    source_query = f"""
+        SELECT
+            {', '.join(source_columns)}
+        FROM {config.etl2_schema}.{destination_table}
+    """
+
+    return (calculated_fields, source_query, module_name)
