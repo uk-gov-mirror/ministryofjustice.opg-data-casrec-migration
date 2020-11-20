@@ -13,7 +13,6 @@ def get_mapping_dict(file_name: str) -> str:
 
 
 def get_lookup_dict(file_name: str) -> str:
-    print("WHAT IS HAPPENING")
     dirname = os.path.dirname(__file__)
     file_path = os.path.join(
         dirname, f"../mapping_definitions/lookups" f"/{file_name}.json"
