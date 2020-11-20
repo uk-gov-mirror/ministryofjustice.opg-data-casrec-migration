@@ -1,6 +1,6 @@
 import logging
 
-from entities.person_case.person_caseitem import insert_person_caseitem
+from entities.cases.person_caseitem import insert_person_caseitem
 from utilities.helpers import log_title
 
 log = logging.getLogger("root")
