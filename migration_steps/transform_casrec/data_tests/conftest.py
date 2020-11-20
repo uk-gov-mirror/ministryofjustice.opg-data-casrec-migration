@@ -4,7 +4,7 @@ import os
 import pytest
 
 from config import LocalConfig
-from data_tests.cases import cases_cases
+from data_tests.cases import cases_cases, cases_person_caseitem
 from data_tests.clients import (
     cases_clients_persons,
     cases_clients_addresses,
@@ -19,6 +19,7 @@ list_of_test_cases = [
     cases_clients_addresses,
     cases_clients_phonenumbers,
     cases_cases,
+    cases_person_caseitem,
 ]
 
 
