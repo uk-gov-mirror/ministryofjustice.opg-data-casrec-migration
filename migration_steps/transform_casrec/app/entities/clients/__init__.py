@@ -3,7 +3,7 @@ import logging
 from entities.clients.addresses import insert_addresses_clients
 from entities.clients.persons import insert_persons_clients
 from entities.clients.phonenumbers import insert_phonenumbers_clients
-from utilities.helpers import log_title
+from helpers import log_title
 
 log = logging.getLogger("root")
 
