@@ -31,6 +31,7 @@ def test_convert_to_bool(
     merge_columns,
     module_name,
 ):
+    print(f"module_name: {module_name}")
 
     config = get_config
     add_to_tested_list(

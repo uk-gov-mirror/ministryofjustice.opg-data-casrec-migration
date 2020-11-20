@@ -34,7 +34,7 @@ def test_squash_columns(
     merge_columns,
     module_name,
 ):
-
+    print(f"module_name: {module_name}")
     # print(source_query)
     # print(transformed_query)
 

@@ -9,6 +9,7 @@ from data_tests.helpers import (
     get_data_from_query,
     get_merge_col_data_as_list,
     merge_source_and_transformed_df,
+    get_lookup_dict,
 )
 
 
@@ -31,14 +32,15 @@ def test_map_lookup_tables(
     transformed_query,
     module_name,
 ):
-    print(f"source_query: {source_query}")
-    print(f"transformed_query: {transformed_query}")
-
+    print(f"module_name: {module_name}")
     add_to_tested_list(
         module_name=module_name,
-        tested_fields=[y for x in lookup_fields.values() for y in x]
+        tested_fields=[x for x in lookup_fields.keys()]
         + [merge_columns["transformed"]],
     )
+
+    print(source_query)
+    print(transformed_query)
 
     config = get_config
 
@@ -76,7 +78,11 @@ def test_map_lookup_tables(
     for k, v in lookup_fields.items():
         for i, j in v.items():
 
-            match = result_df[i].fillna("").equals(result_df[k].map(j).fillna(""))
+            lookup_dict = get_lookup_dict(file_name=j)
+
+            match = (
+                result_df[i].map(lookup_dict).fillna("").equals(result_df[k].fillna(""))
+            )
 
             print(f"checking {k} == {i}...." f" {'OK' if match is True else 'oh no'} ")
 

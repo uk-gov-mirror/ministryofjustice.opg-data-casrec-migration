@@ -2,9 +2,11 @@ from datetime import datetime
 
 from pytest_cases import case
 
-from data_tests.helpers import get_lookup_dict
+# from data_tests.conftest import get_lookup_dict
 
 module_name = "client_persons"
+source_table = "pat"
+destination_table = "persons"
 
 
 @case(tags="simple")
@@ -30,14 +32,14 @@ def case_clients_1(get_config):
         SELECT
             "{merge_columns['source']}",
             {', '.join(source_columns)}
-        FROM {config.etl1_schema}.pat
+        FROM {config.etl1_schema}.{source_table}
     """
 
     transformed_query = f"""
         SELECT
             {merge_columns['transformed']},
             {', '.join(transformed_columns)}
-        FROM {config.etl2_schema}.persons
+        FROM {config.etl2_schema}.{destination_table}
         WHERE "type" = 'actor_client'
     """
 
@@ -73,7 +75,7 @@ def case_clients_2(get_config):
     source_query = f"""
         SELECT
             {', '.join(source_columns)}
-        FROM {config.etl2_schema}.persons
+        FROM {config.etl2_schema}.{destination_table}
     """
 
     return (defaults, source_query, module_name)
@@ -84,35 +86,29 @@ def case_clients_2(get_config):
 def case_clients_3(get_config):
 
     lookup_fields = {
-        "Marital Status": {
-            "maritalstatus": get_lookup_dict(file_name="marital_status_lookup")
-        },
-        "Accom Type": {
-            "clientaccommodation": get_lookup_dict(
-                file_name="accommodation_type_lookup"
-            )
-        },
+        "maritalstatus": {"Marital Status": "marital_status_lookup"},
+        "clientaccommodation": {"Accom Type": "accommodation_type_lookup"},
         # "Title": {"salutation": get_lookup_dict(file_name="title_codes_lookup")}
     }
     merge_columns = {"source": "Case", "transformed": "caserecnumber"}
 
     config = get_config
 
-    source_columns = [f'"{x}"' for x in lookup_fields.keys()]
-    transformed_columns = [f'"{y}"' for x in lookup_fields.values() for y in x]
+    source_columns = [f'"{y}"' for x in lookup_fields.values() for y in x]
+    transformed_columns = [f'"{x}"' for x in lookup_fields.keys()]
 
     source_query = f"""
         SELECT
             "{merge_columns['source']}",
             {', '.join(source_columns)}
-        FROM {config.etl1_schema}.pat
+        FROM {config.etl1_schema}.{source_table}
     """
 
     transformed_query = f"""
         SELECT
             {merge_columns['transformed']},
             {', '.join(transformed_columns)}
-        FROM {config.etl2_schema}.persons
+        FROM {config.etl2_schema}.{destination_table}
         WHERE "type" = 'actor_client'
     """
 

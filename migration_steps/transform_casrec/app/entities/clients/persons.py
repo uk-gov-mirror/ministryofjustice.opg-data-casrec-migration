@@ -1,10 +1,8 @@
-import json
-
 import pandas as pd
 
 from utilities import transformations_from_mapping
 from utilities.generate_source_query import generate_select_string_from_mapping
-from utilities.helpers import get_mapping_file, get_mapping_dict
+from utilities.helpers import get_mapping_dict
 
 definition = {
     "sheet_name": "persons (Client)",
