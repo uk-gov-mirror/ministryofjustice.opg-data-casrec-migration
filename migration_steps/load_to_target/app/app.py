@@ -2,7 +2,7 @@ import os
 import time
 import psycopg2
 import get_shared_utilities
-from config_jack import get_config
+from config2 import get_config
 from pathlib import Path
 from dotenv import load_dotenv
 from helpers import log_title
