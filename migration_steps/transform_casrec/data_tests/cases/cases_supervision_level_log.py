@@ -8,43 +8,6 @@ source_table = "order"
 destination_table = "supervision_level_log"
 
 
-# @case(tags="simple")
-# def case_supervision_log_simple(get_config):
-#     simple_matches = {
-#         # "Ord Type": ["casesubtype"],  # actually a lookup
-#         "Made Date": ["orderdate"],
-#         "Issue Date": ["orderissuedate"],
-#         # "Ord Stat": ["orderstatus"],  # actually a transformation
-#         "Case": ["caserecnumber"],
-#         "Spvn Received": ["receiptdate"],
-#         "Expiry Date": ["orderexpirydate"],
-#         # "Ord Type": ["ordersubtype"],  # actualy a lookup
-#         "Clause Expiry": ["clauseexpirydate"],
-#     }
-#     merge_columns = {"source": "Order No", "transformed": "c_order_no"}
-#
-#     config = get_config
-#
-#     source_columns = [f'"{x}"' for x in simple_matches.keys()]
-#     transformed_columns = [f'"{y}"' for x in simple_matches.values() for y in x]
-#
-#     source_query = f"""
-#         SELECT
-#             "{merge_columns['source']}",
-#             {', '.join(source_columns)}
-#         FROM {config.etl1_schema}.{source_table}
-#     """
-#
-#     transformed_query = f"""
-#         SELECT
-#             {merge_columns['transformed']},
-#             {', '.join(transformed_columns)}
-#         FROM {config.etl2_schema}.{destination_table}
-#     """
-#
-#     return (simple_matches, merge_columns, source_query, transformed_query, module_name)
-
-
 @case(tags="lookups")
 def case_supervision_log_lookups(get_config):
     lookup_fields = {
