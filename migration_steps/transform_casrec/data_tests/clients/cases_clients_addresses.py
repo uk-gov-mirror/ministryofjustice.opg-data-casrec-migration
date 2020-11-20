@@ -122,3 +122,35 @@ def case_clients_4(get_config):
         merge_columns,
         module_name,
     )
+
+
+@case(tags="one_to_one_joins")
+def case_clients_5(get_config):
+    join_columns = {
+        "person_id": {"persons": "id"},
+    }
+    merge_columns = {"fk_child": "c_case", "fk_parent": "caserecnumber"}
+
+    config = get_config
+
+    fk_child_col = [f'"{k}"' for k in join_columns.keys()]
+
+    parent_table = [y for x in join_columns.values() for y in x]
+
+    fk_parent_col = [f'"{y}"' for x in join_columns.values() for y in x.values()]
+
+    fk_child_query = f"""
+        SELECT
+            "{merge_columns['fk_child']}",
+            {', '.join(fk_child_col)}
+        FROM {config.etl2_schema}.{destination_table}
+    """
+
+    fk_parent_query = f"""
+            SELECT
+                "{merge_columns['fk_parent']}",
+                {', '.join(fk_parent_col)}
+            FROM {config.etl2_schema}.{parent_table[0]}
+        """
+
+    return (join_columns, merge_columns, fk_child_query, fk_parent_query, module_name)
