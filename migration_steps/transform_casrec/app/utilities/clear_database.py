@@ -21,6 +21,7 @@ def clear_tables(config):
         "person_note",
         "order_deputy",
         "phonenumbers",
+        "supervision_level_log",
     ]
 
     for t in tables:
