@@ -16,8 +16,8 @@ test_simple_mapping_dict = {
 
 
 test_source_data_dict = {
-    "name": ["Buffy", "Willow", "Xander", "Giles", "Oz"],
-    "salutation": ["1", "2", "3", "4", "3"],
+    "name": ["Buffy", "Willow", "Xander", "Giles", "Oz", "Dawn"],
+    "salutation": ["1", "2", "3", "4", "3", "1000"],
 }
 
 expected_result_data_dict = {
