@@ -225,7 +225,8 @@ def perform_transformations(
     if len(lookup_tables) > 0:
         final_df = map_lookup_tables(lookup_tables, final_df)
 
-    final_df = add_unique_id(db_conn_string, db_schema, table_definition, final_df)
+    if "id" not in source_data_df.columns.values.tolist():
+        final_df = add_unique_id(db_conn_string, db_schema, table_definition, final_df)
 
     log.log(
         config.DATA,
