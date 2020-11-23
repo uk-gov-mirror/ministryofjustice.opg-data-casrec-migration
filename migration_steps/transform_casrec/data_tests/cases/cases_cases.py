@@ -104,7 +104,7 @@ def case_cases_3(get_config):
         "casesubtype": {"Ord Type": "order_type_lookup"},
         "ordersubtype": {"Ord Type": "order_subtype_lookup"},
     }
-    merge_columns = {"source": "Case", "transformed": "caserecnumber"}
+    merge_columns = {"source": "Order No", "transformed": "c_order_no"}
 
     config = get_config
 

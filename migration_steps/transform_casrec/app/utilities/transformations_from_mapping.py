@@ -1,21 +1,17 @@
-import json
+import logging
+import os
 
 import pandas as pd
-from beeprint import pp
 
+from config import get_config
+from utilities import helpers
 from utilities.calculated_fields import current_date
-from utilities.helpers import get_lookup_file
 from utilities.standard_transformations import (
     unique_number,
     squash_columns,
     convert_to_bool,
     date_format_standard,
 )
-
-import os
-import logging
-
-from config import get_config
 
 log = logging.getLogger("root")
 environment = os.environ.get("ENVIRONMENT")
@@ -99,14 +95,11 @@ def map_lookup_tables(
 ) -> pd.DataFrame:
 
     for col, details in lookup_tables.items():
-        with open(get_lookup_file(file_name=details["lookup_table"])) as lookup_json:
-            lookup_dict = json.load(lookup_json)
+        lookup_dict = helpers.get_lookup_dict(file_name=details["lookup_table"])
 
-            better_lookup_dict = {
-                k: v["sirius_mapping"] for k, v in lookup_dict.items()
-            }
+        source_data_df[col] = source_data_df[col].map(lookup_dict)
 
-            source_data_df = source_data_df.replace({col: better_lookup_dict})
+        source_data_df[col] = source_data_df[col].fillna("")
 
     return source_data_df
 
