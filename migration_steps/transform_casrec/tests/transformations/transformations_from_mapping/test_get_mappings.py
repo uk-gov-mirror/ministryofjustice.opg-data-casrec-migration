@@ -3,6 +3,7 @@ from utilities.transformations_from_mapping import (
     get_transformations,
     get_default_values,
     get_calculations,
+    get_lookup_tables,
 )
 
 
@@ -14,6 +15,7 @@ test_mapping = {
         "requires_transformation": "",
         "default_value": "",
         "calculated": "",
+        "lookup_table": "",
         "test_comments": "standard column",
     },
     "uid": {
@@ -23,6 +25,7 @@ test_mapping = {
         "requires_transformation": "unique_number",
         "default_value": "",
         "calculated": "",
+        "lookup_table": "",
         "test_comments": "has 'unique_number' transformation",
     },
     "another_uid": {
@@ -32,6 +35,7 @@ test_mapping = {
         "requires_transformation": "unique_number",
         "default_value": "",
         "calculated": "",
+        "lookup_table": "",
         "test_comments": "repeated 'unique_number' transformation",
     },
     "type": {
@@ -41,6 +45,7 @@ test_mapping = {
         "requires_transformation": "",
         "default_value": "order",
         "calculated": "",
+        "lookup_table": "",
         "test_comments": "has a default value",
     },
     "orderdate": {
@@ -50,6 +55,7 @@ test_mapping = {
         "requires_transformation": "",
         "default_value": "",
         "calculated": "",
+        "lookup_table": "",
         "test_comments": "standard column",
     },
     "orderexpirydate": {
@@ -59,6 +65,7 @@ test_mapping = {
         "requires_transformation": "",
         "default_value": "",
         "calculated": "",
+        "lookup_table": "",
         "test_comments": "repeated column name",
     },
     "dob": {
@@ -68,6 +75,7 @@ test_mapping = {
         "requires_transformation": "date_format_standard",
         "default_value": "",
         "calculated": "",
+        "lookup_table": "",
         "test_comments": "has 'date_format_standard' transformation",
     },
     "todays_date": {
@@ -77,7 +85,18 @@ test_mapping = {
         "requires_transformation": "",
         "default_value": "",
         "calculated": "current_date",
+        "lookup_table": "",
         "test_comments": "has 'current_date' calculation",
+    },
+    "accomodation_type": {
+        "casrec_table": "",
+        "casrec_column_name": "",
+        "alias": "",
+        "requires_transformation": "",
+        "default_value": "",
+        "calculated": "",
+        "lookup_table": "accomodation_type_lookup",
+        "test_comments": "has a default value",
     },
 }
 
@@ -90,6 +109,7 @@ expected_simple_mapping_dict = {
         "requires_transformation": "",
         "default_value": "",
         "calculated": "",
+        "lookup_table": "",
         "test_comments": "standard column",
     },
     "orderdate": {
@@ -99,6 +119,7 @@ expected_simple_mapping_dict = {
         "requires_transformation": "",
         "default_value": "",
         "calculated": "",
+        "lookup_table": "",
         "test_comments": "standard column",
     },
     "orderexpirydate": {
@@ -108,6 +129,7 @@ expected_simple_mapping_dict = {
         "requires_transformation": "",
         "default_value": "",
         "calculated": "",
+        "lookup_table": "",
         "test_comments": "repeated column name",
     },
     "dob": {
@@ -117,6 +139,7 @@ expected_simple_mapping_dict = {
         "requires_transformation": "date_format_standard",
         "default_value": "",
         "calculated": "",
+        "lookup_table": "",
         "test_comments": "has 'date_format_standard' transformation",
     },
 }
@@ -129,6 +152,7 @@ expected_default_values_dict = {
         "requires_transformation": "",
         "default_value": "order",
         "calculated": "",
+        "lookup_table": "",
         "test_comments": "has a default value",
     },
 }
@@ -143,6 +167,20 @@ expected_transformations_dict = {
 
 expected_calculated_fields_dict = {
     "current_date": [{"column_name": "todays_date",},],
+}
+
+
+expected_lookup_values_dict = {
+    "accomodation_type": {
+        "casrec_table": "",
+        "casrec_column_name": "",
+        "alias": "",
+        "requires_transformation": "",
+        "default_value": "",
+        "calculated": "",
+        "lookup_table": "accomodation_type_lookup",
+        "test_comments": "has a default value",
+    },
 }
 
 
@@ -168,3 +206,9 @@ def test_get_calculations():
 
     result = get_calculations(mapping_definitions=test_mapping)
     assert result == expected_calculated_fields_dict
+
+
+def test_get_lookup_tables():
+
+    result = get_lookup_tables(mapping_definitions=test_mapping)
+    assert result == expected_lookup_values_dict

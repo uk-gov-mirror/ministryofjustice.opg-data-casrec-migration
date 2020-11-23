@@ -3,8 +3,8 @@ import logging
 import pytest
 
 import custom_logger
-from utilities import transformations_from_mapping
-import pandas as pd
+from utilities import transformations_from_mapping, helpers
+
 
 logger = logging.getLogger("tests")
 logger.addHandler(custom_logger.MyHandler())
@@ -91,3 +91,13 @@ def mock_transformation_steps(monkeypatch):
     monkeypatch.setattr(
         transformations_from_mapping, "add_unique_id", mock_add_unique_id
     )
+
+
+@pytest.fixture()
+def mock_get_lookup_dict(monkeypatch):
+    def mock_lookup_dict(*args, **kwargs):
+        print("USING MOCK")
+        mock_lookup_dict = {"1": "Miss", "2": "Ms", "3": "Mr", "4": "Sir"}
+        return mock_lookup_dict
+
+    monkeypatch.setattr(helpers, "get_lookup_dict", mock_lookup_dict)
