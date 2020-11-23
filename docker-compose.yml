@@ -40,8 +40,8 @@ services:
     depends_on: [localstack, casrec_db]
   transform_casrec:
     build:
-      context: ./migration_steps/transform_casrec
-      dockerfile: Dockerfile
+      context: ./migration_steps
+      dockerfile: transform_casrec-dockerfile
     environment:
       DB_PASSWORD: casrec # pragma: allowlist secret
       DB_NAME: casrecmigration
@@ -51,8 +51,8 @@ services:
     depends_on: [localstack, casrec_db]
   prepare_target:
     build:
-      context: ./migration_steps/prepare_target
-      dockerfile: Dockerfile
+      context: ./migration_steps
+      dockerfile: prepare_target-dockerfile
     environment:
       DB_USER: casrec
       DB_PASSWORD: casrec # pragma: allowlist secret
@@ -99,8 +99,8 @@ services:
     depends_on: [postgres-sirius]
   acquire_target_ids:
     build:
-      context: migration_steps/acquire_target_ids
-      dockerfile: Dockerfile
+      context: ./migration_steps
+      dockerfile: acquire_target_ids-dockerfile
     environment:
       DB_USER: casrec
       DB_PASSWORD: casrec # pragma: allowlist secret
@@ -116,8 +116,8 @@ services:
     depends_on: [casrec_db, postgres-sirius]
   load_to_target:
     build:
-      context: ./migration_steps/load_to_target
-      dockerfile: Dockerfile
+      context: ./migration_steps
+      dockerfile: load_to_target-dockerfile
     environment:
       DB_USER: casrec
       DB_PASSWORD: casrec # pragma: allowlist secret

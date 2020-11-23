@@ -2,7 +2,7 @@ import logging
 
 from entities.deputies.addresses import insert_addresses_deputies
 from entities.deputies.persons import insert_persons_deputies
-from utilities.helpers import log_title
+from helpers import log_title
 
 log = logging.getLogger("root")
 

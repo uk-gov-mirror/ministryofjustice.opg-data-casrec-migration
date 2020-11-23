@@ -1,0 +1,11 @@
+FROM opg_casrec_migration_base_image:latest
+RUN apt-get install -y postgresql-client
+COPY acquire_target_ids/requirements.txt /migration/requirements.txt
+RUN pip3 install -r /migration/requirements.txt
+COPY acquire_target_ids/app /migration/app
+COPY shared /shared
+WORKDIR /migration/app
+RUN chmod 755 /migration/app/acquire_target_ids.sh
+RUN chmod 755 /migration/app/app.py
+RUN chmod 755 /migration/app/fixtures.py
+CMD ["tail", "-f", "/dev/null"]

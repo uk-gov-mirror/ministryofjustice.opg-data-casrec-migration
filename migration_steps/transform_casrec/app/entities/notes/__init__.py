@@ -2,7 +2,7 @@ import logging
 
 from entities.notes.notes import insert_notes
 from entities.notes.persons_note import insert_person_notes
-from utilities.helpers import log_title
+from helpers import log_title
 
 log = logging.getLogger("root")
 

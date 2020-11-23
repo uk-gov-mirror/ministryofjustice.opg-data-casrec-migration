@@ -1,10 +1,10 @@
 import json
-import random
-import pandas as pd
-import os
 import logging
-
+import os
+import random
+import get_shared_utilities
 from config import get_config
+import pandas as pd
 
 log = logging.getLogger("root")
 environment = os.environ.get("ENVIRONMENT")

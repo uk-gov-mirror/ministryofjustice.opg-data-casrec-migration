@@ -1,10 +1,12 @@
 import os
 import time
 import psycopg2
-from config import get_config
+import get_shared_utilities
+from config2 import get_config
 from pathlib import Path
 from dotenv import load_dotenv
 from helpers import log_title
+from db_helpers import *
 from entities import client
 from entities import address
 import logging

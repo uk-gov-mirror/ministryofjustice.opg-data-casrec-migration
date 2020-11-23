@@ -1,7 +1,7 @@
 import logging
 
 from entities.order_deputy.order_deputy import insert_order_deputy
-from utilities.helpers import log_title
+from helpers import log_title
 
 log = logging.getLogger("root")
 
