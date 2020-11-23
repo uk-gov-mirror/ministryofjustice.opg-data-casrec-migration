@@ -1,9 +1,12 @@
+import sys
 import os
+from pathlib import Path
+current_path = Path(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, str(current_path) + "/../../shared")
+
 import time
 import psycopg2
-import get_shared_utilities
 from config2 import get_config
-from pathlib import Path
 from dotenv import load_dotenv
 from helpers import log_title
 from db_helpers import *
@@ -11,7 +14,6 @@ import logging
 import custom_logger
 import click
 
-current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 env_path = current_path / "../.env"
 sql_path = current_path / 'sql'
 load_dotenv(dotenv_path=env_path)
