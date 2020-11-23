@@ -1,7 +1,11 @@
-import logging
+import sys
 import os
+from pathlib import Path
+current_path = Path(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, str(current_path) + "/../../../shared")
+
+import logging
 import time
-import get_shared_utilities
 from config import get_config
 
 log = logging.getLogger("root")

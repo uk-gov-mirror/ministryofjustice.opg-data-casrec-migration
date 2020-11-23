@@ -1,14 +1,16 @@
-import logging
+import sys
 import os
-import time
+from pathlib import Path
+current_path = Path(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, str(current_path) + "/../../shared")
 
+import logging
+import time
 import click
 from sqlalchemy import create_engine
-import get_shared_utilities
 import custom_logger
 from helpers import log_title
 from config import get_config
-from pathlib import Path
 from dotenv import load_dotenv
 from entities import clients, cases
 from utilities.clear_database import clear_tables
