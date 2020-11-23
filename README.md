@@ -192,3 +192,14 @@ ecs-runner -task reset-api -timeout 600
 ecs-runner -task migrate-api -timeout 600
 ecs-runner -task import-fixtures-api -timeout 600
 ```
+
+## Importing latest spreadsheet and mapping definitions
+
+Ensure you're in a virtual env that has the required dependencies and run:
+
+```python3 import_mapping_definfitions```
+
+There are two flags:
+
+- `s3_source` is to decide whether to pull from staged or merged (defaults to merged).
+- `version` is to decide whether to pull in specific version (defaults to latest)
