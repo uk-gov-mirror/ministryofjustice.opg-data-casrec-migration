@@ -32,7 +32,10 @@ def assume_aws_session(account, role):
 
 def rename_folder(rename_from, rename_to):
     print(f"renaming {rename_from} to {rename_to}")
-    os.rename(rename_from, rename_to)
+    try:
+        os.rename(rename_from, rename_to)
+    except FileNotFoundError:
+        print(f"{rename_from} not found, aborting")
 
 
 def make_directory(dir_name):
@@ -44,8 +47,15 @@ def pull_zip_file(bucket, client, source, file_name, version):
     """
     Download latest version of file from s3 staged
     """
+
     try:
         if version is None:
+
+            response = client.list_object_versions(
+                Bucket=bucket, Prefix=f"{source}/{file_name}"
+            )
+            version = [x["VersionId"] for x in response["Versions"] if x["IsLatest"]][0]
+
             client.download_file(bucket, f"{source}/{file_name}", file_name)
         else:
             client.download_file(
@@ -57,7 +67,7 @@ def pull_zip_file(bucket, client, source, file_name, version):
     except ClientError as e:
         logging.error(e)
         return False
-    print(f"Downloaded {file_name.split('/')[-1]}")
+    print(f"Downloaded {file_name.split('/')[-1]} version {version}")
 
     return True
 
@@ -77,10 +87,12 @@ def extract_zip(file, extract_location):
 @click.option("--s3_source", default="merged")
 @click.option("--version", default=None)
 def main(s3_source, version):
+    dirname = os.path.dirname(__file__)
+
     account = "288342028542"
     role = "operator"
     zip_file = "mappings.zip"
-    folder_prefix = "migration_steps/transform_casrec/app"
+    folder_prefix = os.path.join(dirname, "migration_steps", "shared")
     bucket_name = "casrec-migration-mappings-development"
     if os.path.isdir(f"{folder_prefix}/mapping_definitions_old"):
         shutil.rmtree(f"{folder_prefix}/mapping_definitions")
