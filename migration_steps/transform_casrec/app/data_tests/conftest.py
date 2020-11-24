@@ -1,18 +1,18 @@
 import json
 import os
 
+from data_tests.cases import (
+    cases_supervision_level_log,
+    cases_cases,
+    cases_person_caseitem,
+)
+from data_tests.clients import cases_clients_persons
+from data_tests.clients import cases_clients_addresses, cases_clients_phonenumbers
 import pytest
 
-from config import LocalConfig
+from run_data_tests import config
 
-from data_tests.cases import cases_cases, cases_person_caseitem, cases_supervision_level_log
-from data_tests.clients import (
-    cases_clients_persons,
-    cases_clients_addresses,
-    cases_clients_phonenumbers,
-)
-
-SAMPLE_PERCENTAGE = 1
+SAMPLE_PERCENTAGE = config.SAMPLE_PERCENTAGE
 
 
 list_of_test_cases = [
@@ -26,23 +26,17 @@ list_of_test_cases = [
 
 
 @pytest.fixture
-def get_config(env="local"):
-    if env == "local":
-        config = LocalConfig()
-
+def test_config():
     return config
 
 
 def add_to_tested_list(module_name, tested_fields):
+
     dirname = os.path.dirname(__file__)
-    file_path = os.path.join(dirname, f"./field_list")
     file_name = "tested_fields.json"
 
-    if not os.path.exists(file_path):
-        os.makedirs(file_path)
-
     try:
-        with open(f"{file_path}/{file_name}", "r") as fields_json:
+        with open(f"{dirname}/{file_name}", "r") as fields_json:
             fields_dict = json.load(fields_json)
     except IOError:
         fields_dict = {}
@@ -52,14 +46,12 @@ def add_to_tested_list(module_name, tested_fields):
     except KeyError:
         fields_dict[module_name] = tested_fields
 
-    with open(f"{file_path}/{file_name}", "w") as json_out:
+    with open(f"{dirname}/{file_name}", "w") as json_out:
         json.dump(fields_dict, json_out, indent=4)
 
 
-def pytest_sessionfinish(session):
-    print("Session finish, deleting field tracker files")
-
+def pytest_sessionfinish():
     dirname = os.path.dirname(__file__)
-    file_path = os.path.join(dirname, f"./field_list")
+
     file_name = "tested_fields.json"
-    os.remove(f"{file_path}/{file_name}")
+    os.remove(f"{dirname}/{file_name}")
