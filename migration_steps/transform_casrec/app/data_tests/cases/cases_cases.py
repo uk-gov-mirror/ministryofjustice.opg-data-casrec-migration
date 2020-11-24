@@ -11,14 +11,11 @@ destination_table = "cases"
 @case(tags="simple")
 def case_cases_1(test_config):
     simple_matches = {
-        # "Ord Type": ["casesubtype"],  # actually a lookup
         "Made Date": ["orderdate"],
         "Issue Date": ["orderissuedate"],
-        # "Ord Stat": ["orderstatus"],  # actually a transformation
         "Case": ["caserecnumber"],
         "Spvn Received": ["receiptdate"],
         "Expiry Date": ["orderexpirydate"],
-        # "Ord Type": ["ordersubtype"],  # actualy a lookup
         "Clause Expiry": ["clauseexpirydate"],
     }
     merge_columns = {"source": "Order No", "transformed": "c_order_no"}
