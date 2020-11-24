@@ -106,7 +106,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                                 "Overrides": {
                                     "ContainerOverrides": [{
                                         "Name": "etl1",
-                                        "Command": ["python3", "casrec_load.py"]
+                                        "Command": ["python3", "app.py"]
                                     }]
                                 }
                             },
@@ -134,7 +134,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                                 "Overrides": {
                                     "ContainerOverrides": [{
                                         "Name": "etl1",
-                                        "Command": ["python3", "casrec_load.py"]
+                                        "Command": ["python3", "app.py"]
                                     }]
                                 }
                             },
@@ -162,7 +162,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                                 "Overrides": {
                                     "ContainerOverrides": [{
                                         "Name": "etl1",
-                                        "Command": ["python3", "casrec_load.py"]
+                                        "Command": ["python3", "app.py"]
                                     }]
                                 }
                             },
@@ -214,7 +214,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                 "Overrides": {
                     "ContainerOverrides": [{
                         "Name": "etl3",
-                        "Command": ["./acquire_target_ids.sh"]
+                        "Command": ["prepare_load/prepare_load.sh"]
                     }]
                 }
             }
@@ -238,7 +238,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                 "Overrides": {
                     "ContainerOverrides": [{
                         "Name": "etl4",
-                        "Command": ["python3", "load.py"]
+                        "Command": ["python3", "app.py"]
                     }]
                 }
             }
