@@ -1,3 +1,5 @@
+from ast import literal_eval
+
 from pytest_cases import parametrize_with_cases
 
 from data_tests.conftest import (
@@ -10,36 +12,36 @@ from data_tests.helpers import (
     get_merge_col_data_as_list,
     merge_source_and_transformed_df,
 )
+import pandas as pd
 
 
 @parametrize_with_cases(
     (
-        "simple_matches",
-        "merge_columns",
+        "squash_columns_fields",
         "source_query",
         "transformed_query",
+        "merge_columns",
         "module_name",
     ),
     cases=list_of_test_cases,
-    has_tag="simple",
+    has_tag="squash_columns",
 )
-def test_simple_transformations(
-    get_config,
-    simple_matches,
-    merge_columns,
+def test_squash_columns(
+    test_config,
+    squash_columns_fields,
     source_query,
     transformed_query,
+    merge_columns,
     module_name,
 ):
     print(f"module_name: {module_name}")
+    # print(source_query)
+    # print(transformed_query)
 
+    config = test_config
     add_to_tested_list(
-        module_name=module_name,
-        tested_fields=[y for x in simple_matches.values() for y in x]
-        + [merge_columns["transformed"]],
+        module_name=module_name, tested_fields=[x for x in squash_columns_fields.keys()]
     )
-
-    config = get_config
 
     source_sample_df = get_data_from_query(
         query=source_query, config=config, sort_col=merge_columns["source"], sample=True
@@ -71,10 +73,14 @@ def test_simple_transformations(
     )
 
     print(f"Checking {result_df.shape[0]} rows of data ({SAMPLE_PERCENTAGE}%) ")
+
     assert result_df.shape[0] > 0
-    for k, v in simple_matches.items():
-        for i in v:
-            match = result_df[k].equals(result_df[i])
-            print(f"checking {k} == {i}.... {'OK' if match is True else 'oh no'} ")
+
+    for k, v in squash_columns_fields.items():
+        for i, j in enumerate(v):
+            split_result = result_df[k].map(literal_eval).apply(pd.Series)
+            match = result_df[j].equals(split_result[i])
+
+            print(f"checking {j} == {k}:{i}.... {'OK' if match is True else 'oh no'} ")
 
             assert match is True

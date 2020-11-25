@@ -24,7 +24,7 @@ from data_tests.helpers import (
     has_tag="convert_to_bool",
 )
 def test_convert_to_bool(
-    get_config,
+    test_config,
     convert_to_bool_fields,
     source_query,
     transformed_query,
@@ -33,7 +33,7 @@ def test_convert_to_bool(
 ):
     print(f"module_name: {module_name}")
 
-    config = get_config
+    config = test_config
     add_to_tested_list(
         module_name=module_name,
         tested_fields=[y for x in convert_to_bool_fields.values() for y in x],

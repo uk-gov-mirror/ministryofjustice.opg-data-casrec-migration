@@ -12,6 +12,8 @@ from data_tests.helpers import (
     get_lookup_dict,
 )
 
+import numpy as np
+
 
 @parametrize_with_cases(
     (
@@ -25,7 +27,7 @@ from data_tests.helpers import (
     has_tag="lookups",
 )
 def test_map_lookup_tables(
-    get_config,
+    test_config,
     lookup_fields,
     merge_columns,
     source_query,
@@ -39,7 +41,7 @@ def test_map_lookup_tables(
         + [merge_columns["transformed"]],
     )
 
-    config = get_config
+    config = test_config
 
     source_sample_df = get_data_from_query(
         query=source_query, config=config, sort_col=merge_columns["source"], sample=True
