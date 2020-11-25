@@ -13,7 +13,9 @@ definition = {
 
 def insert_addresses_clients(config, etl2_db):
 
-    mapping_dict = get_mapping_dict(file_name="client_addresses_mapping")
+    mapping_dict = get_mapping_dict(
+        file_name="client_addresses_mapping", stage_name="transform_casrec"
+    )
 
     source_data_query = generate_select_string_from_mapping(
         mapping=mapping_dict,

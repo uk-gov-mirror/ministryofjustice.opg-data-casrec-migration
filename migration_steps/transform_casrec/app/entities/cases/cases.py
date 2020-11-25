@@ -17,7 +17,9 @@ definition = {
 
 def insert_cases(config, etl2_db):
 
-    mapping_dict = get_mapping_dict(file_name="cases_mapping")
+    mapping_dict = get_mapping_dict(
+        file_name="cases_mapping", stage_name="transform_casrec"
+    )
 
     source_data_query = generate_select_string_from_mapping(
         mapping=mapping_dict,
