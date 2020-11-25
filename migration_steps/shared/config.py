@@ -12,6 +12,7 @@ class BaseConfig:
     DATA = 2
     verbosity_levels = {0: "INFO", 1: "DEBUG", 2: "VERBOSE"}
     SAMPLE_PERCENTAGE = 1
+    MIN_PERCENTAGE_FIELDS_TESTED = 90
 
     def verbose(self, msg, *args, **kwargs):
         if logging.getLogger().isEnabledFor(self.VERBOSE):

@@ -4,7 +4,7 @@ import os
 import pandas as pd
 
 from config import get_config
-from utilities import helpers
+import helpers
 from utilities.calculated_fields import current_date
 from utilities.standard_transformations import (
     unique_number,

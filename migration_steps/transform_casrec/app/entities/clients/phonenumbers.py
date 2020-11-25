@@ -4,7 +4,7 @@ import pandas as pd
 
 from utilities import transformations_from_mapping
 from utilities.generate_source_query import generate_select_string_from_mapping
-from utilities.helpers import get_mapping_dict
+from helpers import get_mapping_dict
 
 definition = {
     "source_table_name": "pat",
@@ -15,7 +15,9 @@ definition = {
 
 def insert_phonenumbers_clients(config, etl2_db):
 
-    mapping_dict = get_mapping_dict(file_name="client_phonenumbers_mapping")
+    mapping_dict = get_mapping_dict(
+        file_name="client_phonenumbers_mapping", stage_name="transform_casrec"
+    )
 
     source_data_query = generate_select_string_from_mapping(
         mapping=mapping_dict,

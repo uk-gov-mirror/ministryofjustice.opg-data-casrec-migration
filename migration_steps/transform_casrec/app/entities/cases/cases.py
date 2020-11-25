@@ -2,9 +2,10 @@ import json
 
 import pandas as pd
 
+from helpers import get_mapping_dict
 from utilities import transformations_from_mapping
 from utilities.generate_source_query import generate_select_string_from_mapping
-from utilities.helpers import get_mapping_dict
+
 
 definition = {
     "sheet_name": "cases",
@@ -16,7 +17,9 @@ definition = {
 
 def insert_cases(config, etl2_db):
 
-    mapping_dict = get_mapping_dict(file_name="cases_mapping")
+    mapping_dict = get_mapping_dict(
+        file_name="cases_mapping", stage_name="transform_casrec"
+    )
 
     source_data_query = generate_select_string_from_mapping(
         mapping=mapping_dict,
