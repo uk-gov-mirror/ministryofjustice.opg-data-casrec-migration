@@ -12,7 +12,7 @@ sql_path = current_path / "../sql"
 
 
 def load_fixtures(config, conn_migration, conn_target):
-    schema = config.schemas["pre_migrate"]
+    schema = config.schemas["integration"]
     max_person_uid = result_from_sql_file(
         sql_path, "get_max_person_uid.sql", conn_target
     )
@@ -24,7 +24,7 @@ def load_fixtures(config, conn_migration, conn_target):
 
 
 def fetch_target_ids(config, conn_migration, conn_target):
-    schema = config.schemas["pre_migrate"]
+    schema = config.schemas["integration"]
     sirius_persons_df = df_from_sql_file(
         sql_path, "select_sirius_clients.sql", conn_target
     )
@@ -32,5 +32,5 @@ def fetch_target_ids(config, conn_migration, conn_target):
 
 
 def merge_target_ids(config, conn_migration, conn_target):
-    schema = config.schemas["pre_migrate"]
+    schema = config.schemas["integration"]
     execute_sql_file(sql_path, "merge_target_clients.sql", conn_migration, schema)

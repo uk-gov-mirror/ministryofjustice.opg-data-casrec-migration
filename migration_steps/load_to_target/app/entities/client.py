@@ -7,7 +7,7 @@ sql_path = current_path / '../sql'
 
 
 def target_update(config, conn_migration, conn_target):
-    schema = config.schemas['pre_migrate']
+    schema = config.schemas['integration']
     persons_df = df_from_sql_file(sql_path, 'get_skeleton_clients.sql', conn_migration, schema)
 
     # transpose id column
@@ -21,7 +21,7 @@ def target_update(config, conn_migration, conn_target):
 
 
 def target_add(config, conn_migration, conn_target):
-    schema = config.schemas['pre_migrate']
+    schema = config.schemas['integration']
     persons_df = df_from_sql_file(sql_path, 'get_new_clients.sql', conn_migration, schema)
 
     # don't send id
@@ -40,7 +40,7 @@ def target_add(config, conn_migration, conn_target):
 
 
 def reindex_target_ids(config, conn_migration, conn_target):
-    schema = config.schemas['pre_migrate']
+    schema = config.schemas['integration']
     sirius_persons_df = df_from_sql_file(sql_path, 'select_sirius_clients.sql', conn_target)
 
     cursor = conn_migration.cursor()
