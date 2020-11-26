@@ -40,6 +40,12 @@ workflows:
           tf_workspace: development
           filters: {branches:{only:[master]}}
       - infrastructure:
+          name: build infra development
+          requires: [reset the sirius fixtures master]
+          tf_workspace: development
+          tf_command: apply
+          filters: {branches:{only:[master]}}
+      - infrastructure:
           name: build infra preproduction
           requires: [build infra development]
           tf_workspace: preproduction
