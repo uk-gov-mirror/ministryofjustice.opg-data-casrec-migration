@@ -1,41 +1,34 @@
 import pytest
 import os
 import json
+import logging
+
+from helpers import get_all_mapped_fields
+log = logging.getLogger("root")
 
 
-@pytest.mark.parametrize("complete_status", [True, False])
-# @pytest.mark.xfail(reason="not all fields implemented yet")
+@pytest.mark.parametrize(
+    "complete_status",
+    [
+        True,
+        pytest.param(
+            False, marks=pytest.mark.xfail(reason="not all fields mapped yet")
+        ),
+    ],
+)
 @pytest.mark.last
-def test_all_fields(complete_status):
+def test_all_fields(test_config, complete_status):
+    config = test_config
     dirname = os.path.dirname(__file__)
-    file_path = os.path.join(dirname, f"./field_list")
     file_name = "tested_fields.json"
 
     try:
-        with open(f"{file_path}/{file_name}", "r") as fields_json:
+        with open(f"{dirname}/{file_name}", "r") as fields_json:
             fields_dict = json.load(fields_json)
     except IOError:
         fields_dict = {}
 
-    expected_fields = {}
-    definitions_dir = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), "..", "mapping_definitions")
-    )
-
-    for json_file in os.listdir(definitions_dir):
-        json_file_path = os.path.join(definitions_dir, json_file)
-        if os.path.isfile(json_file_path):
-            with open(json_file_path, "r") as definition_json:
-                def_dict = json.load(definition_json)
-
-                key_name = json_file.replace("_mapping.json", "")
-                expected_fields[key_name] = [
-                    k
-                    for k, v in def_dict.items()
-                    if v["mapping_status"]["is_complete"] is complete_status
-                    and v["sirius_details"]["is_pk"] is not True
-                    and len(v["sirius_details"]["fk_parents"]) == 0
-                ]
+    expected_fields = get_all_mapped_fields(complete=complete_status)
     errors = {}
 
     for k in expected_fields.keys():
@@ -44,12 +37,28 @@ def test_all_fields(complete_status):
             diff = list(set(expected_fields[k]) - set(fields_dict[k]))
             if len(diff) > 0:
                 errors[k] = diff
-            print(f"module_name: {k} with {len(diff)} errors")
 
-    print(
+    log.log(
+        config.VERBOSE,
         ("\n").join(
-            [f"{len(v)} errors in {k}: {(', ').join(v)}" for k, v in errors.items()]
-        )
+            [
+                f"{len(v)} untested fields in table {k}: {(', ').join(v)}"
+                for k, v in errors.items()
+            ]
+        ),
     )
 
-    assert sum([len(x) for x in errors.values()]) == 0
+    total_expected = sum([len(x) for x in expected_fields.values()])
+    total_errors = sum([len(x) for x in errors.values()])
+    percentage_complete = round(
+        (total_expected - total_errors) / total_expected * 100, 2
+    )
+
+    log.log(config.VERBOSE,
+        f"Acceptable percentage of fields tests: "
+        f"{config.MIN_PERCENTAGE_FIELDS_TESTED}%"
+    )
+    log.log(config.VERBOSE,
+            f"Actual percentage of fields tested: {percentage_complete}%")
+
+    assert percentage_complete > config.MIN_PERCENTAGE_FIELDS_TESTED

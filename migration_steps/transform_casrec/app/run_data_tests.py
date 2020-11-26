@@ -11,6 +11,7 @@ import logging
 import time
 from config import get_config
 from dotenv import load_dotenv
+from helpers import log_title
 
 
 # set config
@@ -25,24 +26,31 @@ config = get_config(env=environment)
 log = logging.getLogger("root")
 
 
-def run_data_tests(verbosity=0):
+def run_data_tests(verbosity_level="INFO"):
     t = time.process_time()
+
+    log.info(log_title(message="Migration Step: Test Transformed Casrec Data"))
+    log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
 
     current_path = Path(os.path.dirname(os.path.realpath(__file__)))
     test_path = f'{current_path / "data_tests"}'
 
-    pytest_args = [test_path, "--tb=no", "--disable-warnings", "-r N"]
+    pytest_args = [test_path, """--disable-warnings""", """-r N"""]
 
-    if verbosity >= 2:
-        pytest_args.insert(0, "-v")
-        pytest_args.insert(1, "-s")
+    if verbosity_level == "INFO":
+        pytest_args += ["--tb=line"]
+    else:
+        pytest_args += ["--tb=long", "-v", "-s"]
 
-    log.info(f"Running data tests on {config.SAMPLE_PERCENTAGE}% of data")
+    log.info(
+        f"Running data tests on {config.SAMPLE_PERCENTAGE}% of data with at "
+        f"least {config.MIN_PERCENTAGE_FIELDS_TESTED}% of fields tested"
+    )
     exit_code = pytest.main(pytest_args)
 
     if exit_code == 0:
-        log.info("all tests passed")
+        log.info("All tests passed")
     else:
-        log.info("tests failed")
+        log.error("Tests failed")
 
-    print(f"Total test time: {round(time.process_time() - t, 2)}")
+    log.info(f"Total test time: {round(time.process_time() - t, 2)}")
