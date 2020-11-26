@@ -2,7 +2,7 @@ from helpers import *
 
 
 def target_update(config, conn_migration, conn_target):
-    # print("- Cases")
+    print("- Cases")
     # sql = "SELECT *" "FROM etl3.cases " "WHERE sirius_id IS NOT NULL "
     # cases_df = pd.read_sql_query(sql, con=migration_db_engine, index_col=None)
     # cases_df = cases_df.drop(["id", "c_order_no"], axis=1)
@@ -34,7 +34,7 @@ def target_update(config, conn_migration, conn_target):
 
 
 def target_add(config, conn_migration, conn_target):
-    # print("- Cases")
+    print("- Cases")
     # # needs an index
     # sql = """UPDATE etl3.cases
     #         SET sirius_client_id = map.id
