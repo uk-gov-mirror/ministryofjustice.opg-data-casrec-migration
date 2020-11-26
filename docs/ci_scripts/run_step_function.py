@@ -34,7 +34,7 @@ def step_function_arn(client, step_function_name):
             return machine["stateMachineArn"]
         else:
             print("No state machine of given name exists")
-            sys.exit()
+            sys.exit(1)
 
 
 def step_function_running_wait_for(client, step_function_arn, wait_time=0):
@@ -59,6 +59,20 @@ def run_step_function(client, step_function_arn):
     return response
 
 
+def last_step_function_status_response(client, execution_arn):
+    response = client.describe_execution(executionArn=execution_arn)
+    return response["status"]
+
+
+def get_execution_arn(client, step_function_arn):
+    executions = client.list_executions(
+        stateMachineArn=step_function_arn, statusFilter="RUNNING"
+    )
+
+    for execution in executions["executions"]:
+        return execution["executionArn"]
+
+
 @click.command()
 @click.option("--role", default="operator")
 def main(role):
@@ -78,3 +92,18 @@ def main(role):
         print("Step function started correctly")
     else:
         print(response["ResponseMetadata"])
+
+    time.sleep(5)
+
+    execution_arn = get_execution_arn(client, arn)
+    step_function_running_wait_for(client, arn)
+
+    if last_step_function_status_response(client, execution_arn) == "SUCCEEDED":
+        print("Last step successful")
+    else:
+        print("Step function did not execute successfully. Go check!")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

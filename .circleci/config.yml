@@ -153,9 +153,11 @@ jobs:
       - run:
           name: install requirements
           command: pip3 install -r requirements-rsf.txt
+          working_directory: ~/project/docs/ci_scripts
       - run:
           name: run the function
           command: python3 run_step_function.py --role sirius-ci
+          working_directory: ~/project/docs/ci_scripts
 
   reset_sirius:
     executor: terraform/terraform
