@@ -10,19 +10,20 @@ services:
 
   load_casrec:
     volumes:
-      - ./migration_steps/load_casrec/casrec_load.py:/casrec_load.py
+      - ./migration_steps/load_casrec/app:/app
 
   transform_casrec:
     volumes:
       - ./migration_steps/transform_casrec/app/:/app
 
-  prepare_target:
+  prepare_load:
     volumes:
-      - ./migration_steps/prepare_target/app:/app
-
-  acquire_target_ids:
-    volumes:
-      - ./migration_steps/acquire_target_ids/app:/app
+      - ./migration_steps/prepare_load/fixtures:/prepare_load/fixtures
+      - ./migration_steps/prepare_load/merge_target_ids:/prepare_load/merge_target_ids
+      - ./migration_steps/prepare_load/pre_prepare:/prepare_load/pre_prepare
+      - ./migration_steps/prepare_load/prepare_target:/prepare_load/prepare_target
+      - ./migration_steps/prepare_load/prepare_load.sh:/prepare_load/prepare_load.sh
+      - ./migration_steps/shared:/shared
 
   load_to_target:
     volumes:

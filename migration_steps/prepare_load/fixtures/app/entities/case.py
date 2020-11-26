@@ -68,10 +68,9 @@ def load_fixtures(self, conn_migration, conn_target):
     #     dtype={"person_id": Integer, "case_id": Integer},
     # )
 
-
     def fetch_target_ids(config, conn_migration, conn_target):
         print("- Associated cases")
-        schema = config.schemas['pre_migrate']
+        # schema = config.schemas["pre_migrate"]
         # sirius_cases = pd.read_sql_table("cases", con=sirius_db_engine)
         # sirius_cases_keys = sirius_cases[(sirius_cases.casetype == "ORDER")][
         #     ["id", "caserecnumber", "client_id", "casesubtype", "orderdate"]

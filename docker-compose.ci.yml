@@ -2,7 +2,9 @@ version: '3.6'
 services:
   etl1:
     image: ${AWS_REGISTRY}/casrec-migration/etl1:${VERSION}
-    build: migration_steps/load_casrec
+    build:
+      context: ./migration_steps
+      dockerfile: load_casrec-dockerfile
   etl2:
     image: ${AWS_REGISTRY}/casrec-migration/etl2:${VERSION}
     build:
@@ -12,7 +14,7 @@ services:
     image: ${AWS_REGISTRY}/casrec-migration/etl3:${VERSION}
     build:
       context: ./migration_steps
-      dockerfile: acquire_target_ids-dockerfile
+      dockerfile: prepare_load-dockerfile
   etl4:
     image: ${AWS_REGISTRY}/casrec-migration/etl4:${VERSION}
     build:

@@ -14,7 +14,3 @@ pg_dump -U ${DB_USER} -n etl2 -h ${DB_HOST} -p ${DB_PORT} ${DB_NAME} > "${DIR}/s
 cat "${DIR}/sql/schemas/etl2.sql" | sed 's/etl2/pre_migrate/' | sed 's/CREATE SCHEMA pre_migrate;/DROP SCHEMA IF EXISTS pre_migrate CASCADE; CREATE SCHEMA pre_migrate;/' > "${DIR}/sql/schemas/pre_migrate.sql"
 psql -U ${DB_USER} -h ${DB_HOST} -p ${DB_PORT} ${DB_NAME} < "${DIR}/sql/schemas/pre_migrate.sql"
 psql -U ${DB_USER} -h ${DB_HOST} -p ${DB_PORT} ${DB_NAME} < "${DIR}/sql/sirius_id_cols.sql"
-#end move
-
-python3 "${DIR}/fixtures.py"
-python3 "${DIR}/app.py"
