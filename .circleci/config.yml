@@ -4,15 +4,15 @@ version: 2.1
 workflows:
   pull_request:
     jobs:
-      - cancel_redundant_builds:
-          name: cancel redundant builds
+      - manage_workflow:
+          name: manage workflow
           filters: {branches:{ignore:[master]}}
       - build:
           name: build and unit tests
           filters: {branches:{ignore:[master]}}
       - infrastructure:
           name: plan infra development
-          requires: [build and unit tests]
+          requires: [build and unit tests, manage workflow]
           tf_workspace: development
           tf_command: plan
           filters: {branches:{ignore:[master]}}
@@ -114,7 +114,7 @@ orbs:
               name: login to code artifact for pip
               command: ./login_code_artifact.sh -a 288342028542 -t pip
               working_directory: ~/project/docs/ci_scripts
-      cancel_redundant_builds:
+      manage_workflow:
         steps:
           - run:
               name: install cancel build requirements
@@ -146,7 +146,7 @@ jobs:
       - run:
           name: cleanup
           command: echo "running this so job passes as it's requirement to merge"
-  cancel_redundant_builds:
+  manage_workflow:
     executor: migration/python
     resource_class: small
     steps:
