@@ -134,10 +134,11 @@ orbs:
           - run:
               name: wait for others builds to finish
               command: |
-                python3 circle_job_waiter \
+                python3 circle_job_waiter.py \
                 --circle_builds_token "${CIRCLE_BUILDS_TOKEN}" \
                 --circle_project_username "${CIRCLE_PROJECT_USERNAME}" \
                 --circle_project_reponame "${CIRCLE_PROJECT_REPONAME}"
+              working_directory: ~/project/docs/ci_scripts
 jobs:
   cleanup:
     executor: migration/python
