@@ -2,10 +2,14 @@ import requests
 import json
 import click
 import time
+import os
 
 
 def get_running_jobs(
-    circle_builds_token, circle_project_username, circle_project_reponame
+    circle_builds_token,
+    circle_project_username,
+    circle_project_reponame,
+    current_workflow_id,
 ):
     running_jobs_url = f"https://circleci.com/api/v1.1/project/github/{circle_project_username}/{circle_project_reponame}?circle-token={circle_builds_token}"
     response = requests.get(running_jobs_url)
@@ -14,9 +18,12 @@ def get_running_jobs(
         running_jobs_json = json.loads(response.text)
 
         for job in running_jobs_json:
-            if job["status"] == "failed" or job["status"] == "running":
-                print(f"\"{job['workflows']['job_name']}\" is \"{job['status']}\"")
-                running_jobs.append(job["workflows"]["job_name"])
+            if job["status"] == "queued" or job["status"] == "running":
+                if job["workflows"]["workflow_id"] != current_workflow_id:
+                    print(
+                        f"Job: \"{job['workflows']['job_name']}\", Status: \"{job['status']}\""
+                    )
+                    running_jobs.append(job["workflows"]["job_name"])
 
         return running_jobs
     else:
@@ -29,12 +36,20 @@ def get_running_jobs(
 @click.option("--circle_project_username", default=None)
 @click.option("--circle_project_reponame", default=None)
 def main(circle_builds_token, circle_project_username, circle_project_reponame):
+    if "CIRCLE_WORKFLOW_ID" in os.environ:
+        current_workflow_id = os.environ["CIRCLE_WORKFLOW_ID"]
+    else:
+        current_workflow_id = "None"
+
     time_taken = 0
     secs = 10
     while (
         len(
             get_running_jobs(
-                circle_builds_token, circle_project_username, circle_project_reponame
+                circle_builds_token,
+                circle_project_username,
+                circle_project_reponame,
+                current_workflow_id,
             )
         )
         > 0
