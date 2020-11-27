@@ -20,7 +20,7 @@
             ]
           }
         },
-        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/import-fixtures-api-${cluster}:1"
+        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/import-fixtures-api-${cluster}"
       },
       "migrate-api": {
         "Cluster": "${cluster}",
@@ -35,7 +35,7 @@
             ]
           }
         },
-        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/migrate-api-${cluster}:1"
+        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/migrate-api-${cluster}"
       },
       "reset-api": {
         "Cluster": "${cluster}",
@@ -50,7 +50,7 @@
             ]
           }
         },
-        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/reset-api-${cluster}:1"
+        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/reset-api-${cluster}"
       },
       "ingest-cases": {
         "Cluster": "${cluster}",
@@ -65,7 +65,7 @@
             ]
           }
         },
-        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/ingest-cases-${cluster}:1"
+        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/ingest-cases-${cluster}"
       },
       "ingest-users": {
         "Cluster": "${cluster}",
@@ -80,7 +80,7 @@
             ]
           }
         },
-        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/ingest-users-${cluster}:1"
+        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/ingest-users-${cluster}"
       },
       "migrate-membrane": {
         "Cluster": "${cluster}",
@@ -95,7 +95,7 @@
             ]
           }
         },
-        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/migrate-membrane-${cluster}:1"
+        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/migrate-membrane-${cluster}"
       },
       "import-fixtures-membrane": {
         "Cluster": "${cluster}",
@@ -110,7 +110,7 @@
             ]
           }
         },
-        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/import-fixtures-membrane-${cluster}:1"
+        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/import-fixtures-membrane-${cluster}"
       },
       "reset-membrane": {
         "Cluster": "${cluster}",
@@ -125,7 +125,7 @@
             ]
           }
         },
-        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/reset-membrane-${cluster}:1"
+        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/reset-membrane-${cluster}"
       },
       "reset-elasticsearch": {
         "Cluster": "${cluster}",
@@ -140,7 +140,7 @@
             ]
           }
         },
-        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/reset-elasticsearch-${cluster}:1"
+        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/reset-elasticsearch-${cluster}"
       }
     }
   }
