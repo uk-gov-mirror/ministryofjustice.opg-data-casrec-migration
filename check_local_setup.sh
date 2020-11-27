@@ -17,9 +17,9 @@ cd migration_steps/transform_casrec/app
 python3 app.py
 cd ${DIR}
 
-./migration_steps/prepare_load/prepare_load.sh
-cd migration_steps/prepare_load
-./prepare_load.sh
+./migration_steps/integration/integration.sh
+cd migration_steps/integration
+./integration.sh
 cd ${DIR}
 
 python3 migration_steps/load_to_target/app/app.py

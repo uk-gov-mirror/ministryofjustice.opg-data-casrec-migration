@@ -49,10 +49,10 @@ services:
       DB_PORT: 5432
       ENVIRONMENT: docker
     depends_on: [localstack, casrec_db]
-  prepare_load:
+  integration:
     build:
       context: ./migration_steps
-      dockerfile: prepare_load-dockerfile
+      dockerfile: integration-dockerfile
     environment:
       DB_USER: casrec
       DB_PASSWORD: casrec # pragma: allowlist secret

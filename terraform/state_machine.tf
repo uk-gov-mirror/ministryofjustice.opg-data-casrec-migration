@@ -214,7 +214,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                 "Overrides": {
                     "ContainerOverrides": [{
                         "Name": "etl3",
-                        "Command": ["prepare_load/prepare_load.sh"]
+                        "Command": ["integration/integration.sh"]
                     }]
                 }
             }
