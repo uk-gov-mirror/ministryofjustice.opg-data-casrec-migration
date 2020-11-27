@@ -54,7 +54,7 @@ def main(verbose):
     log.info("- Addresses")
     address.fetch_target_ids(config, conn_migration, conn_target)
 
-    log.info("Merge target IDs in with pre_migrate data")
+    log.info("Merge target IDs in with integration data")
     log.info("- Clients")
     client.merge_target_ids(config, conn_migration, conn_target)
     log.info("- Addresses")
