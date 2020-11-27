@@ -114,7 +114,7 @@ orbs:
               name: login to code artifact for pip
               command: ./login_code_artifact.sh -a 288342028542 -t pip
               working_directory: ~/project/docs/ci_scripts
-      manage_workflow:
+      cancel_redundant_builds:
         steps:
           - run:
               name: install cancel build requirements
