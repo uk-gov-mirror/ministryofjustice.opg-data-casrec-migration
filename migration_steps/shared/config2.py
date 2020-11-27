@@ -31,8 +31,8 @@ class BaseConfig:
 
     schemas = {
         "pre_transform": "etl1",
-        "pre_merge": "etl2",
-        "pre_migrate": "pre_migrate",
+        "post_transform": "etl2",
+        "integration": "integration",
         "public": "public"
     }
 
