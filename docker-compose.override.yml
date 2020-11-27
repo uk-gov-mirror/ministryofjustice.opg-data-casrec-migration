@@ -17,13 +17,13 @@ services:
       - ./migration_steps/transform_casrec/app/:/app
       - ./migration_steps/shared:/shared
 
-  prepare_load:
+  integration:
     volumes:
-      - ./migration_steps/prepare_load/fixtures:/prepare_load/fixtures
-      - ./migration_steps/prepare_load/merge_target_ids:/prepare_load/merge_target_ids
-      - ./migration_steps/prepare_load/schema_setup:/prepare_load/schema_setup
-      - ./migration_steps/prepare_load/prepare_target:/prepare_load/prepare_target
-      - ./migration_steps/prepare_load/prepare_load.sh:/prepare_load/prepare_load.sh
+      - ./migration_steps/integration/fixtures:/integration/fixtures
+      - ./migration_steps/integration/merge_target_ids:/integration/merge_target_ids
+      - ./migration_steps/integration/schema_setup:/integration/schema_setup
+      - ./migration_steps/integration/prepare_target:/integration/prepare_target
+      - ./migration_steps/integration/integration.sh:/integration/integration.sh
       - ./migration_steps/shared:/shared
 
   load_to_target:

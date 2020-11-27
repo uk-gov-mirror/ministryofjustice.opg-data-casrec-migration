@@ -1,0 +1,11 @@
+FROM opg_casrec_migration_base_image:latest
+RUN apt-get install -y postgresql-client
+COPY integration/requirements.txt /requirements.txt
+RUN pip3 install -r requirements.txt
+COPY integration/integration.sh /integration/integration.sh
+COPY integration/fixtures /integration/fixtures
+COPY integration/merge_target_ids /integration/merge_target_ids
+COPY integration/schema_setup /integration/schema_setup
+COPY integration/prepare_target /integration/prepare_target
+COPY shared /shared
+CMD ["echo", "NO_OP"]
