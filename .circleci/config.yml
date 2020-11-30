@@ -4,15 +4,15 @@ version: 2.1
 workflows:
   pull_request:
     jobs:
-      - cancel_redundant_builds:
-          name: cancel redundant builds
+      - manage_workflow:
+          name: manage workflow
           filters: {branches:{ignore:[master]}}
       - build:
           name: build and unit tests
           filters: {branches:{ignore:[master]}}
       - infrastructure:
           name: plan infra development
-          requires: [build and unit tests]
+          requires: [build and unit tests, manage workflow]
           tf_workspace: development
           tf_command: plan
           filters: {branches:{ignore:[master]}}
@@ -131,6 +131,14 @@ orbs:
                 --terms_to_waitfor="plan infra" \
                 --prod_job_terms="build infra ,master"
               working_directory: ~/project/docs/ci_scripts
+          - run:
+              name: wait for others builds to finish
+              command: |
+                python3 circle_job_waiter.py \
+                --circle_builds_token "${CIRCLE_BUILDS_TOKEN}" \
+                --circle_project_username "${CIRCLE_PROJECT_USERNAME}" \
+                --circle_project_reponame "${CIRCLE_PROJECT_REPONAME}"
+              working_directory: ~/project/docs/ci_scripts
 jobs:
   cleanup:
     executor: migration/python
@@ -138,7 +146,7 @@ jobs:
       - run:
           name: cleanup
           command: echo "running this so job passes as it's requirement to merge"
-  cancel_redundant_builds:
+  manage_workflow:
     executor: migration/python
     resource_class: small
     steps:
