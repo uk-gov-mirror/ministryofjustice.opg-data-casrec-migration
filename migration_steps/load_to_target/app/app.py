@@ -43,7 +43,7 @@ def set_logging_level(verbose):
 @click.option("-v", "--verbose", count=True)
 def main(verbose):
     set_logging_level(verbose)
-    log.info(log_title(message="Migration Step: Load To Target (do migration)"))
+    log.info(log_title(message="Load To Target (do migration)"))
 
     conn_migration = psycopg2.connect(config.get_db_connection_string("migration"))
     conn_target = psycopg2.connect(config.get_db_connection_string("target"))

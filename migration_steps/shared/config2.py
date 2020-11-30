@@ -33,7 +33,8 @@ class BaseConfig:
         "pre_transform": "etl1",
         "post_transform": "etl2",
         "integration": "integration",
-        "public": "public"
+        "public": "public",
+        "pre_migration": "pre_migration"
     }
 
     row_limit = 5

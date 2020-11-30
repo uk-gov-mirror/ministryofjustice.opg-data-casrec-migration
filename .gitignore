@@ -43,3 +43,4 @@ data/anon_data/
 *terraform.output.json
 *etl*.sql
 *integration*.sql
+migration_steps/shared/sql/schemas/*.sql
