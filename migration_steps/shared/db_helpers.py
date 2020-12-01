@@ -2,9 +2,70 @@ import os
 import psycopg2
 import pandas as pd
 import numpy as np
+import sh
+import fileinput
 
 from psycopg2.extensions import register_adapter, AsIs
 psycopg2.extensions.register_adapter(np.int64, psycopg2._psycopg.AsIs)
+
+
+def copy_schema(
+        log,
+        sql_path,
+        from_config,
+        from_schema,
+        to_config,
+        to_schema,
+        structure_only=False
+):
+    log.info(f'Copying {from_config["name"]}.{from_schema} to {to_config["name"]}.{to_schema}')
+
+    log.info('Dump')
+    os.environ["PGPASSWORD"] = from_config["password"]
+    if structure_only:
+        schema_dump = sql_path / 'schemas' / f'{from_config["name"]}_{from_schema}_structure_only.sql'
+        sh.pg_dump(
+            '-U', from_config["user"],
+            '-n', from_schema,
+            '-h', from_config["host"],
+            '-p', from_config["port"],
+            '-s',
+            from_config["name"],
+            _out=str(schema_dump)
+        )
+    else:
+        schema_dump = sql_path / 'schemas' / f'{from_config["name"]}_{from_schema}.sql'
+        sh.pg_dump(
+            '-U', from_config["user"],
+            '-n', from_schema,
+            '-h', from_config["host"],
+            '-p', from_config["port"],
+            from_config["name"],
+            _out=str(schema_dump)
+        )
+
+    log.info('Modify')
+    with fileinput.FileInput(str(schema_dump), inplace=True) as file:
+        for line in file:
+            print(line.replace(from_schema, to_schema), end='')
+
+    with fileinput.FileInput(schema_dump, inplace=True) as file:
+        for line in file:
+            print(line.replace(
+                'CREATE SCHEMA ' + to_schema,
+                f'DROP SCHEMA IF EXISTS {to_schema} CASCADE; CREATE SCHEMA {to_schema}'),
+                end='')
+
+    log.info('Import')
+    os.environ["PGPASSWORD"] = to_config["password"]
+    schemafile = open(schema_dump, 'r')
+    sh.psql(
+        '-U', to_config["user"],
+        '-h', to_config["host"],
+        '-p', to_config["port"],
+        to_config["name"],
+        _in=schemafile
+    )
 
 
 def execute_sql_file(sql_path, filename, conn, schema='public'):

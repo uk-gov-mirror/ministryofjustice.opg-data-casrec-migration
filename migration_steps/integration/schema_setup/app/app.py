@@ -10,12 +10,10 @@ import psycopg2
 from config2 import get_config
 from dotenv import load_dotenv
 from db_helpers import *
+from helpers import log_title
 import logging
 import custom_logger
 import click
-
-import sh
-import fileinput
 
 env_path = current_path / "../../../../.env"
 local_sql_path = current_path / "sql"
@@ -44,44 +42,16 @@ def set_logging_level(verbose):
 @click.option("-v", "--verbose", count=True)
 def main(verbose):
     set_logging_level(verbose)
+    log.info(log_title(message="Integration"))
 
     log.info("Create an integration schema for use with this step")
-    dbconfig = config.db_config["migration"]
-    schema_dump = shared_sql_path/'schemas'/str(config.schemas["post_transform"] + '.sql')
-
-    log.info("Dump transform schema")
-    os.environ["PGPASSWORD"] = dbconfig["password"]
-    sh.pg_dump(
-        '-U', dbconfig["user"],
-        '-n', config.schemas["post_transform"],
-        '-h', dbconfig["host"],
-        '-p', dbconfig["port"],
-        dbconfig["name"],
-        _out=str(schema_dump)
-    )
-
-    log.info("Modify schema")
-    with fileinput.FileInput(str(schema_dump), inplace=True) as file:
-        for line in file:
-            print(line.replace(
-                config.schemas["post_transform"],
-                config.schemas["integration"]),
-                end='')
-    with fileinput.FileInput(schema_dump, inplace=True) as file:
-        for line in file:
-            print(line.replace(
-                'CREATE SCHEMA ' + config.schemas["integration"],
-                f'DROP SCHEMA IF EXISTS {config.schemas["integration"]} CASCADE; CREATE SCHEMA {config.schemas["integration"]}'),
-                end='')
-
-    log.info("Import new schema")
-    schemafile = open(schema_dump, 'r')
-    sh.psql(
-        '-U', dbconfig["user"],
-        '-h', dbconfig["host"],
-        '-p', dbconfig["port"],
-        dbconfig["name"],
-        _in=schemafile
+    copy_schema(
+        log=log,
+        sql_path=shared_sql_path,
+        from_config=config.db_config["migration"],
+        from_schema=config.schemas["post_transform"],
+        to_config=config.db_config["migration"],
+        to_schema=config.schemas["integration"]
     )
 
     log.info("Modify new schema")

@@ -17,6 +17,7 @@ import click
 
 env_path = current_path / "../../../../.env"
 sql_path = current_path / "sql"
+shared_sql_path = current_path / "../../../shared/sql"
 load_dotenv(dotenv_path=env_path)
 
 environment = os.environ.get("ENVIRONMENT")
@@ -43,15 +44,25 @@ def set_logging_level(verbose):
 @click.option("-v", "--verbose", count=True)
 def main(verbose):
     set_logging_level(verbose)
-    log.info(log_title(message="Migration Step: Prepare Target"))
+    log.info(log_title(message="Prepare Target"))
 
     log.info("Perform Sirius DB Housekeeping")
     conn_target = psycopg2.connect(config.get_db_connection_string("target"))
-
     log.debug(
         "(operations which need to be performed on Sirius DB ahead of the final Casrec Migration)"
     )
     execute_sql_file(sql_path, "prepare_sirius.sql", conn_target)
+
+    log.info("Take a fresh copy of the Sirius data structure")
+    copy_schema(
+        log=log,
+        sql_path=shared_sql_path,
+        from_config=config.db_config["target"],
+        from_schema=config.schemas["public"],
+        to_config=config.db_config["migration"],
+        to_schema=config.schemas["pre_migration"],
+        structure_only=True
+    )
 
     log.info("Roll back previous migration")
     max_orig_person_id = result_from_sql_file(
