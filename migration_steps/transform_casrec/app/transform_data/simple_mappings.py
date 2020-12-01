@@ -20,13 +20,19 @@ def do_simple_mapping(
 
     source_table_name = table_definition["source_table_name"]
 
-    simple_column_remap = [
-        {v["alias"]: k}
-        for k, v in simple_mapping.items()
-        if v["requires_transformation"] == ""
-        if v["casrec_table"].lower() == source_table_name
-    ]
-    columns = {k: v for d in simple_column_remap for k, v in d.items()}
+    columns = {}
+    for k, v in simple_mapping.items():
+        if (
+            v["requires_transformation"] == ""
+            and v["casrec_table"].lower() == source_table_name
+        ):
+            if isinstance(v["alias"], list):
+                for a in v["alias"]:
+                    columns[a] = k
+            else:
+                columns[v["alias"]] = k
+
+    log.log(config.VERBOSE, f"columns: {columns}")
 
     log.log(
         config.DATA,

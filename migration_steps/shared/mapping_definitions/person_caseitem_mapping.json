@@ -5,7 +5,8 @@
         },
         "sirius_details": {
             "is_pk": true,
-            "fk_parents": "persons:id"
+            "fk_parents": "persons:id",
+            "data_type": "int"
         },
         "transform_casrec": {
             "casrec_table": "",
@@ -14,7 +15,8 @@
             "requires_transformation": "",
             "lookup_table": "",
             "default_value": "",
-            "calculated": ""
+            "calculated": "",
+            "additional_columns": ""
         }
     },
     "caseitem_id": {
@@ -23,7 +25,8 @@
         },
         "sirius_details": {
             "is_pk": true,
-            "fk_parents": "cases:id"
+            "fk_parents": "cases:id",
+            "data_type": "int"
         },
         "transform_casrec": {
             "casrec_table": "",
@@ -32,7 +35,8 @@
             "requires_transformation": "",
             "lookup_table": "",
             "default_value": "",
-            "calculated": ""
+            "calculated": "",
+            "additional_columns": ""
         }
     }
 }
