@@ -1,5 +1,6 @@
 import boto3
 import os
+import sys
 import logging
 from botocore.exceptions import ClientError
 from pathlib import Path
@@ -81,6 +82,9 @@ def list_bucket_contents(bucket_name, s3):
     resp = s3.list_objects_v2(Bucket=bucket_name)
 
     files_in_bucket = []
+
+    if 'Contents' not in resp:
+        sys.exit('Casrec source .csv data files not found - please check you have added files to data/anon/*.csv')
 
     for obj in resp["Contents"]:
         files_in_bucket.append(obj["Key"])
