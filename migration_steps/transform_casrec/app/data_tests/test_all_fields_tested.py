@@ -47,7 +47,8 @@ def test_all_fields(test_config, complete_status):
     )
     print(untested_fields)
     log.log(
-        config.VERBOSE, untested_fields,
+        config.VERBOSE,
+        untested_fields,
     )
 
     total_expected = sum([len(x) for x in expected_fields.values()])

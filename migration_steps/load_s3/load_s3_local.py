@@ -83,8 +83,10 @@ def list_bucket_contents(bucket_name, s3):
 
     files_in_bucket = []
 
-    if 'Contents' not in resp:
-        sys.exit('Casrec source .csv data files not found - please check you have added files to data/anon/*.csv')
+    if "Contents" not in resp:
+        sys.exit(
+            "Casrec source .csv data files not found - please check you have added files to data/anon/*.csv"
+        )
 
     for obj in resp["Contents"]:
         files_in_bucket.append(obj["Key"])

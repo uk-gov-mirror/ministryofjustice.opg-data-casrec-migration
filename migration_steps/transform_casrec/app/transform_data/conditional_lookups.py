@@ -22,7 +22,8 @@ def conditional_lookup(
 ) -> pd.DataFrame:
     log.info("I AM DOING A CONDITIONAL LOOKUP")
     log.log(
-        config.DATA, f"before\n{df.sample(n=config.row_limit).to_markdown()}",
+        config.DATA,
+        f"before\n{df.sample(n=config.row_limit).to_markdown()}",
     )
 
     temp_col = "mapping_col"
@@ -40,7 +41,8 @@ def conditional_lookup(
     df = df.drop(columns=[data_col, lookup_col, temp_col])
 
     log.log(
-        config.DATA, f"after\n{df.sample(n=config.row_limit).to_markdown()}",
+        config.DATA,
+        f"after\n{df.sample(n=config.row_limit).to_markdown()}",
     )
 
     return df
