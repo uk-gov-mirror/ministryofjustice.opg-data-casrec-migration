@@ -127,6 +127,21 @@
         },
         "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/reset-membrane-${cluster}"
       },
+      "behat-migration": {
+        "Cluster": "${cluster}",
+        "LaunchType": "FARGATE",
+        "NetworkConfiguration": {
+        "AwsvpcConfiguration": {
+          "SecurityGroups": [
+            "${sec_group}"
+          ],
+          "Subnets": [
+            "${subnets}"
+          ]
+        }
+        },
+        "TaskDefinition": "arn:aws:ecs:eu-west-1:288342028542:task-definition/behat-migration-${cluster}"
+      },
       "reset-elasticsearch": {
         "Cluster": "${cluster}",
         "LaunchType": "FARGATE",
