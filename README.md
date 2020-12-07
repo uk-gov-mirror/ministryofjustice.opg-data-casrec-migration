@@ -8,19 +8,18 @@ injested / inserted into Sirius platform.
 
 We use AWS Localstack and postgres containers locally
 
-## <u>How to do things</u>
-=======
 ## Setup from scratch
 
-All commands are from the root directory of `opg-data-casrec-migration` unless otherwise stated
+
+### Checkout
 
 ```bash
 git clone git@github.com:ministryofjustice/opg-data-casrec-migration.git
-cd opg-data-casrec-migration
-direnv allow
 ```
 
-Create and activate python virtual environment
+All commands are from the root directory of `opg-data-casrec-migration` unless otherwise stated
+
+### Set up python virtual environment
 
 ```bash
 virtualenv venv
@@ -30,27 +29,98 @@ which python
 > ...opg-data-casrec-migration/venv/bin/python
 ```
 
-Install python requirements
+### Grab Casrec dev data
+
+For development we have a sample set of migration data in the same format as the files we will be receiving from Casrec (about 40 files). Sensitive data has been removed - hence we call this our 'anonymised csv data'.
+
+You need to save these files to `data/anon_data/` on your development machine
 
 ```bash
-pip install -r etl1/requirements.txt
-pip install -r etl2/requirements.txt
+mkdir -p data/anon_data
+
+# copy .csv files within this dir (about 40 files)
 ```
 
-## Before you start
-
-For development we have a sample set of migration data in the same format as the files we will be receiving from Casrec (about 40 files).
-Sensitive data has been removed - hence we call this our 'anonymised csv data'.
-
-You need to save these files to `etl1/anon_data/` on your development machine
+### Install python requirements
 
 ```bash
-mkdir -p etl1/anon_data
+pip3 install -r base_image/requirements.txt
 ```
 
-However these files are not currently hosted anywhere - see a member of the team for a zip of csv docs to work with. Unzip the docs under etl1/anon_data/*.csv (about 40 files)
+## Run the tests
 
-### Install Sirius project (optional)
+```bash
+pip3 install pytest
+pip3 install pytest_cases
+
+# export test paths to PYTHONPATH with something like
+export PYTHONPATH=[project root]/migration_steps/transform_casrec/tests:[project root]/migration_steps/transform_casrec/app:[project root]/migration_steps/transform_casrec
+
+python3 -m pytest migration_steps/transform_casrec/tests
+```
+
+## Run a local migration
+
+### Docker setup
+```bash
+# do a prune first if you reading this having had problems with migrate.sh
+docker-compose down
+docker system prune -a
+```
+
+### Migrate
+
+```bash
+./migrate.sh
+```
+
+Or, you can run each step individually:
+
+```bash
+docker-compose run --rm load_s3 python3 load_s3_local.py
+docker-compose run --rm load_casrec python3 app.py
+docker-compose run --rm transform_casrec python3 app.py --clear=True
+docker-compose run --rm integration integration/integration.sh
+docker-compose run --rm load_to_target python3 app.py
+```
+
+Running the steps (Non-dockerised):
+
+Note - the steps rely on data passed forward by the chain, so your safest bet is to run ./migrate  - but for debugging.
+
+Several of the steps you can increase the log debugging level with -vv, -vvv etc
+
+```bash
+python3 migration_steps/load_s3_local.py
+python3 migration_steps/load_casrec/app/app.py
+python3 migration_steps/transform_casrec/app/app.py -vv
+./migration_steps/integration/integration.sh -vv
+python3 migration_steps/load_to_target/app/app.py
+```
+
+## Other admin and utility scripts
+
+## Importing latest spreadsheet and mapping definitions
+
+Downloads the latest version of the file that is used to generate the mapping json docs.
+
+Ensure you're in a virtual env that has the required dependencies and run:
+- Requires AWS Vault - if you don't have that, somebody in Ops should be able to help out
+- Assumes python requirements.txt installed as above
+
+```bash
+aws-vault exec identity --
+python3 import_mapping_definfitions
+```
+
+There are two flags:
+
+- `s3_source` is to decide whether to pull from staged or merged (defaults to merged).
+- `version` is to decide whether to pull in specific version (defaults to latest)
+
+
+
+## Install Sirius project (optional)
 In order to see the results of a migration in the Sirius Front end you'll need the actual Sirius project:
 
 Installing Sirius in a nutshell (refer to Sirius docs for more):
@@ -78,80 +148,69 @@ make dev-up
 
 You now need to take down the S3 localstack container because it conflicts with ours
 
-```
+```bash
 docker stop opg-sirius_localstack-s3_1
 ```
 
-
-## ETL
-
-'ETL' means Extract, Transform, Load but we are building a series of smaller data transform steps, so it's more like ETTTT(...)L
-
-```
-E - (etl1) the data is extracted from its home on S3 and loaded into postgres etl1 schema by etl1/casrec_load.py
-T - (etl2) the data is transformed by etl2/transformations
-T - (etl3) row IDs from the Sirius Database are identified and merged in with the corresponding data
-T - ...probably other  transformations
-T - ...
-L - import into Sirius
-```
-
-## ETL 1 and ETL2 (and build Docker containers)
-
-To mimic what happens in AWS, we load up a localstack S3 service with the anonymised CSV data and then have a container (with the same build as ECS task in AWS) that runs the scripts in to the etl1 schema in casrec.
+Re-index elastic search
 
 ```bash
-./load_etl.sh
-```
-
-Or do the steps individually:
-
-```bash
-# 1. Build docker containers for casrec_db and AWS localstack
-docker-compose up --no-deps -d casrec_db localstack
-
-# 2. Load the files in etl1/anon_data/*.csv into localstack S3
-docker-compose run --rm load_s3 python3 load_s3_local.py
-
-# 3. (ETL1) Import the csv files into a postgres schema (called etl1) which matches the casrec file structure
-docker-compose run --rm load_casrec python3 casrec_load.py
-For development purposes you can also run this from the command line as it uses direnv file to make it runnnable both inside and outside of docker:
-cd etl1 (direnv will load correct env vars)
-python3 casrec_load.py
-
-# 4. (ETL2) cd etl2/app && direnv allow && python3 app.py --clear=True
-```
-
-## ETL3 (also loads fixtures onto Sirius)
-
-ETL3:
- - dumps the ETL2 DB schema to `db-snapshots/etl2.sql`
- - drops the ETL3 schema, then rebuilds it from ETL2, with new table columns added to take some Sirius ids
- - grabs sirius IDs into map tables (eg `sirius_map_persons` maps sirius's persons.id against the casrec number)
- - uses the maps to import the sirius ids alongside the etl ids into the main tables (eg `persons`)
- - Loads the first 10 clients into Sirius DB to represent the Skeleton clients that exist on real Sirius. The fields populated in Sirius are an accurate representation of a skeleton record. The following is inserted:
-    - 10 persons (clients)
-    - 10 addresses belonging to those persons
-    - 5 persons' worth of cases
-
-```bash
-./etl3.sh
-```
-
-## Load
-
-```
-./load.sh
-```
-
-## Re-index Sirius
-
-Once we've migrated across some data, have Sirius re-index its search, so we can search for the new stuff in the search bar
-
-```
-(In Sirius local dev root)
+# (In Sirius local dev root)
 docker-compose run --rm queue scripts/elasticsearch/setup.sh
 ```
+
+## The Migration Pipeline
+
+Migrations are typically described as 'ETL' (Extract, Transform, Load) but we are building a series of smaller data transform steps, so it's more like ETTTT(...)L
+
+The Migration steps, in order, are:
+
+- load_s3
+- load_casrec
+- transform_casrec
+- integration
+- load_to_target
+- validation
+
+### load_s3
+
+- Runs in local dev only. Takes the anonymised dev data and loads it into an S3 bucket on localdev, so that the next step will find the files in S3 as it does in AWS proper
+
+### load_casrec
+
+- Reads the S3 files and saves them intact into a postgres database schema, one table per csv file
+- Schema created: `casrecmigration.etl1`
+
+### transform_casrec
+
+- Reads data from the `etl1` schema and performs a series of transformations on the columns
+- Makes extensive use of pandas to perform the transformations
+- Arrives at a schema more closely resembling the Sirius DB
+- outputs schema `etl2`
+
+### integration
+
+- Makes a copy of Sirius `api.public` schema called `pre_migration`. This will be used to hold our migration data before it is ready for loading, providing a final level of assurance that the data will 'fit' Sirius
+- Copies `etl2` to `integration`, which has added id columns to hold associated ids from Sirius
+- Generates ID lookup tables from the Sirius DB
+- Uses the lookup tables to transpose the corresponding Sirius ids into the integration schema
+
+### load_to_target
+
+- takes the `pre_migrate` schema and performs a series of inserts where the data does not exist in Sirius, updates where it does.
+
+### validation
+
+- Validates data at the DB layer, by comparing Sirius `api.public` with `pre_migrate`
+- Returns a list of expected vs actual counts
+- Saves any exceptions it finds to exception tables, to await further analysis
+
+## Yet to implement
+
+- business rules step, between integration and load_to_target
+- rollback
+- Functional testing, which will be run in situ within a Sirius environment, utiliising establishes Sirius test behaviours
+
 
 ## DB connections for clients eg PyCharm and DataGrip:
 ```
@@ -193,13 +252,3 @@ ecs-runner -task migrate-api -timeout 600
 ecs-runner -task import-fixtures-api -timeout 600
 ```
 
-## Importing latest spreadsheet and mapping definitions
-
-Ensure you're in a virtual env that has the required dependencies and run:
-
-```python3 import_mapping_definfitions```
-
-There are two flags:
-
-- `s3_source` is to decide whether to pull from staged or merged (defaults to merged).
-- `version` is to decide whether to pull in specific version (defaults to latest)
