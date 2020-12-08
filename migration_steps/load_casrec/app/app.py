@@ -189,10 +189,14 @@ def dev_sirius_session():
 def main():
     parser = argparse.ArgumentParser(description="Load into casrec.")
     parser.add_argument(
-        "--entities", default="all", help="list of entities to load",
+        "--entities",
+        default="all",
+        help="list of entities to load",
     )
     parser.add_argument(
-        "--chunk", default="50000", help="chunk size",
+        "--chunk",
+        default="50000",
+        help="chunk size",
     )
     args = parser.parse_args()
 
