@@ -18,15 +18,15 @@ class BaseConfig:
             "port": os.environ.get("DB_PORT"),
             "name": os.environ.get("DB_NAME"),
             "user": os.environ.get("DB_USER"),
-            "password": os.environ.get("DB_PASSWORD")
+            "password": os.environ.get("DB_PASSWORD"),
         },
         "target": {
             "host": os.environ.get("SIRIUS_DB_HOST"),
             "port": os.environ.get("SIRIUS_DB_PORT"),
             "name": os.environ.get("SIRIUS_DB_NAME"),
             "user": os.environ.get("SIRIUS_DB_USER"),
-            "password": os.environ.get("SIRIUS_DB_PASSWORD")
-        }
+            "password": os.environ.get("SIRIUS_DB_PASSWORD"),
+        },
     }
 
     schemas = {
@@ -34,7 +34,7 @@ class BaseConfig:
         "post_transform": "etl2",
         "integration": "integration",
         "public": "public",
-        "pre_migration": "pre_migration"
+        "pre_migration": "pre_migration",
     }
 
     row_limit = 5
@@ -51,9 +51,11 @@ class BaseConfig:
         logging.Logger.verbose = self.verbose
 
     def get_db_connection_string(self, db):
-        return f"postgresql://{self.db_config[db]['user']}:{self.db_config[db]['password']}@" \
-               f"{self.db_config[db]['host']}:{self.db_config[db]['port']}" \
-               f"/{self.db_config[db]['name']}"  # pragma: allowlist secret
+        return (
+            f"postgresql://{self.db_config[db]['user']}:{self.db_config[db]['password']}@"
+            f"{self.db_config[db]['host']}:{self.db_config[db]['port']}"
+            f"/{self.db_config[db]['name']}"
+        )  # pragma: allowlist secret
 
 
 class LocalConfig(BaseConfig):

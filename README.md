@@ -45,18 +45,7 @@ mkdir -p data/anon_data
 
 ```bash
 pip3 install -r base_image/requirements.txt
-```
-
-## Run the tests
-
-```bash
-pip3 install pytest
-pip3 install pytest_cases
-
-# export test paths to PYTHONPATH with something like
-export PYTHONPATH=[project root]/migration_steps/transform_casrec/tests:[project root]/migration_steps/transform_casrec/app:[project root]/migration_steps/transform_casrec
-
-python3 -m pytest migration_steps/transform_casrec/tests
+pip install pre-commit
 ```
 
 ## Run a local migration
@@ -98,9 +87,31 @@ python3 migration_steps/transform_casrec/app/app.py -vv
 python3 migration_steps/load_to_target/app/app.py
 ```
 
+## Testing your work
+
+### Run the tests
+
+```bash
+pip3 install pytest
+pip3 install pytest_cases
+
+# export test paths to PYTHONPATH with something like
+export PYTHONPATH=[project root]/migration_steps/transform_casrec/tests:[project root]/migration_steps/transform_casrec/app:[project root]/migration_steps/transform_casrec
+
+python3 -m pytest migration_steps/transform_casrec/tests
+```
+
+### Python linting - run precommit
+
+Runs terraform_fmt, flake8, black etc
+
+```bash
+pre-commit run --all-files
+```
+
 ## Other admin and utility scripts
 
-## Importing latest spreadsheet and mapping definitions
+### Importing latest spreadsheet and mapping definitions
 
 Downloads the latest version of the file that is used to generate the mapping json docs.
 
@@ -117,8 +128,6 @@ There are two flags:
 
 - `s3_source` is to decide whether to pull from staged or merged (defaults to merged).
 - `version` is to decide whether to pull in specific version (defaults to latest)
-
-
 
 ## Install Sirius project (optional)
 In order to see the results of a migration in the Sirius Front end you'll need the actual Sirius project:

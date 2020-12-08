@@ -61,7 +61,7 @@ def main(verbose):
         from_schema=config.schemas["public"],
         to_config=config.db_config["migration"],
         to_schema=config.schemas["pre_migration"],
-        structure_only=True
+        structure_only=True,
     )
 
     log.info("Roll back previous migration")

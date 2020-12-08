@@ -6,7 +6,9 @@ def get_cols_from_mapping(
 ):
 
     sirius_data = helpers.get_mapping_dict(
-        file_name=file_name, stage_name="sirius_details", only_complete_fields=True,
+        file_name=file_name,
+        stage_name="sirius_details",
+        only_complete_fields=True,
     )
     cols_from_mapping = list(sirius_data.keys())
 
