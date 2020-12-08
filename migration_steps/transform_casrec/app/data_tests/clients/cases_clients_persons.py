@@ -65,7 +65,7 @@ def case_clients_2(test_config):
         "isorganisation": False,
         "casesmanagedashybrid": False,
         "supervisioncaseowner_id": 10,
-        "clientsource": "Casrec",
+        "clientsource": "CASRECMIGRATION",
         # "updateddate": "Todays date",
     }
 

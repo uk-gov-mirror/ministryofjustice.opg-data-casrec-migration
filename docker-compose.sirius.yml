@@ -1,0 +1,87 @@
+version: '3.6'
+services:
+  casrec_db:
+    image: postgres:10.11
+    ports:
+      - 6666:5432
+    environment:
+      POSTGRES_USER: casrec
+      POSTGRES_PASSWORD: casrec # pragma: allowlist secret
+      POSTGRES_DB: casrecmigration
+      PGPASSWORD: casrec # pragma: allowlist secret
+  localstack:
+    image: localstack/localstack:0.10.9
+    ports:
+        - 4598:4572
+        - 4599:4566
+    environment:
+        - SERVICES=s3:4572
+        - DEFAULT_REGION=eu-west-1
+  load_s3:
+    build:
+      context: ./migration_steps/load_s3
+      dockerfile: Dockerfile
+    environment:
+      CSV_DIR_SUFFIX: ./anon_data
+      LOCALSTACK_URL: localstack
+    volumes:
+      - ./data/anon_data:/anon_data
+  load_casrec:
+    build:
+      context: ./migration_steps
+      dockerfile: load_casrec-dockerfile
+    environment:
+      DB_PASSWORD: casrec # pragma: allowlist secret
+      DB_NAME: casrecmigration
+      DB_HOST: casrec_db
+      DB_PORT: 5432
+      ENVIRONMENT: local
+      S3_PATH: anon
+    depends_on: [localstack, casrec_db]
+  transform_casrec:
+    build:
+      context: ./migration_steps
+      dockerfile: transform_casrec-dockerfile
+    environment:
+      DB_PASSWORD: casrec # pragma: allowlist secret
+      DB_NAME: casrecmigration
+      DB_HOST: casrec_db
+      DB_PORT: 5432
+      ENVIRONMENT: docker
+    depends_on: [localstack, casrec_db]
+  integration:
+    build:
+      context: ./migration_steps
+      dockerfile: integration-dockerfile
+    environment:
+      DB_USER: casrec
+      DB_PASSWORD: casrec # pragma: allowlist secret
+      DB_NAME: casrecmigration
+      DB_HOST: casrec_db
+      DB_PORT: 5432
+      SIRIUS_DB_USER: api
+      SIRIUS_DB_PASSWORD: api # pragma: allowlist secret
+      SIRIUS_DB_NAME: api
+      SIRIUS_DB_HOST: docker.for.mac.localhost
+      SIRIUS_DB_PORT: 5432
+      ENVIRONMENT: local
+    depends_on: [casrec_db]
+  wait-for-it:
+    build: ./wait-for-it
+  load_to_target:
+    build:
+      context: ./migration_steps
+      dockerfile: load_to_target-dockerfile
+    environment:
+      DB_USER: casrec
+      DB_PASSWORD: casrec # pragma: allowlist secret
+      DB_NAME: casrecmigration
+      DB_HOST: casrec_db
+      DB_PORT: 5432
+      SIRIUS_DB_USER: api
+      SIRIUS_DB_PASSWORD: api # pragma: allowlist secret
+      SIRIUS_DB_NAME: api
+      SIRIUS_DB_HOST: docker.for.mac.localhost
+      SIRIUS_DB_PORT: 5432
+      ENVIRONMENT: local
+    depends_on: [casrec_db]

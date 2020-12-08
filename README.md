@@ -109,8 +109,7 @@ Ensure you're in a virtual env that has the required dependencies and run:
 - Assumes python requirements.txt installed as above
 
 ```bash
-aws-vault exec identity --
-python3 import_mapping_definfitions
+aws-vault exec identity -- python3 import_mapping_definitions.py
 ```
 
 There are two flags:
