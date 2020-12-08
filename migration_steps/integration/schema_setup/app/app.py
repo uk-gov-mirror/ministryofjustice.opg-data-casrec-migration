@@ -51,7 +51,7 @@ def main(verbose):
         from_config=config.db_config["migration"],
         from_schema=config.schemas["post_transform"],
         to_config=config.db_config["migration"],
-        to_schema=config.schemas["integration"]
+        to_schema=config.schemas["integration"],
     )
 
     log.info("Modify new schema")
@@ -60,7 +60,7 @@ def main(verbose):
         local_sql_path,
         "sirius_id_cols.template.sql",
         "{schema}",
-        config.schemas['integration'],
+        config.schemas["integration"],
         conn,
     )
     conn.close()

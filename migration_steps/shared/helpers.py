@@ -19,7 +19,6 @@ def log_title(message: str) -> str:
     return log_string
 
 
-
 def get_current_directory():
     dirname = os.path.dirname(__file__)
     return dirname
