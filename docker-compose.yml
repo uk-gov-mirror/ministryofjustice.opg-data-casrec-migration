@@ -12,8 +12,8 @@ services:
   localstack:
     image: localstack/localstack:0.10.9
     ports:
-        - 4598:4572
-        - 4599:4566
+        - 4572:4572
+        - 4566:4566
     environment:
         - SERVICES=s3:4572
         - DEFAULT_REGION=eu-west-1
@@ -62,42 +62,41 @@ services:
       SIRIUS_DB_USER: api
       SIRIUS_DB_PASSWORD: api # pragma: allowlist secret
       SIRIUS_DB_NAME: api
-#      SIRIUS_DB_HOST: postgres-sirius
-      SIRIUS_DB_HOST: docker.for.mac.localhost
+      SIRIUS_DB_HOST: postgres-sirius
       SIRIUS_DB_PORT: 5432
       ENVIRONMENT: local
-    depends_on: [casrec_db]
+    depends_on: [casrec_db, postgres-sirius]
   wait-for-it:
     build: ./wait-for-it
 #  Please read the readme in ./sirius-snapshot before building the Sirius db
-#  postgres-sirius:
-#    image: postgres:10.11
-#    ports:
-#      - 5555:5432
-#    environment:
-#      POSTGRES_USER: api
-#      POSTGRES_PASSWORD: api
-#      POSTGRES_DB: api
-#      PGPASSWORD: api
-#  postgres-sirius-restore:
-#    image: postgres:10.11
-#    entrypoint: pg_restore
-#    volumes: ["./db-snapshots:/db-snapshots"]
-#    command:
-#      - /db-snapshots/api.backup
-#      - --clean
-#      - --if-exists
-#      - --host=postgres-sirius
-#      - --dbname=api
-#      - --username=api
-#      - -v
-#      - --format=custom
-#    environment:
-#      POSTGRES_USER: api
-#      POSTGRES_PASSWORD: api
-#      PGPASSWORD: api
-#      POSTGRES_DB: api
-#    depends_on: [postgres-sirius]
+  postgres-sirius:
+    image: postgres:10.11
+    ports:
+      - 5555:5432
+    environment:
+      POSTGRES_USER: api
+      POSTGRES_PASSWORD: api
+      POSTGRES_DB: api
+      PGPASSWORD: api
+  postgres-sirius-restore:
+    image: postgres:10.11
+    entrypoint: pg_restore
+    volumes: ["./db-snapshots:/db-snapshots"]
+    command:
+      - /db-snapshots/api.backup
+      - --clean
+      - --if-exists
+      - --host=postgres-sirius
+      - --dbname=api
+      - --username=api
+      - -v
+      - --format=custom
+    environment:
+      POSTGRES_USER: api
+      POSTGRES_PASSWORD: api
+      PGPASSWORD: api
+      POSTGRES_DB: api
+    depends_on: [postgres-sirius]
   load_to_target:
     build:
       context: ./migration_steps
@@ -111,8 +110,7 @@ services:
       SIRIUS_DB_USER: api
       SIRIUS_DB_PASSWORD: api # pragma: allowlist secret
       SIRIUS_DB_NAME: api
-#      SIRIUS_DB_HOST: postgres-sirius
-      SIRIUS_DB_HOST: docker.for.mac.localhost
+      SIRIUS_DB_HOST: postgres-sirius
       SIRIUS_DB_PORT: 5432
       ENVIRONMENT: local
-    depends_on: [casrec_db]
+    depends_on: [casrec_db, postgres-sirius]
