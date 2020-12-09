@@ -26,6 +26,11 @@ workflows:
           name: run the step function
           requires: [build infra development]
           filters: {branches:{ignore:[master]}}
+      - run_behat_tests:
+          name: run the behat tests
+          requires: [run the step function]
+          tf_workspace: development
+          filters: {branches:{ignore:[master]}}
       - cleanup:
           name: destroy branch environment
           requires: [run the step function]
@@ -166,7 +171,38 @@ jobs:
           name: run the function
           command: python3 run_step_function.py --role sirius-ci
           working_directory: ~/project/docs/ci_scripts
-
+  run_behat_tests:
+    executor: terraform/terraform
+    resource_class: small
+    parameters:
+      tf_workspace:
+        description: terraform workspace
+        type: string
+        default: "development"
+    working_directory: ~/project/terraform
+    steps:
+      - checkout:
+          path: ~/project
+      - terraform/install
+      - run:
+          name: Initialize
+          command: terraform init
+      - run:
+          name: Get template file
+          command: |
+            # Image tag is not important but is needed for build
+            export TF_VAR_image_tag=fake-tag
+            terraform apply -target=local_file.output
+      - run:
+          name: Install ecs-runner
+          command: |
+            wget https://github.com/ministryofjustice/opg-ecs-helper/releases/download/v0.2.0/opg-ecs-helper_Linux_x86_64.tar.gz -O $HOME/opg-ecs-helper.tar.gz
+            sudo tar -xvf $HOME/opg-ecs-helper.tar.gz -C /usr/local/bin
+            sudo chmod +x /usr/local/bin/ecs-stabilizer
+            sudo chmod +x /usr/local/bin/ecs-runner
+      - run:
+          name: Reset Api
+          command: ecs-runner -task behat-migration -timeout 600
   reset_sirius:
     executor: terraform/terraform
     resource_class: small
