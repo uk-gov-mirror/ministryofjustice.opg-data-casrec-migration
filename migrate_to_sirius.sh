@@ -23,6 +23,6 @@ P4=$!
 wait $P1 $P2 $P3 $P4
 cat docker_load.log
 rm docker_load.log
-#docker-compose -f docker-compose.sirius.yml run --rm transform_casrec python3 app.py --clear=True
-#docker-compose -f docker-compose.sirius.yml run --rm integration integration/integration.sh
-#docker-compose -f docker-compose.sirius.yml run --rm load_to_target python3 app.py
+docker-compose -f docker-compose.sirius.yml run --rm transform_casrec python3 app.py --clear=True
+docker-compose -f docker-compose.sirius.yml run --rm integration integration/integration.sh
+docker-compose -f docker-compose.sirius.yml run --rm load_to_target python3 app.py
