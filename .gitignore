@@ -44,3 +44,4 @@ data/anon_data/
 *etl*.sql
 *integration*.sql
 migration_steps/shared/sql/schemas/*.sql
+migration_steps/shared/mapping_definitions_old*
