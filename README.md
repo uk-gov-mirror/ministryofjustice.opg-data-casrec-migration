@@ -120,8 +120,7 @@ Ensure you're in a virtual env that has the required dependencies and run:
 - Assumes python requirements.txt installed as above
 
 ```bash
-aws-vault exec identity --
-python3 import_mapping_definfitions
+aws-vault exec identity -- python3 import_mapping_definitions.py
 ```
 
 There are two flags:
@@ -155,13 +154,15 @@ make dev-stop
 make dev-up
 ```
 
-You now need to take down the S3 localstack container because it conflicts with ours
+You can now bring up our side using a different migrate script. You should bring everything down first. Run these commands in this repo:
 
-```bash
-docker stop opg-sirius_localstack-s3_1
+```
+docker-compose down
+./migrate_to_sirius
 ```
 
-Re-index elastic search
+
+Re-index elastic search after migration
 
 ```bash
 # (In Sirius local dev root)

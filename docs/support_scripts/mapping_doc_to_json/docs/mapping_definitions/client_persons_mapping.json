@@ -353,7 +353,7 @@
         "alias": "",
         "requires_transformation": "",
         "lookup_table": "",
-        "default_value": "Casrec",
+        "default_value": "CASRECMIGRATION",
         "calculated": "",
         "is_pk": "",
         "fk_parents": "",
