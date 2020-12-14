@@ -41,12 +41,12 @@ workflows:
           name: build and unit tests master
           filters: {branches:{only:[master]}}
       - reset_sirius:
-          name: reset the sirius fixtures master
+          name: reset the sirius fixtures development
           tf_workspace: development
           filters: {branches:{only:[master]}}
       - infrastructure:
           name: build infra development
-          requires: [reset the sirius fixtures master]
+          requires: [reset the sirius fixtures development, build and unit tests master]
           tf_workspace: development
           tf_command: apply
           filters: {branches:{only:[master]}}

@@ -42,6 +42,12 @@ locals {
 
 // data sources for sirius behat
 
+//// we use this as workaround to get the sirius ids as they use name prefix...
+//data "aws_ecs_task_definition" "sirius_behat_task" {
+//    task_definition = "behat-v0-${local.account.sirius_env}"
+//    depends_on = [ "aws_ecs_task_definition.sirius_behat_task" ]
+//}
+
 data "aws_iam_role" "sirius_behat_task_role" {
   name = "api-ecs-${local.account.sirius_env}-2020102109394774570000000c"
 }
