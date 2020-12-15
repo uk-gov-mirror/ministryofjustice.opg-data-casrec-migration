@@ -1,2 +1,2 @@
-colorlog
-click
+click~=7.0
+colorlog~=4.6

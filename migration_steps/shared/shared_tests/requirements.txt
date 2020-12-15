@@ -1,5 +1,5 @@
-pytest
-pytest-cov
-pytest-cases
-pandas
-sh
+sh~=1.14
+pandas~=1.1
+pytest~=6.1
+pytest_cases~=2.7
+pytest-cov~=2.10
