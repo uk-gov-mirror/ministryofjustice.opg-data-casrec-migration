@@ -31,29 +31,28 @@ workflows:
           requires: [run the step function]
           tf_workspace: development
           filters: {branches:{ignore:[master]}}
-      - cleanup:
-          name: destroy branch environment
+      - run_elasticsearch_reset:
+          name: run elasticsearch reset
           requires: [run the step function]
           filters: {branches:{ignore:[master]}}
+      - cleanup:
+          name: destroy branch environment
+          requires: [run elasticsearch reset, run the behat tests]
+          filters: {branches:{ignore:[master]}}
+
   master:
     jobs:
       - build:
           name: build and unit tests master
           filters: {branches:{only:[master]}}
       - reset_sirius:
-          name: reset the sirius fixtures master
+          name: reset the sirius fixtures development
           tf_workspace: development
           filters: {branches:{only:[master]}}
       - infrastructure:
           name: build infra development
-          requires: [reset the sirius fixtures master]
+          requires: [reset the sirius fixtures development, build and unit tests master]
           tf_workspace: development
-          tf_command: apply
-          filters: {branches:{only:[master]}}
-      - infrastructure:
-          name: build infra preproduction
-          requires: [build infra development]
-          tf_workspace: preproduction
           tf_command: apply
           filters: {branches:{only:[master]}}
 
@@ -100,6 +99,24 @@ orbs:
           - run:
               name: Install Terraform
               command: sudo unzip terraform_${TF_VERSION}_linux_amd64.zip -d /bin
+      setup_ecs_runner:
+        steps:
+          - run:
+              name: Initialize
+              command: terraform init
+          - run:
+              name: Get template file
+              command: |
+                # Image tag is not important but is needed for build
+                export TF_VAR_image_tag=fake-tag
+                terraform apply -target=local_file.output
+          - run:
+              name: Install ecs-runner
+              command: |
+                wget https://github.com/ministryofjustice/opg-ecs-helper/releases/download/v0.2.0/opg-ecs-helper_Linux_x86_64.tar.gz -O $HOME/opg-ecs-helper.tar.gz
+                sudo tar -xvf $HOME/opg-ecs-helper.tar.gz -C /usr/local/bin
+                sudo chmod +x /usr/local/bin/ecs-stabilizer
+                sudo chmod +x /usr/local/bin/ecs-runner
   migration:
     executors:
       python:
@@ -184,25 +201,27 @@ jobs:
       - checkout:
           path: ~/project
       - terraform/install
+      - terraform/setup_ecs_runner
       - run:
-          name: Initialize
-          command: terraform init
-      - run:
-          name: Get template file
-          command: |
-            # Image tag is not important but is needed for build
-            export TF_VAR_image_tag=fake-tag
-            terraform apply -target=local_file.output
-      - run:
-          name: Install ecs-runner
-          command: |
-            wget https://github.com/ministryofjustice/opg-ecs-helper/releases/download/v0.2.0/opg-ecs-helper_Linux_x86_64.tar.gz -O $HOME/opg-ecs-helper.tar.gz
-            sudo tar -xvf $HOME/opg-ecs-helper.tar.gz -C /usr/local/bin
-            sudo chmod +x /usr/local/bin/ecs-stabilizer
-            sudo chmod +x /usr/local/bin/ecs-runner
-      - run:
-          name: Reset Api
+          name: Run behat tests
           command: ecs-runner -task behat-migration -timeout 600
+  run_elasticsearch_reset:
+    executor: terraform/terraform
+    resource_class: small
+    parameters:
+      tf_workspace:
+        description: terraform workspace
+        type: string
+        default: "development"
+    working_directory: ~/project/terraform
+    steps:
+      - checkout:
+          path: ~/project
+      - terraform/install
+      - terraform/setup_ecs_runner
+      - run:
+          name: Reset Elasticsearch
+          command: ecs-runner -task reset-elasticsearch -timeout 600
   reset_sirius:
     executor: terraform/terraform
     resource_class: small
@@ -216,22 +235,7 @@ jobs:
       - checkout:
           path: ~/project
       - terraform/install
-      - run:
-         name: Initialize
-         command: terraform init
-      - run:
-          name: Get template file
-          command: |
-            # Image tag is not important but is needed for build
-            export TF_VAR_image_tag=fake-tag
-            terraform apply -target=local_file.output
-      - run:
-          name: Install ecs-runner
-          command: |
-            wget https://github.com/ministryofjustice/opg-ecs-helper/releases/download/v0.2.0/opg-ecs-helper_Linux_x86_64.tar.gz -O $HOME/opg-ecs-helper.tar.gz
-            sudo tar -xvf $HOME/opg-ecs-helper.tar.gz -C /usr/local/bin
-            sudo chmod +x /usr/local/bin/ecs-stabilizer
-            sudo chmod +x /usr/local/bin/ecs-runner
+      - terraform/setup_ecs_runner
       - run:
           name: Reset Api
           command: ecs-runner -task reset-api -timeout 600
@@ -257,7 +261,7 @@ jobs:
           name: Ingest Cases
           command: ecs-runner -task ingest-cases -timeout 600
       - run:
-          name: Reset Elastic search
+          name: Reset Elasticsearch
           command: ecs-runner -task reset-elasticsearch -timeout 600
   build:
     executor: migration/python
