@@ -32,7 +32,7 @@ data "aws_iam_policy_document" "state_machine" {
       "arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/etl1-${terraform.workspace}*",
       "arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/etl2-${terraform.workspace}*",
       "arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/etl3-${terraform.workspace}*",
-      "arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/etl4-${terraform.workspace}*"
+      "arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/etl4-${terraform.workspace}*",
       "arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/etl5-${terraform.workspace}*"
     ]
     actions = ["ecs:RunTask"]
@@ -248,7 +248,6 @@ resource "aws_sfn_state_machine" "casrec_migration" {
         "Run Load To Target": {
             "Type": "Task",
             "Next": "Run Validation",
-            "End": true,
             "Resource": "arn:aws:states:::ecs:runTask.sync",
             "Parameters": {
                 "LaunchType": "FARGATE",
@@ -293,7 +292,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                     }]
                 }
             }
-        },
+        }
     }
 }
 EOF
