@@ -27,7 +27,7 @@ workflows:
           requires: [build infra development]
           filters: {branches:{ignore:[master]}}
       - run_behat_tests:
-          name: run the behat tests
+          name: run behat tests
           requires: [run the step function]
           tf_workspace: development
           filters: {branches:{ignore:[master]}}
@@ -37,7 +37,7 @@ workflows:
           filters: {branches:{ignore:[master]}}
       - cleanup:
           name: destroy branch environment
-          requires: [run elasticsearch reset, run the behat tests]
+          requires: [run elasticsearch reset, run behat tests]
           filters: {branches:{ignore:[master]}}
 
   master:

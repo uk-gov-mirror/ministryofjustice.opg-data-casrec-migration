@@ -23,8 +23,6 @@ load_dotenv(dotenv_path=env_path)
 environment = os.environ.get("ENVIRONMENT")
 config = get_config(environment)
 
-print(config.get_db_connection_string("target"))
-
 # logging
 log = logging.getLogger("root")
 log.addHandler(custom_logger.MyHandler())
@@ -52,17 +50,6 @@ def main(verbose):
         "(operations which need to be performed on Sirius DB ahead of the final Casrec Migration)"
     )
     execute_sql_file(sql_path, "prepare_sirius.sql", conn_target)
-
-    log.info("Take a fresh copy of the Sirius data structure")
-    copy_schema(
-        log=log,
-        sql_path=shared_sql_path,
-        from_config=config.db_config["target"],
-        from_schema=config.schemas["public"],
-        to_config=config.db_config["migration"],
-        to_schema=config.schemas["pre_migration"],
-        structure_only=True,
-    )
 
     log.info("Roll back previous migration")
     max_orig_person_id = result_from_sql_file(
