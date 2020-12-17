@@ -36,3 +36,9 @@ services:
     volumes:
       - ./migration_steps/load_to_target/app:/app
       - ./migration_steps/shared:/shared
+
+  validation:
+    volumes:
+      - ./migration_steps/validation/validate_db:/validation/validate_db
+      - ./migration_steps/validation/validate.sh:/validation/validate.sh
+      - ./migration_steps/shared:/shared

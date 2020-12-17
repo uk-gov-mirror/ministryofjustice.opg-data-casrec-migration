@@ -25,3 +25,8 @@ services:
     build:
       context: ./migration_steps
       dockerfile: load_to_target-dockerfile
+  etl5:
+    image: ${AWS_REGISTRY}/casrec-migration/etl5:${VERSION}
+    build:
+      context: ./migration_steps
+      dockerfile: validation-dockerfile

@@ -33,6 +33,7 @@ data "aws_iam_policy_document" "state_machine" {
       "arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/etl2-${terraform.workspace}*",
       "arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/etl3-${terraform.workspace}*",
       "arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/etl4-${terraform.workspace}*"
+      "arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/etl5-${terraform.workspace}*"
     ]
     actions = ["ecs:RunTask"]
   }
@@ -246,6 +247,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
         },
         "Run Load To Target": {
             "Type": "Task",
+            "Next": "Run Validation",
             "End": true,
             "Resource": "arn:aws:states:::ecs:runTask.sync",
             "Parameters": {
@@ -267,7 +269,31 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                     }]
                 }
             }
-        }
+        },
+        "Run Validation": {
+            "Type": "Task",
+            "End": true,
+            "Resource": "arn:aws:states:::ecs:runTask.sync",
+            "Parameters": {
+                "LaunchType": "FARGATE",
+                "PlatformVersion": "1.4.0",
+                "Cluster": "${aws_ecs_cluster.migration.arn}",
+                "TaskDefinition": "${aws_ecs_task_definition.etl5.arn}",
+                "NetworkConfiguration": {
+                    "AwsvpcConfiguration": {
+                        "Subnets": [${local.subnets_string}],
+                        "SecurityGroups": ["${aws_security_group.etl.id}"],
+                        "AssignPublicIp": "DISABLED"
+                    }
+                },
+                "Overrides": {
+                    "ContainerOverrides": [{
+                        "Name": "etl5",
+                        "Command": ["validation/validate.sh"]
+                    }]
+                }
+            }
+        },
     }
 }
 EOF
