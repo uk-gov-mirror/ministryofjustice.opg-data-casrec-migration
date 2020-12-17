@@ -83,6 +83,23 @@ services:
       SIRIUS_DB_PORT: 5432
       ENVIRONMENT: local
     depends_on: [casrec_db]
+  validation:
+    build:
+      context: ./migration_steps
+      dockerfile: validation-dockerfile
+    environment:
+      DB_USER: casrec
+      DB_PASSWORD: casrec # pragma: allowlist secret
+      DB_NAME: casrecmigration
+      DB_HOST: casrec_db
+      DB_PORT: 5432
+      SIRIUS_DB_USER: api
+      SIRIUS_DB_PASSWORD: api # pragma: allowlist secret
+      SIRIUS_DB_NAME: api
+      SIRIUS_DB_HOST: postgres-sirius
+      SIRIUS_DB_PORT: 5432
+      ENVIRONMENT: local
+    depends_on: [casrec_db, postgres-sirius]
   wait-for-it:
     build: ./wait-for-it
   load_to_target:

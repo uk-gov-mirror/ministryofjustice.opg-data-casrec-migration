@@ -5,6 +5,7 @@ locals {
     etl2 = "${data.aws_ecr_repository.images["etl2"].repository_url}:${var.image_tag}"
     etl3 = "${data.aws_ecr_repository.images["etl3"].repository_url}:${var.image_tag}"
     etl4 = "${data.aws_ecr_repository.images["etl4"].repository_url}:${var.image_tag}"
+    etl5 = "${data.aws_ecr_repository.images["etl5"].repository_url}:${var.image_tag}"
   }
 
   repositories = [
@@ -13,6 +14,7 @@ locals {
     "etl2",
     "etl3",
     "etl4",
+    "etl5",
   ]
 }
 

@@ -1,0 +1,8 @@
+FROM opg_casrec_migration_base_image:latest
+RUN apt-get install -y postgresql-client
+COPY validation/requirements.txt /requirements.txt
+RUN pip3 install -r requirements.txt
+COPY validation/validate.sh /validation/validate.sh
+COPY validation/validate_db /validation/validate_db
+COPY shared /shared
+CMD ["echo", "NO_OP"]

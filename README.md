@@ -72,6 +72,7 @@ docker-compose run --rm load_casrec python3 app.py
 docker-compose run --rm transform_casrec python3 app.py --clear=True
 docker-compose run --rm integration integration/integration.sh
 docker-compose run --rm load_to_target python3 app.py
+docker-compose run --rm validation validation/validate.sh
 ```
 
 Running the steps (Non-dockerised):
@@ -87,6 +88,7 @@ python3 migration_steps/load_casrec/app/app.py
 python3 migration_steps/transform_casrec/app/app.py -vv
 ./migration_steps/integration/integration.sh -vv
 python3 migration_steps/load_to_target/app/app.py
+./migration_steps/validation/validate.sh -vv
 ```
 
 ## Testing your work
