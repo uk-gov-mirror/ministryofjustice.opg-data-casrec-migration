@@ -178,16 +178,19 @@ def execute_insert(conn, df, table):
 def execute_update(conn, df, table, pk_col):
     # Just ensure that the primary key is the first column of the dataframe
 
+    print(f"df.columns: {df.columns}")
     cols = list(df.columns)
     cols.remove(pk_col)
     colstring = "=%s,".join(cols)
     colstring += "=%s"
+
     update_template = f"UPDATE {table} SET {colstring} WHERE {pk_col}="
 
     cursor = conn.cursor()
 
     for vals in df.to_numpy():
         query = cursor.mogrify(update_template + str(vals[0]), vals[1:]).decode("utf8")
+
         cursor.execute(query)
 
     conn.commit()

@@ -17,7 +17,14 @@ def target_update(config, conn_migration, conn_target):
     columns = get_cols_from_mapping(
         file_name="client_addresses_mapping",
         include_columns=["target_id"],
-        exclude_columns=["id", "sirius_id", "person_id", "c_case", "caserecnumber"],
+        exclude_columns=[
+            "id",
+            "sirius_id",
+            "person_id",
+            "c_case",
+            "caserecnumber",
+            "address_lines",
+        ],
         reorder_cols={"target_id": 0},
     )
 
@@ -28,9 +35,11 @@ def target_update(config, conn_migration, conn_target):
     )
 
     # This will not be needed once the datatype fix is complete
-    addresses_df["isairmailrequired"] = addresses_df["isairmailrequired"].replace(
-        {"True": True, "False": False}
-    )
+    # addresses_df["isairmailrequired"] = addresses_df["isairmailrequired"].replace(
+    #     {"True": True, "False": False}
+    # )
+
+    print(f"addresses_df.info(): {addresses_df.info()}")
 
     db_helpers.execute_update(
         conn=conn_target, df=addresses_df, table="addresses", pk_col="id"
@@ -45,7 +54,14 @@ def target_add(config, conn_migration, conn_target):
 
     columns = get_cols_from_mapping(
         file_name="client_addresses_mapping",
-        exclude_columns=["id", "sirius_id", "person_id", "c_case", "caserecnumber"],
+        exclude_columns=[
+            "id",
+            "sirius_id",
+            "person_id",
+            "c_case",
+            "caserecnumber",
+            "address_lines",
+        ],
     )
 
     addresses_df = addresses_df[columns]
@@ -53,9 +69,9 @@ def target_add(config, conn_migration, conn_target):
     addresses_df = addresses_df.rename(columns={"sirius_person_id": "person_id"})
 
     # This will not be needed once the datatype fix is complete
-    addresses_df["isairmailrequired"] = addresses_df["isairmailrequired"].replace(
-        {"True": True, "False": False}
-    )
+    # addresses_df["isairmailrequired"] = addresses_df["isairmailrequired"].replace(
+    #     {"True": True, "False": False}
+    # )
 
     db_helpers.execute_insert(conn_target, addresses_df, "addresses")
 
