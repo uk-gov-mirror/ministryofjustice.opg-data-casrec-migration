@@ -35,6 +35,7 @@ class BaseConfig:
         "integration": "integration",
         "public": "public",
         "pre_migration": "pre_migration",
+        "casrec_csv": "casrec_csv",
     }
 
     row_limit = 5
