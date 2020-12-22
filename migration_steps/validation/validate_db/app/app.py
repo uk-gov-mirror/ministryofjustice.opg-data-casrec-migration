@@ -9,7 +9,7 @@ import time
 import psycopg2
 from config2 import get_config
 from dotenv import load_dotenv
-from helpers import log_title, get_all_mapped_fields
+import helpers
 from db_helpers import *
 import logging
 import custom_logger
@@ -82,21 +82,20 @@ def get_exception_table(mapping):
     return f"casrec_migration_exceptions_{mapping}"
 
 
-def get_map_dict(mapping):
-    map_dict = json.load(open(mapping_path / f"{mapping}_mapping.json"))
-    return {k: v for k, v in map_dict.items() if v['mapping_status']['is_complete'] and v['sirius_details']['is_pk'] != True}
-
-
 def build_exception_tables(sql_lines):
     #drop all possible exception tables from last run
-    for mapfile in get_all_mapped_fields().keys():
+    for mapfile in helpers.get_all_mapped_fields().keys():
         sql_lines.append(f"DROP TABLE IF EXISTS {get_exception_table(mapfile)};\n")
 
     sql_lines.append("\n\n")
 
     for mapping in mappings_to_run:
         exception_table_name = get_exception_table(mapping)
-        map_dict = get_map_dict(mapping)
+        map_dict = helpers.get_mapping_dict(
+            file_name=mapping + '_mapping',
+            only_complete_fields=True,
+            include_pk=False
+        )
         sql_lines.append(f"CREATE TABLE {exception_table_name}(\n")
         separator = ',\n'
         cols = separator.join([f"{indent}{sirius_col} text default NULL" for sirius_col in map_dict.keys()])
@@ -133,8 +132,11 @@ def build_validation_statements(sql_lines):
     for mapping in mappings_to_run:
         exception_table_name = get_exception_table(mapping)
         sirius_table_name = get_sirius_table(mapping)
-        map_dict = get_map_dict(mapping)
-
+        map_dict = helpers.get_mapping_dict(
+            file_name=mapping + '_mapping',
+            only_complete_fields=True,
+            include_pk=False
+        )
         casrec_cols = []
         casrec_tables = []
         for k, v in map_dict.items():
@@ -197,7 +199,7 @@ def show_results(conn_target):
     results_df = df_from_sql_file(
         sql_path, "get_validation_results.sql", conn_target
     )
-    print(
+    log.info(
         tabulate(
             results_df,
             ['mapping', 'exceptions'],
@@ -210,7 +212,7 @@ def show_results(conn_target):
 @click.option("-v", "--verbose", count=True)
 def main(verbose):
     set_logging_level(verbose)
-    log.info(log_title(message="Validation"))
+    log.info(helpers.log_title(message="Validation"))
 
     # mapping_report()
 
