@@ -45,3 +45,4 @@ data/anon_data/
 *integration*.sql
 migration_steps/shared/sql/schemas/*.sql
 migration_steps/shared/mapping_definitions_old*
+validation.sql

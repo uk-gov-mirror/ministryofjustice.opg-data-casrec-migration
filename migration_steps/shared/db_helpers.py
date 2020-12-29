@@ -97,6 +97,7 @@ def copy_schema(
             to_config["host"],
             "-p",
             to_config["port"],
+            "--quiet",
             to_config["name"],
             _err_to_out=True,
             _in=schemafile,

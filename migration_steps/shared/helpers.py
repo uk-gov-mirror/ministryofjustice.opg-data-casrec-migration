@@ -25,7 +25,10 @@ def get_current_directory():
 
 
 def get_mapping_dict(
-    file_name: str, stage_name: str, only_complete_fields: bool = False
+        file_name: str,
+        stage_name: str = '',
+        only_complete_fields: bool = False,
+        include_pk: bool = True
 ) -> Dict:
     dirname = get_current_directory()
     file_path = os.path.join(dirname, f"mapping_definitions/{file_name}.json")
@@ -34,14 +37,13 @@ def get_mapping_dict(
         mapping_dict = json.load(mapping_json)
 
     if only_complete_fields:
-        return {
-            k: v[stage_name]
-            for k, v in mapping_dict.items()
-            if v["mapping_status"]["is_complete"] is True
-        }
-    else:
-        return {k: v[stage_name] for k, v in mapping_dict.items()}
-    # return {k: v[stage_name] for k, v in mapping_dict.items()}
+        mapping_dict = {k: v for k, v in mapping_dict.items() if v["mapping_status"]["is_complete"] is True}
+    if not include_pk:
+        mapping_dict = {k: v for k, v in mapping_dict.items() if v["sirius_details"]["is_pk"] is not True}
+    if stage_name:
+        mapping_dict = {k: v[stage_name] for k, v in mapping_dict.items()}
+
+    return mapping_dict
 
 
 def get_lookup_dict(file_name: str) -> Dict:
