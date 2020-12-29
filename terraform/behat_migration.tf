@@ -15,7 +15,7 @@ resource "aws_ecs_task_definition" "behat" {
 locals {
   behat_migration = jsonencode({
     essential = true,
-    image     = "${data.aws_ecr_repository.api_app.repository_url}:IN-553"
+    image     = data.aws_ecs_container_definition.casmigrate_api.image
     command = [
       "php",
       "vendor/bin/behat",
@@ -69,6 +69,11 @@ data "aws_secretsmanager_secret" "jwt_key" {
 
 data "aws_secretsmanager_secret" "user_one_password" {
   name = "${local.account.name}/user-one-password"
+}
+
+data "aws_ecs_container_definition" "casmigrate_api" {
+  task_definition = "api-casmigrate"
+  container_name  = "api_app"
 }
 
 data "aws_region" "current" {}
