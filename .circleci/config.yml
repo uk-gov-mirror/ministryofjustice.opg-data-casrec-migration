@@ -28,7 +28,7 @@ workflows:
           filters: {branches:{ignore:[master]}}
       - run_behat_tests:
           name: run behat tests
-          requires: [run the step function]
+          requires: [run elasticsearch reset]
           tf_workspace: development
           filters: {branches:{ignore:[master]}}
       - run_elasticsearch_reset:
