@@ -43,11 +43,11 @@ locals {
 // data sources for sirius behat
 
 data "aws_iam_role" "sirius_behat_task_role" {
-  name = "api-ecs-${local.account.sirius_env}-2020102109394774570000000c"
+  name = "api-ecs-${local.account.sirius_env}-20201231085901651400000007"
 }
 
 data "aws_iam_role" "sirius_behat_execution_role" {
-  name = "execution-role-${local.account.sirius_env}-20201021093947635700000005"
+  name = "execution-role-${local.account.sirius_env}-2020123108590178950000000f"
 }
 
 data "aws_ecr_repository" "api_app" {
