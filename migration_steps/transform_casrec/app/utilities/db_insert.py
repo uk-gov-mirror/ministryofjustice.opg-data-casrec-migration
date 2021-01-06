@@ -88,7 +88,8 @@ class InsertData:
                 )
                 for x in row
             ]
-            row = [f"'{str(x)}'" for x in row]
+            row = [f"'{str(x)}'" if str(x) != "" else "NULL" for x in row]
+
             single_row = ", ".join(row)
 
             insert_statement += f"({single_row})"
@@ -155,7 +156,10 @@ class InsertData:
             self.db_engine.execute(create_table_statement)
 
         insert_statement = self._create_insert_statement(table_name=table_name, df=df)
-        self.db_engine.execute(insert_statement)
+        try:
+            self.db_engine.execute(insert_statement)
+        except Exception as e:
+            log.error(e)
 
         # inserted_count_statement = self._inserted_count_statement(table_name=table_name)
         #
