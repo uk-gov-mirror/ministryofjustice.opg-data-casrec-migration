@@ -1,8 +1,7 @@
-from datetime import datetime
-
+import pandas as pd
+import pytest
 from pytest_cases import case
 
-# from data_tests.conftest import get_lookup_dict
 
 module_name = "client_persons"
 source_table = "pat"
@@ -12,13 +11,11 @@ destination_table = "persons"
 @case(tags="simple")
 def case_clients_1(test_config):
     simple_matches = {
-        # "Title": ["salutation"],
         "DOB": ["dob"],
         "Create": ["createddate"],
         "Forename": ["firstname", "middlenames"],
         "Surname": ["surname"],
         "AKA Name": ["previousnames"],
-        # "Marital Status": ["maritalstatus"],
         "Adrs5": ["countryofresidence"],
     }
     merge_columns = {"source": "Case", "transformed": "caserecnumber"}
@@ -54,7 +51,6 @@ def case_clients_2(test_config):
         "isreplacementattorney": False,
         "istrustcorporation": False,
         "clientstatus": "Active",
-        # "statusdate": "Todays date",
         "correspondencebywelsh": False,
         "newsletter": False,
         "specialcorrespondencerequirements_audiotape": False,
@@ -66,7 +62,6 @@ def case_clients_2(test_config):
         "casesmanagedashybrid": False,
         "supervisioncaseowner_id": 10,
         "clientsource": "CASRECMIGRATION",
-        # "updateddate": "Todays date",
     }
 
     config = test_config
@@ -118,7 +113,7 @@ def case_clients_3(test_config):
 @case(tags="calculated")
 def case_clients_4(test_config):
 
-    today = datetime.today().strftime("%Y-%m-%d")
+    today = pd.Timestamp(2021, 1, 6)
 
     calculated_fields = {
         "statusdate": today,

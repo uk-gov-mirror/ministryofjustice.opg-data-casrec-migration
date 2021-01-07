@@ -10,6 +10,9 @@ from data_tests.helpers import (
     merge_source_and_transformed_df,
 )
 import logging
+import numpy as np
+import pandas as pd
+import pytest
 
 log = logging.getLogger("root")
 
@@ -75,10 +78,19 @@ def test_simple_transformations(
     log.debug(
         f"Checking {result_df.shape[0]} rows of data ({config.SAMPLE_PERCENTAGE}%) from table: {module_name} "
     )
+
     assert result_df.shape[0] > 0
     for k, v in simple_matches.items():
         for i in v:
+
+            try:
+                result_df[k] = pd.to_datetime(result_df[k], format="%Y-%m-%d")
+                result_df[i] = pd.to_datetime(result_df[i], format="%Y-%m-%d")
+            except Exception:
+                pass
+
             match = result_df[k].equals(result_df[i])
+
             log.log(
                 config.VERBOSE,
                 f"checking {k} == {i}.... " f"{'OK' if match is True else 'oh no'} ",

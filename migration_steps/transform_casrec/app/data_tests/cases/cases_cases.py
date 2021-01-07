@@ -1,7 +1,8 @@
 from datetime import datetime
 
+import pytest
 from pytest_cases import case
-
+import pandas as pd
 
 module_name = "cases"
 source_table = "order"
@@ -128,7 +129,7 @@ def case_cases_3(test_config):
 @case(tags="calculated")
 def case_clients_4(test_config):
 
-    today = datetime.today().strftime("%Y-%m-%d")
+    today = pd.Timestamp(2021, 1, 6)
 
     calculated_fields = {
         "createddate": today,
