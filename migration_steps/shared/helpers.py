@@ -2,7 +2,7 @@ import os
 import json
 from typing import Dict, List
 
-from config_3 import LocalConfig, AWSConfig
+from config import LocalConfig, AWSConfig
 
 
 def log_title(message: str) -> str:

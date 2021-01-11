@@ -6,7 +6,7 @@ current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, str(current_path) + "/../../../shared")
 
 import time
-from config2 import get_config
+from helpers import get_config
 from dotenv import load_dotenv
 from db_helpers import *
 import logging
@@ -21,10 +21,10 @@ environment = os.environ.get("ENVIRONMENT")
 config = get_config(environment)
 
 # logging
+custom_logger.custom_log_level(levels=config.custom_log_levels)
+verbosity_levels = config.verbosity_levels
 log = logging.getLogger("root")
 log.addHandler(custom_logger.MyHandler())
-config.custom_log_level()
-verbosity_levels = config.verbosity_levels
 
 
 def set_logging_level(verbose):

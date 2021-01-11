@@ -41,7 +41,6 @@ db_config = {
     "target_schema": config.schemas["post_transform"],
 }
 
-# etl2_db_engine = create_engine(config.connection_string)
 
 target_db = InsertData(
     db_engine=create_engine(db_config["db_connection_string"]),
