@@ -10,13 +10,15 @@ definition = {
 mapping_file_name = "client_persons_mapping"
 
 
-def insert_persons_clients(config, etl2_db):
+def insert_persons_clients(db_config, target_db):
 
     sirius_details, persons_df = get_basic_data_table(
-        config=config, mapping_file_name=mapping_file_name, table_definition=definition
+        mapping_file_name=mapping_file_name,
+        table_definition=definition,
+        db_config=db_config,
     )
 
-    etl2_db.insert_data(
+    target_db.insert_data(
         table_name=definition["destination_table_name"],
         df=persons_df,
         sirius_details=sirius_details,

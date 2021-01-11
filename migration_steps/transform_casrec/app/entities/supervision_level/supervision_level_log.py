@@ -11,14 +11,16 @@ definition = {
 mapping_file_name = "supervision_level_log_mapping"
 
 
-def insert_supervision_level_log(config, etl2_db):
+def insert_supervision_level_log(db_config, target_db):
 
     sirius_details, supervision_level_df = get_basic_data_table(
-        config=config, mapping_file_name=mapping_file_name, table_definition=definition
+        mapping_file_name=mapping_file_name,
+        table_definition=definition,
+        db_config=db_config,
     )
 
     cases_query = f'select "id", "caserecnumber", "c_order_no" from etl2.cases;'
-    cases_df = pd.read_sql_query(cases_query, config.connection_string)
+    cases_df = pd.read_sql_query(cases_query, db_config["db_connection_string"])
 
     supervision_level_joined_df = supervision_level_df.merge(
         cases_df, how="left", left_on="c_order_no", right_on="c_order_no"
@@ -30,7 +32,7 @@ def insert_supervision_level_log(config, etl2_db):
         columns={"id_x": "id"}
     )
 
-    etl2_db.insert_data(
+    target_db.insert_data(
         table_name=definition["destination_table_name"],
         df=supervision_level_joined_df,
         sirius_details=sirius_details,

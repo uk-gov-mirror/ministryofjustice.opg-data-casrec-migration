@@ -10,7 +10,7 @@ from helpers import log_title
 log = logging.getLogger("root")
 
 
-def runner(config, etl2_db):
+def runner(db_config, target_db):
     """
     | Name                      | Running Order | Requires                  |
     | ------------------------- | ------------- | ------------------------- |
@@ -22,10 +22,10 @@ def runner(config, etl2_db):
     log.info(log_title(message="cases"))
 
     log.debug("insert_cases")
-    insert_cases(config, etl2_db)
+    insert_cases(db_config=db_config, target_db=target_db)
 
     log.debug("insert_person_caseitem")
-    insert_person_caseitem(config, etl2_db)
+    insert_person_caseitem(db_config=db_config, target_db=target_db)
 
 
 if __name__ == "__main__":

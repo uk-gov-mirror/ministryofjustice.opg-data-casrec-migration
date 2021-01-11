@@ -35,10 +35,18 @@ config.custom_log_level()
 verbosity_levels = config.verbosity_levels
 
 # database
+db_config = {
+    "db_connection_string": config.get_db_connection_string("migration"),
+    "source_schema": config.schemas["pre_transform"],
+    "target_schema": config.schemas["post_transform"],
+}
 
-etl2_db_engine = create_engine(config.connection_string)
+# etl2_db_engine = create_engine(config.connection_string)
 
-etl2_db = InsertData(db_engine=etl2_db_engine, schema=config.etl2_schema)
+target_db = InsertData(
+    db_engine=create_engine(db_config["db_connection_string"]),
+    schema=db_config["target_schema"],
+)
 
 
 @click.command()
@@ -73,7 +81,7 @@ def main(clear, entity_list, include_tests, verbose):
     log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
 
     if clear:
-        clear_tables(config)
+        clear_tables(db_config)
 
     if entity_list:
         allowed_entities = (entity_list)[0].split(",")
@@ -85,13 +93,13 @@ def main(clear, entity_list, include_tests, verbose):
 
     # Data - each entity can be run independently
     if len(allowed_entities) == 0 or "clients" in allowed_entities:
-        clients.runner(config, etl2_db)
+        clients.runner(db_config, target_db)
 
     if len(allowed_entities) == 0 or "cases" in allowed_entities:
-        cases.runner(config, etl2_db)
+        cases.runner(db_config, target_db)
 
     if len(allowed_entities) == 0 or "supervision_level" in allowed_entities:
-        supervision_level.runner(config, etl2_db)
+        supervision_level.runner(db_config, target_db)
 
     if include_tests:
         run_data_tests(verbosity_level=verbosity_levels[verbose])

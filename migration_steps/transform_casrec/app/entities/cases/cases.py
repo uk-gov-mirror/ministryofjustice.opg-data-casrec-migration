@@ -9,13 +9,15 @@ definition = {
 mapping_file_name = "cases_mapping"
 
 
-def insert_cases(config, etl2_db):
+def insert_cases(db_config, target_db):
 
     sirius_details, cases_df = get_basic_data_table(
-        config=config, mapping_file_name=mapping_file_name, table_definition=definition
+        mapping_file_name=mapping_file_name,
+        table_definition=definition,
+        db_config=db_config,
     )
 
-    etl2_db.insert_data(
+    target_db.insert_data(
         table_name=definition["destination_table_name"],
         df=cases_df,
         sirius_details=sirius_details,

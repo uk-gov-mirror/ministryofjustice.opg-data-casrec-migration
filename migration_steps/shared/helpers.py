@@ -2,7 +2,7 @@ import os
 import json
 from typing import Dict, List
 
-from config import LocalConfig, AWSConfig
+from config_3 import LocalConfig, AWSConfig
 
 
 def log_title(message: str) -> str:
@@ -25,10 +25,10 @@ def get_current_directory():
 
 
 def get_mapping_dict(
-        file_name: str,
-        stage_name: str = '',
-        only_complete_fields: bool = False,
-        include_pk: bool = True
+    file_name: str,
+    stage_name: str = "",
+    only_complete_fields: bool = False,
+    include_pk: bool = True,
 ) -> Dict:
     dirname = get_current_directory()
     file_path = os.path.join(dirname, f"mapping_definitions/{file_name}.json")
@@ -37,9 +37,17 @@ def get_mapping_dict(
         mapping_dict = json.load(mapping_json)
 
     if only_complete_fields:
-        mapping_dict = {k: v for k, v in mapping_dict.items() if v["mapping_status"]["is_complete"] is True}
+        mapping_dict = {
+            k: v
+            for k, v in mapping_dict.items()
+            if v["mapping_status"]["is_complete"] is True
+        }
     if not include_pk:
-        mapping_dict = {k: v for k, v in mapping_dict.items() if v["sirius_details"]["is_pk"] is not True}
+        mapping_dict = {
+            k: v
+            for k, v in mapping_dict.items()
+            if v["sirius_details"]["is_pk"] is not True
+        }
     if stage_name:
         mapping_dict = {k: v[stage_name] for k, v in mapping_dict.items()}
 
