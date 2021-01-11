@@ -30,14 +30,14 @@ def case_cases_1(test_config):
         SELECT
             "{merge_columns['source']}",
             {', '.join(source_columns)}
-        FROM {config.etl1_schema}.{source_table}
+        FROM {config.schemas['pre_transform']}.{source_table}
     """
 
     transformed_query = f"""
         SELECT
             {merge_columns['transformed']},
             {', '.join(transformed_columns)}
-        FROM {config.etl2_schema}.{destination_table}
+        FROM {config.schemas['post_transform']}.{destination_table}
     """
 
     return (simple_matches, merge_columns, source_query, transformed_query, module_name)
@@ -90,7 +90,7 @@ def case_cases_2(test_config):
     source_query = f"""
         SELECT
             {', '.join(source_columns)}
-        FROM {config.etl2_schema}.{destination_table}
+        FROM {config.schemas['post_transform']}.{destination_table}
     """
 
     return (defaults, source_query, module_name)
@@ -113,14 +113,14 @@ def case_cases_3(test_config):
         SELECT
             "{merge_columns['source']}",
             {', '.join(source_columns)}
-        FROM {config.etl1_schema}.{source_table}
+        FROM {config.schemas['pre_transform']}.{source_table}
     """
 
     transformed_query = f"""
         SELECT
             {merge_columns['transformed']},
             {', '.join(transformed_columns)}
-        FROM {config.etl2_schema}.{destination_table}
+        FROM {config.schemas['post_transform']}.{destination_table}
     """
 
     return (lookup_fields, merge_columns, source_query, transformed_query, module_name)
@@ -142,7 +142,7 @@ def case_clients_4(test_config):
     source_query = f"""
         SELECT
             {', '.join(source_columns)}
-        FROM {config.etl2_schema}.{destination_table}
+        FROM {config.schemas['post_transform']}.{destination_table}
     """
 
     return (calculated_fields, source_query, module_name)
@@ -155,13 +155,13 @@ def case_cases_count(test_config):
     source_query = f"""
         SELECT
             *
-        FROM {config.etl1_schema}.{source_table}
+        FROM {config.schemas['pre_transform']}.{source_table}
     """
 
     transformed_query = f"""
         SELECT
             *
-        FROM {config.etl2_schema}.{destination_table}
+        FROM {config.schemas['post_transform']}.{destination_table}
     """
 
     return (source_query, transformed_query, module_name)
@@ -182,14 +182,14 @@ def case_cases_capitalise(test_config):
         SELECT
             "{merge_columns['source']}",
             {', '.join(source_columns)}
-        FROM {config.etl1_schema}.{source_table}
+        FROM {config.schemas['pre_transform']}.{source_table}
     """
 
     transformed_query = f"""
         SELECT
             {merge_columns['transformed']},
             {', '.join(transformed_columns)}
-        FROM {config.etl2_schema}.{destination_table}
+        FROM {config.schemas['post_transform']}.{destination_table}
     """
 
     return (

@@ -52,31 +52,12 @@ class BaseConfig:
             f"/{self.db_config[db]['name']}"
         )  # pragma: allowlist secret
 
-    def verbose(self, msg, *args, **kwargs):
-        if logging.getLogger().isEnabledFor(self.VERBOSE):
-            logging.log(self.VERBOSE, msg)
-
-    def custom_log_level(self):
-        logging.addLevelName(self.VERBOSE, "VERBOSE")
-        logging.Logger.verbose = self.verbose
-
 
 class LocalConfig(BaseConfig):
     verbosity_levels = {0: "INFO", 1: "DEBUG", 2: "VERBOSE", 3: "DATA"}
     custom_log_levels = {"VERBOSE": 5, "DATA": 2}
     SAMPLE_PERCENTAGE = 10
     MIN_PERCENTAGE_FIELDS_TESTED = 90
-
-    def data(self, msg, *args, **kwargs):
-        if logging.getLogger().isEnabledFor(self.DATA):
-            logging.log(self.DATA, msg)
-
-    def custom_log_level(self):
-        logging.addLevelName(self.VERBOSE, "VERBOSE")
-        logging.Logger.verbose = self.verbose
-
-        logging.addLevelName(self.DATA, "DATA")
-        logging.Logger.data = self.data
 
 
 class AWSConfig(BaseConfig):

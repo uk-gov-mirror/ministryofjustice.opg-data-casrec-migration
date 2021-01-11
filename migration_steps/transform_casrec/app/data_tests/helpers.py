@@ -12,7 +12,7 @@ def get_data_from_query(
     query, config, sort_col=None, sample=False, sample_percentage=sample_percentage
 ):
 
-    df = pd.read_sql_query(query, config.connection_string)
+    df = pd.read_sql_query(query, config.get_db_connection_string("migration"))
 
     df.replace([None, ""], "", inplace=True)
 

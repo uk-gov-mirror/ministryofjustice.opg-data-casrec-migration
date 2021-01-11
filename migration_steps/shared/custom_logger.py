@@ -32,14 +32,12 @@ class MyHandler(colourlog.StreamHandler):
 
 def custom_log_level(levels):
 
-    # if "VERBOSE" in levels:
     logging.VERBOSE = levels["VERBOSE"]
     logging.addLevelName(logging.VERBOSE, "VERBOSE")
     logging.Logger.verbose = lambda inst, msg, *args, **kwargs: inst.log(
         logging.VERBOSE, msg, *args, **kwargs
     )
 
-    # if "DATA" in levels:
     logging.DATA = levels["DATA"]
     logging.addLevelName(logging.DATA, "DATA")
     logging.Logger.data = lambda inst, msg, *args, **kwargs: inst.log(

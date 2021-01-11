@@ -28,11 +28,11 @@ environment = os.environ.get("ENVIRONMENT")
 config = helpers.get_config(env=environment)
 
 # logging
+custom_logger.custom_log_level(levels=config.custom_log_levels)
+
+verbosity_levels = config.verbosity_levels
 log = logging.getLogger("root")
 log.addHandler(custom_logger.MyHandler())
-
-config.custom_log_level()
-verbosity_levels = config.verbosity_levels
 
 # database
 db_config = {
