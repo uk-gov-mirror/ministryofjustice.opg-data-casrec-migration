@@ -1,5 +1,7 @@
 import logging
+import os
 
+import config2
 import pandas as pd
 from helpers import get_mapping_dict
 
@@ -12,8 +14,10 @@ from merge_helpers import (
 
 log = logging.getLogger("root")
 
+environment = os.environ.get("ENVIRONMENT")
+config = config2.get_config(env=environment)
 
-row_limit = 5
+row_limit = config.row_limit
 table = "persons"
 match_columns = ["caserecnumber", "firstname", "surname"]
 
@@ -36,7 +40,8 @@ def merge_source_into_target(db_config, target_db):
     )
 
     log.log(
-        2, f"source_data_df\n{source_data_df.head(n=row_limit).to_markdown()}",
+        config.DATA,
+        f"source_data_df\n{source_data_df.head(n=row_limit).to_markdown()}",
     )
 
     existing_data_query = generate_select_query(
@@ -48,7 +53,8 @@ def merge_source_into_target(db_config, target_db):
     )
 
     log.log(
-        2, f"existing_data_df\n" f"{existing_data_df.head(n=row_limit).to_markdown()}",
+        config.DATA,
+        f"existing_data_df\n" f"{existing_data_df.head(n=row_limit).to_markdown()}",
     )
 
     merged_data_df = merge_source_data_with_existing_data(
@@ -56,7 +62,8 @@ def merge_source_into_target(db_config, target_db):
     )
 
     log.log(
-        2, f"merged_data_df\n" f"{merged_data_df.head(n=row_limit).to_markdown()}",
+        config.DATA,
+        f"merged_data_df\n{merged_data_df.head(n=row_limit).to_markdown()}",
     )
 
     new_data_df = reindex_new_data(df=merged_data_df, table=table, db_config=db_config)
