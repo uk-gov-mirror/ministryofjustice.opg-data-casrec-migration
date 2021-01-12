@@ -1,6 +1,8 @@
 import json
 import logging
+import os
 
+import config2
 import pandas as pd
 from helpers import get_mapping_dict
 
@@ -8,11 +10,13 @@ from merge_helpers import generate_select_query, reindex_new_data, update_foreig
 
 log = logging.getLogger("root")
 
+environment = os.environ.get("ENVIRONMENT")
+config = config2.get_config(env=environment)
 
-row_limit = 5
+row_limit = config.row_limit
 table = "addresses"
 fk = {"parent_table": "persons", "parent_col": "id", "fk_col": "person_id"}
-match_columns = ["caserecnumber", "firstname", "surname"]
+
 
 mapping_file_name = "client_addresses_mapping"
 sirius_details = get_mapping_dict(
@@ -35,7 +39,8 @@ def merge_source_into_target(db_config, target_db):
     source_data_df["method"] = "INSERT"
 
     log.log(
-        2, f"source_data_df\n{source_data_df.head(n=row_limit).to_markdown()}",
+        config.DATA,
+        f"source_data_df\n{source_data_df.head(n=row_limit).to_markdown()}",
     )
 
     fk_data_query = generate_select_query(
