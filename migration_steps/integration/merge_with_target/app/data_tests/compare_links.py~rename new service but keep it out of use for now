@@ -26,6 +26,8 @@ def df_from_sql_file(sql_path, filename, conn, replacements=None, sort_col=None)
                 query = query.replace(str(k), ", ".join([f"'{x}'" for x in v]))
             query = query.replace(str(k), str(v))
 
+    print(query)
+
     df = pd.read_sql_query(query, con=conn, index_col=None)
 
     df.replace([None, ""], "", inplace=True)
