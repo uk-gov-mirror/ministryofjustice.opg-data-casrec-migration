@@ -167,7 +167,10 @@ class InsertData:
     ):
         statement = f"ALTER TABLE {self.schema}.{table_name} "
         for i, col in enumerate(col_diff):
-            data_type = mapping_details[col]["data_type"]
+            if col in mapping_details:
+                data_type = mapping_details[col]["data_type"]
+            else:
+                data_type = "text"
             statement += f'ADD COLUMN "{col}" {data_type}'
             if i + 1 < len(col_diff):
                 statement += ","
@@ -188,7 +191,11 @@ class InsertData:
     def insert_data(self, table_name, df, sirius_details=None):
 
         log.debug(f"inserting {table_name} into " f"database....")
-        log.log(config.DATA, f"\n{df.sample(n=config.row_limit).to_markdown()}")
+        try:
+            log.log(config.DATA, f"\n{df.sample(n=config.row_limit).to_markdown()}")
+        except ValueError:
+            log.debug(f"No data to insert")
+            return 1
 
         create_schema_statement = self._create_schema_statement()
         self.db_engine.execute(create_schema_statement)

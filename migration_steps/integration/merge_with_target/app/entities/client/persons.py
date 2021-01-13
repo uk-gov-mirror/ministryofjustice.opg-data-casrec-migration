@@ -65,14 +65,17 @@ def merge_source_into_target(db_config, target_db):
         config.DATA,
         f"merged_data_df\n{merged_data_df.head(n=row_limit).to_markdown()}",
     )
-
+    log.info("Reindexing new data")
     new_data_df = reindex_new_data(df=merged_data_df, table=table, db_config=db_config)
+
+    log.info("Inserting new data")
 
     target_db.insert_data(
         table_name=table, df=new_data_df, sirius_details=sirius_details
     )
-
+    log.info("Reindexing existing data")
     existing_data = reindex_existing_data(df=merged_data_df, table=table)
+    log.info("Inserting existing data")
 
     target_db.insert_data(
         table_name=table, df=existing_data, sirius_details=sirius_details
