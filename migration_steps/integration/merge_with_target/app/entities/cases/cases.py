@@ -18,10 +18,10 @@ environment = os.environ.get("ENVIRONMENT")
 config = config2.get_config(env=environment)
 
 row_limit = config.row_limit
-table = "persons"
-match_columns = ["caserecnumber", "firstname", "surname"]
+table = "cases"
+match_columns = ["caserecnumber"]
 
-mapping_file_name = "client_persons_mapping"
+mapping_file_name = "cases_mapping"
 sirius_details = get_mapping_dict(
     file_name=mapping_file_name,
     stage_name="sirius_details",
@@ -32,7 +32,6 @@ source_columns = list(sirius_details.keys())
 
 def merge_source_into_target(db_config, target_db):
     log.log(config.VERBOSE, "This is a standard data table")
-
     source_data_query = generate_select_query(
         schema=db_config["source_schema"], table=table, columns=source_columns
     )
