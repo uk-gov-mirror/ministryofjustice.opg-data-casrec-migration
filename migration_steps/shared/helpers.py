@@ -59,6 +59,25 @@ def get_lookup_dict(file_name: str) -> Dict:
         return {k: v["sirius_mapping"] for k, v in lookup_dict.items()}
 
 
+def get_all_lookup_dicts() -> Dict[str, List[str]]:
+    dirname = get_current_directory()
+    file_path = os.path.join(
+        dirname, f"mapping_definitions/lookups"
+    )
+
+    all_lookup_dicts = {}
+
+    for json_file in os.listdir(file_path):
+        json_file_path = os.path.join(file_path, json_file)
+        if os.path.isfile(json_file_path):
+            with open(json_file_path, "r") as lookup_json:
+                lookup_dict = json.load(lookup_json)
+                lookup_name = json_file.replace(".json", "")
+                all_lookup_dicts[lookup_name] = lookup_dict
+
+    return all_lookup_dicts
+
+
 def get_all_mapped_fields(
     complete: bool = True, include_keys: bool = False
 ) -> Dict[str, List[str]]:
