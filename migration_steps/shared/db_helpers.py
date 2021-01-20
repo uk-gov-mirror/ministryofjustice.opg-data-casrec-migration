@@ -14,10 +14,10 @@ def copy_schema(
     log, sql_path, from_config, from_schema, to_config, to_schema, structure_only=False
 ):
     log.info(
-        f'Copying {from_config["name"]}.{from_schema} to {to_config["name"]}.{to_schema}'
+        f'{from_config["name"]}.{from_schema} -> {to_config["name"]}.{to_schema}'
     )
 
-    log.info("Dump")
+    log.debug("Dump")
     os.environ["PGPASSWORD"] = from_config["password"]
     if structure_only:
         schema_dump = (
@@ -39,7 +39,7 @@ def copy_schema(
                 from_config["name"],
                 _err_to_out=True,
                 _out=str(schema_dump),
-            )
+            ), end=""
         )
     else:
         schema_dump = sql_path / "schemas" / f'{from_config["name"]}_{from_schema}.sql'
@@ -56,10 +56,10 @@ def copy_schema(
                 from_config["name"],
                 _err_to_out=True,
                 _out=str(schema_dump),
-            )
+            ), end=""
         )
 
-    log.info("Modify")
+    log.debug("Modify")
     with fileinput.FileInput(str(schema_dump), inplace=True) as file:
         for line in file:
             print(line.replace(from_schema, to_schema), end="")
@@ -72,7 +72,7 @@ def copy_schema(
                     f"DROP SCHEMA IF EXISTS {to_schema} CASCADE; CREATE SCHEMA {to_schema}; "
                     f'set search_path to {to_schema},public; CREATE EXTENSION IF NOT EXISTS "uuid-ossp"',
                 ),
-                end="",
+                end=""
             )
 
     # change role name
@@ -83,10 +83,11 @@ def copy_schema(
                     f'OWNER TO {from_config["user"]};',
                     f'OWNER TO {to_config["user"]};',
                 ),
-                end="",
+                end=""
             )
+    log.info(f"Saved to file: {schema_dump}\n")
 
-    log.info("Import")
+    log.debug("Import")
     os.environ["PGPASSWORD"] = to_config["password"]
     schemafile = open(schema_dump, "r")
     print(
@@ -98,10 +99,12 @@ def copy_schema(
             "-p",
             to_config["port"],
             "--quiet",
+            "-o",
+            "/dev/null",
             to_config["name"],
             _err_to_out=True,
             _in=schemafile,
-        )
+        ), end=""
     )
 
 
