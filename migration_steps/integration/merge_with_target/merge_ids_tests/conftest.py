@@ -1,6 +1,6 @@
 import pytest
 
-import merge_helpers
+from migration_steps.integration.merge_with_target.app import merge_helpers
 
 test_db_config = {
     "db_connection_string": "db_connection_string",
