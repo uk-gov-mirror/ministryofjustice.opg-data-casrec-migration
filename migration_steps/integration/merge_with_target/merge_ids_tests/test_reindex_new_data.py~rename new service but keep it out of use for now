@@ -3,7 +3,9 @@ from conftest import test_db_config
 import pandas as pd
 from pandas._testing import assert_frame_equal
 
-from merge_helpers import reindex_new_data
+from migration_steps.integration.merge_with_target.app.merge_helpers import (
+    reindex_new_data,
+)
 
 table = "pirates"
 
