@@ -4,8 +4,8 @@ from pathlib import Path
 
 
 # from utilities.clear_database import clear_tables
-
-
+from clear_database import empty_target_tables
+from setup import insert_base_data
 from move import generate_inserts
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -66,8 +66,10 @@ def main(verbose, clear):
     log.info(log_title(message="Integration Step: Load to Staging"))
     log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
 
-    # if clear:
-    #     clear_tables(db_config)
+    if clear:
+        empty_target_tables(db_config=db_config, db_engine=target_db_engine)
+
+    insert_base_data(db_config=db_config, db_engine=target_db_engine)
 
     generate_inserts(db_config=db_config, db_engine=target_db_engine)
 

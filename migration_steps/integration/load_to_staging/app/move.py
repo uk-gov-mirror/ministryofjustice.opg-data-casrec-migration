@@ -40,12 +40,8 @@ def generate_inserts(db_config, db_engine):
 
     for i, table in enumerate(tables_list):
         log.info(f"Inserting {table} into {db_config['target_schema']}")
-        log.info(
-            f"{len(completed_tables)}/{len(tables_list)} tables have been completed"
-        )
-        log.info(f"This is table number {i+1}")
-        log.debug(f"Completed tables: {', '.join(completed_tables)}")
-        log.debug(f"Not completed tables: {', '.join(tables_list)}")
+
+        log.debug(f"This is table number {i+1}")
 
         get_source_cols_query = get_columns_query(
             table=table, schema=db_config["source_schema"]
@@ -79,6 +75,13 @@ def generate_inserts(db_config, db_engine):
         try:
             db_engine.execute(query)
             completed_tables.append(table)
+            log.info(
+                f"{len(completed_tables)}/{len(tables_list)} tables have been completed"
+            )
+            log.debug(f"Completed tables: {', '.join(completed_tables)}")
+            log.debug(
+                f"Not completed tables: {', '.join(list(set(tables_list) - set(completed_tables)))}"
+            )
         except Exception as e:
             log.error(
                 f"There was an error inserting {table} into {db_config['target_schema']}"
