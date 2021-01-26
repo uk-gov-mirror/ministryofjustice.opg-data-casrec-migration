@@ -46,3 +46,9 @@ def generate_luhn_checksum(original_number):
     step_4 = multiply_by_9_and_return_unit(number=step_3)
 
     return step_4
+
+
+def append_checksum(original_number: int) -> int:
+    checksum = generate_luhn_checksum(original_number=original_number)
+
+    return int(str(original_number) + str(checksum))
