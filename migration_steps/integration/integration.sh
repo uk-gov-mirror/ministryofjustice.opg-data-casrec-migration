@@ -6,4 +6,5 @@ python3 "${DIR}/schema_setup/app/app.py"
 python3 "${DIR}/fixtures/app/app.py"
 #python3 "${DIR}/merge_target_ids/app/app.py"
 python3 "${DIR}/merge_with_target/app/app.py" -vv --clear=True
+python3 "${DIR}/load_to_staging/app/app.py" -vv --clear=True
 
