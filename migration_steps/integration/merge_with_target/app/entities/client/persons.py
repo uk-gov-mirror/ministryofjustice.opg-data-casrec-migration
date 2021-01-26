@@ -10,7 +10,9 @@ from merge_helpers import (
     merge_source_data_with_existing_data,
     reindex_existing_data,
     reindex_new_data,
+    calculate_new_uid,
 )
+
 
 log = logging.getLogger("root")
 
@@ -69,6 +71,12 @@ def merge_source_into_target(db_config, target_db):
     )
     log.info("Reindexing new data")
     new_data_df = reindex_new_data(df=merged_data_df, table=table, db_config=db_config)
+
+    log.info("Adding new UID to new data")
+    new_data_df = calculate_new_uid(
+        db_config=db_config, df=new_data_df, table=table, column_name="uid"
+    )
+    print(new_data_df)
 
     log.info("Inserting new data")
 

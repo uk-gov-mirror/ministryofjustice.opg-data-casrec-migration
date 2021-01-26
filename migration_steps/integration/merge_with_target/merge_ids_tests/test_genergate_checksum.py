@@ -6,6 +6,7 @@ from migration_steps.integration.merge_with_target.app.utilities.generate_luhn_c
     sum_all_digits,
     multiply_by_9_and_return_unit,
     generate_luhn_checksum,
+    append_checksum,
 )
 
 
@@ -63,5 +64,20 @@ def test_multiply_by_9_and_return_unit(test_number, expected_result):
 )
 def test_add_luhn_checksum(test_number, expected_result):
     result = generate_luhn_checksum(original_number=test_number)
+
+    assert result == expected_result
+
+
+@pytest.mark.parametrize(
+    "test_number, expected_result",
+    [
+        (3843296, 38432969),
+        (286947, 2869477),
+        (3756219867, 37562198673),
+        (70000000999, 700000009998),
+    ],
+)
+def test_append_checksum(test_number, expected_result):
+    result = append_checksum(original_number=test_number)
 
     assert result == expected_result

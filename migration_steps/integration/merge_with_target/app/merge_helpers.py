@@ -2,6 +2,8 @@ import logging
 
 import psycopg2
 
+from utilities.generate_luhn_checksum import append_checksum
+
 log = logging.getLogger("root")
 
 
@@ -42,12 +44,27 @@ def get_max_id_from_sirius(db_config, table, id="id"):
         cursor.execute(query)
         max_id = cursor.fetchall()
         return max_id[0][0]
+        cursor.close()
     except (Exception, psycopg2.DatabaseError) as error:
         print("Error: %s" % error)
         conn.rollback()
         cursor.close()
         return 1
-    cursor.close()
+
+
+def calculate_new_uid(db_config, df, table, column_name):
+    max_uid = get_max_id_from_sirius(db_config=db_config, table=table, id=column_name)
+    max_uid_without_checksum = int(str(max_uid)[:-1])
+
+    df.insert(
+        0,
+        "uid_no_checksum",
+        range(max_uid_without_checksum, max_uid_without_checksum + len(df)),
+    )
+    df[column_name] = df["uid_no_checksum"].apply(lambda x: append_checksum(x))
+    df = df.drop(columns="uid_no_checksum")
+
+    return df
 
 
 def merge_source_data_with_existing_data(source_data, existing_data, match_columns):
