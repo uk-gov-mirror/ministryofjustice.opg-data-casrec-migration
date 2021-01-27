@@ -76,7 +76,6 @@ def merge_source_into_target(db_config, target_db):
     new_data_df = calculate_new_uid(
         db_config=db_config, df=new_data_df, table=table, column_name="uid"
     )
-    print(new_data_df)
 
     log.info("Inserting new data")
 
