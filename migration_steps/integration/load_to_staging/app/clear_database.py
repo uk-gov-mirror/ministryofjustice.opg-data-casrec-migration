@@ -13,8 +13,6 @@ def empty_target_tables(db_config, db_engine):
     with open(path) as tables_json:
         tables_list = json.load(tables_json)
 
-    print(tables_list)
-
     tables_list.reverse()
 
     tables_list.append("assignees")
