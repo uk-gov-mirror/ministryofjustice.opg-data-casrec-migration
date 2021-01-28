@@ -57,7 +57,6 @@ target_db = InsertData(db_engine=target_db_engine, schema=db_config["target_sche
     help="Clear existing database tables: True or False",
 )
 def main(verbose, clear):
-    # add a comment
     try:
         log.setLevel(verbosity_levels[verbose])
         log.info(f"{verbosity_levels[verbose]} logging enabled")
