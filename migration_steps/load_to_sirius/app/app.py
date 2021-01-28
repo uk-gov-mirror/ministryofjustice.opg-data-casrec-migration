@@ -55,10 +55,11 @@ def main(verbose):
         log.info(f"{verbose} is not a valid verbosity level")
         log.info(f"INFO logging enabled")
 
-    log.info(log_title(message="Integration Step: Load to Staging"))
+    log.info(log_title(message="Load to Target Step: AKA do the migration already"))
     log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
 
-    path = f"{os.path.dirname(__file__)}/tables.json"
+    path = f"tables.json"
+    log.info(f"path: {path}")
 
     with open(path) as tables_json:
         tables_list = json.load(tables_json)
