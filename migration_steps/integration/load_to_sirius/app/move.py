@@ -34,86 +34,64 @@ def remove_unecessary_columns(columns):
     return [column for column in columns if column not in unecessary_field_names]
 
 
-def get_data_to_insert(db_config, source_db_engine, target_db_engine):
+def insert_data_into_target(db_config, source_db_engine, table):
+    log.info(f"Inserting new data from {db_config['source_schema']} '{table}' table")
+    get_cols_query = get_columns_query(table=table, schema=db_config["source_schema"])
 
-    path = f"{os.path.dirname(__file__)}/tables.json"
+    columns = [x[0] for x in source_db_engine.execute(get_cols_query).fetchall()]
 
-    with open(path) as tables_json:
-        tables_list = json.load(tables_json)
+    columns = remove_unecessary_columns(columns=columns)
 
-    for i, table in enumerate(tables_list):
-        log.info(f"Getting data to insert from {db_config['source_schema']}")
+    query = f"""
+        SELECT {', '.join(columns)} FROM {db_config["source_schema"]}.{table}
+        WHERE method = 'INSERT';
+    """
 
-        log.debug(f"This is table number {i+1}")
+    data_to_insert = pd.read_sql_query(
+        sql=query, con=db_config["source_db_connection_string"]
+    )
 
-        get_cols_query = get_columns_query(
-            table=table, schema=db_config["source_schema"]
+    log.debug(f"Inserting {len(data_to_insert)} rows")
+
+    # special cases
+    if table == "addresses":
+        log.debug("Reformatting 'address_lines' to json")
+        data_to_insert["address_lines"] = data_to_insert["address_lines"].apply(
+            json.dumps
         )
 
-        columns = [x[0] for x in source_db_engine.execute(get_cols_query).fetchall()]
+    target_connection = psycopg2.connect(db_config["target_db_connection_string"])
+    db_helpers.execute_insert(conn=target_connection, df=data_to_insert, table=table)
 
-        columns = remove_unecessary_columns(columns=columns)
 
-        query = f"""
-            SELECT {', '.join(columns)} FROM {db_config["source_schema"]}.{table}
-            WHERE method = 'INSERT';
-        """
+def update_data_in_target(db_config, source_db_engine, table):
+    log.info(
+        f"Updating existing data from {db_config['source_schema']} '{table}' table"
+    )
+    get_cols_query = get_columns_query(table=table, schema=db_config["source_schema"])
 
-        data_to_insert = pd.read_sql_query(
-            sql=query, con=db_config["source_db_connection_string"]
+    columns = [x[0] for x in source_db_engine.execute(get_cols_query).fetchall()]
+
+    columns = remove_unecessary_columns(columns=columns)
+
+    query = f"""
+        SELECT {', '.join(columns)} FROM {db_config["source_schema"]}.{table}
+        WHERE method = 'UPDATE';
+    """
+
+    data_to_update = pd.read_sql_query(
+        sql=query, con=db_config["source_db_connection_string"]
+    )
+    log.debug(f"Updating {len(data_to_update)} rows")
+
+    # special cases
+    if table == "addresses":
+        log.debug("Reformatting 'address_lines' to json")
+        data_to_update["address_lines"] = data_to_update["address_lines"].apply(
+            json.dumps
         )
 
-        # special cases
-        if table == "addresses":
-            data_to_insert["address_lines"] = data_to_insert["address_lines"].apply(
-                json.dumps
-            )
-
-        target_connection = psycopg2.connect(db_config["target_db_connection_string"])
-        db_helpers.execute_insert(
-            conn=target_connection, df=data_to_insert, table=table
-        )
-
-        # insert_statement = create_insert_statement(table_name=table, df=data_to_insert, db_config=db_config)
-        #
-        #
-        #
-        # target_db_engine.execute(insert_statement)
-
-
-def create_insert_statement(table_name, df, db_config):
-    columns = [x for x in df.columns.values]
-    insert_statement = f"""INSERT INTO {table_name} ("""
-    for i, col in enumerate(columns):
-        insert_statement += f'"{col}"'
-        if i + 1 < len(columns):
-            insert_statement += ","
-
-    insert_statement += ") \n VALUES \n"
-
-    for i, row in enumerate(df.values.tolist()):
-
-        row = [str(x) for x in row]
-        row = [
-            str(
-                x.replace("'", "''")
-                .replace("NaT", "")
-                .replace("nan", "")
-                .replace("None", "")
-                .replace("&", "and")
-                .replace(";", "-")
-                .replace("%", "percent")
-            )
-            for x in row
-        ]
-        row = [f"'{str(x)}'" if str(x) != "" else "NULL" for x in row]
-
-        single_row = ", ".join(row)
-
-        insert_statement += f"({single_row})"
-
-        if i + 1 < len(df):
-            insert_statement += ",\n"
-        else:
-            insert_statement += ";\n\n\n"
-    return insert_statement
+    target_connection = psycopg2.connect(db_config["target_db_connection_string"])
+    db_helpers.execute_update(
+        conn=target_connection, df=data_to_update, table=table, pk_col="id"
+    )

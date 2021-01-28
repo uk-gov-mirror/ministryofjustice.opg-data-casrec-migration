@@ -1,8 +1,9 @@
+import json
 import sys
 import os
 from pathlib import Path
 
-from move import get_data_to_insert
+from move import insert_data_into_target, update_data_in_target
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, str(current_path) + "/../../../shared")
@@ -57,11 +58,20 @@ def main(verbose):
     log.info(log_title(message="Integration Step: Load to Staging"))
     log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
 
-    get_data_to_insert(
-        db_config=db_config,
-        target_db_engine=target_db_engine,
-        source_db_engine=source_db_engine,
-    )
+    path = f"{os.path.dirname(__file__)}/tables.json"
+
+    with open(path) as tables_json:
+        tables_list = json.load(tables_json)
+
+    for i, table in enumerate(tables_list):
+        log.debug(f"This is table number {i + 1} of {len(tables_list)}")
+
+        insert_data_into_target(
+            db_config=db_config, source_db_engine=source_db_engine, table=table
+        )
+        update_data_in_target(
+            db_config=db_config, source_db_engine=source_db_engine, table=table
+        )
 
 
 if __name__ == "__main__":
