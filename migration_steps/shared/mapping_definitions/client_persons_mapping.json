@@ -166,7 +166,7 @@
         "sirius_details": {
             "is_pk": "",
             "fk_parents": "",
-            "data_type": "int"
+            "data_type": "bigint"
         },
         "transform_casrec": {
             "casrec_table": "",
