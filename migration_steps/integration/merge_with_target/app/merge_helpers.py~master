@@ -55,11 +55,12 @@ def get_max_id_from_sirius(db_config, table, id="id"):
 def calculate_new_uid(db_config, df, table, column_name):
     max_uid = get_max_id_from_sirius(db_config=db_config, table=table, id=column_name)
     max_uid_without_checksum = int(str(max_uid)[:-1])
+    next_uid_without_checksum = max_uid_without_checksum + 1
 
     df.insert(
         0,
         "uid_no_checksum",
-        range(max_uid_without_checksum, max_uid_without_checksum + len(df)),
+        range(next_uid_without_checksum, next_uid_without_checksum + len(df)),
     )
     df[column_name] = df["uid_no_checksum"].apply(lambda x: append_checksum(x))
     df = df.drop(columns="uid_no_checksum")

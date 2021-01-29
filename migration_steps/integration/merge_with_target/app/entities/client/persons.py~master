@@ -65,6 +65,11 @@ def merge_source_into_target(db_config, target_db):
         source_data_df, existing_data_df, match_columns
     )
 
+    log.info("Adding new UID to new data")
+    merged_data_df = calculate_new_uid(
+        db_config=db_config, df=merged_data_df, table=table, column_name="uid"
+    )
+
     log.log(
         config.DATA,
         f"merged_data_df\n{merged_data_df.head(n=row_limit).to_markdown()}",
@@ -72,10 +77,10 @@ def merge_source_into_target(db_config, target_db):
     log.info("Reindexing new data")
     new_data_df = reindex_new_data(df=merged_data_df, table=table, db_config=db_config)
 
-    log.info("Adding new UID to new data")
-    new_data_df = calculate_new_uid(
-        db_config=db_config, df=new_data_df, table=table, column_name="uid"
-    )
+    # log.info("Adding new UID to new data")
+    # new_data_df = calculate_new_uid(
+    #     db_config=db_config, df=new_data_df, table=table, column_name="uid"
+    # )
 
     log.info("Inserting new data")
 
@@ -84,6 +89,7 @@ def merge_source_into_target(db_config, target_db):
     )
     log.info("Reindexing existing data")
     existing_data = reindex_existing_data(df=merged_data_df, table=table)
+
     log.info("Inserting existing data")
 
     target_db.insert_data(
