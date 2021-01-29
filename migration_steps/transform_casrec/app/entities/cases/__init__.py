@@ -24,8 +24,8 @@ def runner(config, etl2_db):
     log.debug("insert_cases")
     insert_cases(config, etl2_db)
 
-    log.debug("insert_person_caseitem")
-    insert_person_caseitem(config, etl2_db)
+    # log.debug("insert_person_caseitem")
+    # insert_person_caseitem(config, etl2_db)
 
 
 if __name__ == "__main__":

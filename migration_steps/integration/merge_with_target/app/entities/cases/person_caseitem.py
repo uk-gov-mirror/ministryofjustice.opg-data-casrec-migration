@@ -68,7 +68,10 @@ def merge_source_into_target(db_config, target_db):
 
     person_caseitem_df = person_caseitem_df.drop(columns=["caserecnumber"])
     person_caseitem_df = person_caseitem_df.rename(
-        columns={"id_case": "case_id", "id_person": "person_id"}
+        columns={"id_case": "caseitem_id", "id_person": "person_id"}
     )
+    person_caseitem_df["method"] = "INSERT"
 
-    target_db.insert_data(table_name=table, df=person_caseitem_df)
+    target_db.insert_data(
+        table_name=table, df=person_caseitem_df, sirius_details=sirius_details
+    )

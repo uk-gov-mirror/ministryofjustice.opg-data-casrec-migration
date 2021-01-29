@@ -75,6 +75,7 @@ def merge_source_into_target(db_config, target_db):
         f"merged_data_df\n{merged_data_df.head(n=row_limit).to_markdown()}",
     )
     log.info("Reindexing new data")
+
     new_data_df = reindex_new_data(df=merged_data_df, table=table, db_config=db_config)
 
     # log.info("Adding new UID to new data")

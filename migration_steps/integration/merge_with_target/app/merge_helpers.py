@@ -92,17 +92,20 @@ def reindex_new_data(db_config, df, table):
     max_id = get_max_id_from_sirius(db_config=db_config, table=table)
     first_id = int(max_id) + 1
 
-    new_df = df[df["method"] == "INSERT"]
+    try:
+        no_of_rows = len(df.index)
 
-    new_df = new_df.rename(columns={"id": "transformation_id"})
+        new_df = df[df["method"] == "INSERT"]
 
-    new_df.insert(0, "id", range(first_id, first_id + len(new_df)))
+        new_df = new_df.rename(columns={"id": "transformation_id"})
 
-    log.debug(
-        f"Found {len(new_df.index)} new rows to add to the {table} table "
-        f"with ids between {new_df['id'].iloc[0]} and "
-        f"{new_df['id'].iloc[-1]}"
-    )
+        new_df.insert(0, "id", range(first_id, first_id + len(new_df)))
+
+    except IndexError:
+        no_of_rows = 0
+        new_df = df
+
+    log.debug(f"Found {no_of_rows} new rows to add to the {table} table ")
 
     return new_df
 
