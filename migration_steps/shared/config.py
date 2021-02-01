@@ -3,7 +3,7 @@ import logging
 
 
 class BaseConfig:
-    etl1_schema = "etl1"
+    etl1_schema = "casrec_csv"
     etl2_schema = "etl2"
 
     row_limit = 5
