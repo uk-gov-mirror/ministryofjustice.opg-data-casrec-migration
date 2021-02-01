@@ -4,6 +4,7 @@ import logging
 import sys
 from pathlib import Path
 
+import numpy as np
 import psycopg2
 from psycopg2 import errors
 import pandas as pd
@@ -50,8 +51,12 @@ def insert_data_into_target(db_config, source_db_engine, table):
     data_to_insert = pd.read_sql_query(
         sql=query, con=db_config["source_db_connection_string"]
     )
-
-    log.debug(f"Inserting {len(data_to_insert)} rows")
+    for col in columns:
+        data_to_insert[col] = (
+            data_to_insert[col]
+            .astype(str)
+            .replace({"NaT": None, "None": None, "NaN": None})
+        )
 
     # special cases
     if table == "addresses":
@@ -59,6 +64,8 @@ def insert_data_into_target(db_config, source_db_engine, table):
         data_to_insert["address_lines"] = data_to_insert["address_lines"].apply(
             json.dumps
         )
+
+    log.debug(f"Inserting {len(data_to_insert)} rows")
 
     target_connection = psycopg2.connect(db_config["target_db_connection_string"])
     db_helpers.execute_insert(conn=target_connection, df=data_to_insert, table=table)
@@ -82,6 +89,14 @@ def update_data_in_target(db_config, source_db_engine, table):
     data_to_update = pd.read_sql_query(
         sql=query, con=db_config["source_db_connection_string"]
     )
+
+    for col in columns:
+        data_to_update[col] = (
+            data_to_update[col]
+            .astype(str)
+            .replace({"NaT": None, "None": None, "NaN": None})
+        )
+
     log.debug(f"Updating {len(data_to_update)} rows")
 
     # special cases
