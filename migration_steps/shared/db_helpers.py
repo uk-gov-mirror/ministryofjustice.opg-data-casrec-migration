@@ -13,9 +13,7 @@ psycopg2.extensions.register_adapter(np.int64, psycopg2._psycopg.AsIs)
 def copy_schema(
     log, sql_path, from_config, from_schema, to_config, to_schema, structure_only=False
 ):
-    log.info(
-        f'{from_config["name"]}.{from_schema} -> {to_config["name"]}.{to_schema}'
-    )
+    log.info(f'{from_config["name"]}.{from_schema} -> {to_config["name"]}.{to_schema}')
 
     log.debug("Dump")
     os.environ["PGPASSWORD"] = from_config["password"]
@@ -39,7 +37,8 @@ def copy_schema(
                 from_config["name"],
                 _err_to_out=True,
                 _out=str(schema_dump),
-            ), end=""
+            ),
+            end="",
         )
     else:
         schema_dump = sql_path / "schemas" / f'{from_config["name"]}_{from_schema}.sql'
@@ -56,7 +55,8 @@ def copy_schema(
                 from_config["name"],
                 _err_to_out=True,
                 _out=str(schema_dump),
-            ), end=""
+            ),
+            end="",
         )
 
     log.debug("Modify")
@@ -72,7 +72,7 @@ def copy_schema(
                     f"DROP SCHEMA IF EXISTS {to_schema} CASCADE; CREATE SCHEMA {to_schema}; "
                     f'set search_path to {to_schema},public; CREATE EXTENSION IF NOT EXISTS "uuid-ossp"',
                 ),
-                end=""
+                end="",
             )
 
     # change role name
@@ -83,7 +83,7 @@ def copy_schema(
                     f'OWNER TO {from_config["user"]};',
                     f'OWNER TO {to_config["user"]};',
                 ),
-                end=""
+                end="",
             )
     log.info(f"Saved to file: {schema_dump}\n")
 
@@ -104,7 +104,8 @@ def copy_schema(
             to_config["name"],
             _err_to_out=True,
             _in=schemafile,
-        ), end=""
+        ),
+        end="",
     )
 
 
@@ -182,7 +183,10 @@ def execute_update(conn, df, table, pk_col):
     # Just ensure that the primary key is the first column of the dataframe
 
     cols = list(df.columns)
-    cols.remove(pk_col)
+    try:
+        cols.remove(pk_col)
+    except ValueError:
+        pass
     colstring = "=%s,".join(cols)
     colstring += "=%s"
     update_template = f"UPDATE {table} SET {colstring} WHERE {pk_col}="

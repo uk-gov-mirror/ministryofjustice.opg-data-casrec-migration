@@ -9,11 +9,10 @@ log = logging.getLogger("root")
 
 def empty_target_tables(db_config, db_engine):
     path = f"{os.path.dirname(__file__)}/tables.json"
+    log.info(f"path: {path}")
 
     with open(path) as tables_json:
         tables_list = json.load(tables_json)
-
-    print(tables_list)
 
     tables_list.reverse()
 

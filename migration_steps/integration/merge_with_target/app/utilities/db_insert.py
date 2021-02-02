@@ -205,8 +205,10 @@ class InsertData:
             if len(col_diff) > 0:
 
                 if sirius_details:
-                    add_missing_colums_statement = self._add_missing_columns_with_datatypes(
-                        table_name, col_diff, mapping_details=sirius_details
+                    add_missing_colums_statement = (
+                        self._add_missing_columns_with_datatypes(
+                            table_name, col_diff, mapping_details=sirius_details
+                        )
                     )
                 else:
                     add_missing_colums_statement = self._add_missing_columns(

@@ -1,5 +1,6 @@
 SELECT firstname,
-       CONCAT(surname, ' (LIVELINK SKELETON)') as surname,
+--        CONCAT(surname, ' (LIVELINK SKELETON)') as surname,
+       surname,
        type,
        caserecnumber,
        'SKELETON'                              as clientsource,
