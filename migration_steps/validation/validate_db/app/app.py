@@ -37,6 +37,11 @@ log.addHandler(custom_logger.MyHandler())
 config.custom_log_level()
 verbosity_levels = config.verbosity_levels
 
+is_staging = False
+conn_target = None
+target_schema = None
+source_schema = config.schemas["pre_transform"]
+
 mappings_to_run = [
     "client_persons",
     # "client_addresses",
@@ -46,8 +51,6 @@ mappings_to_run = [
 ]
 
 indent = "    "
-
-conn_target = psycopg2.connect(config.get_db_connection_string("target"))
 
 
 def set_logging_level(verbose):
@@ -73,7 +76,7 @@ def get_mapping_report_df():
     )
 
 
-def get_validation_exceptions_df(conn_target):
+def get_validation_exceptions_df():
     return df_from_sql_file(
         sql_path, "get_validation_results.sql", conn_target
     )
@@ -95,7 +98,7 @@ def get_exception_table(mapping):
 def build_exception_tables(sql_lines):
     #drop all possible exception tables from last run
     for mapfile in helpers.get_all_mapped_fields().keys():
-        sql_lines.append(f"DROP TABLE IF EXISTS {get_exception_table(mapfile)};\n")
+        sql_lines.append(f"DROP TABLE IF EXISTS {source_schema}.{get_exception_table(mapfile)};\n")
     sql_lines.append("\n\n")
 
     for mapping in mappings_to_run:
@@ -105,7 +108,7 @@ def build_exception_tables(sql_lines):
             only_complete_fields=True,
             include_pk=False
         )
-        sql_lines.append(f"CREATE TABLE {exception_table_name}(\n")
+        sql_lines.append(f"CREATE TABLE {source_schema}.{exception_table_name}(\n")
         separator = ',\n'
         cols = separator.join([f"{indent}{sirius_col} text default NULL" for sirius_col in map_dict.keys()])
         sql_lines.append(cols)
@@ -115,18 +118,17 @@ def build_exception_tables(sql_lines):
 def build_lookup_functions(sql_lines):
     #drop all the lookup tables from last run
     for lookup_name, lookup in helpers.get_all_lookup_dicts().items():
-        sql_lines.append(f"DROP FUNCTION IF EXISTS {lookup_name}(character varying);\n")
+        sql_lines.append(f"DROP FUNCTION IF EXISTS {source_schema}.{lookup_name}(character varying);\n")
     sql_lines.append("\n\n")
 
     for lookup_name, lookup in helpers.get_all_lookup_dicts().items():
-        sql_lines.append(f"CREATE OR REPLACE FUNCTION {lookup_name}(lookup_key varchar default null) RETURNS TEXT AS\n")
+        sql_lines.append(f"CREATE OR REPLACE FUNCTION {source_schema}.{lookup_name}(lookup_key varchar default null) RETURNS TEXT AS\n")
         sql_lines.append(f"$$\n")
         sql_lines.append(f"{indent}SELECT CASE\n")
         for k, v in lookup.items():
             sirius_value = v['sirius_mapping'].replace("'", "''")
             sql_lines.append(f"{indent}{indent}WHEN ($1 = '{k}') THEN '{sirius_value}'\n")
         sql_lines.append(f"{indent}END\n")
-        sql_lines.append(f"{indent}FROM cases\n")
         sql_lines.append("$$ LANGUAGE sql;\n\n\n")
 
 
@@ -181,11 +183,11 @@ def build_casrec_cols(map_dict):
         if v["transform_casrec"]["casrec_table"]:
             casrec_col_table = v["transform_casrec"]["casrec_table"].lower()
             casrec_col_name = v["transform_casrec"]["casrec_column_name"]
-            casrec_tables.append(config.schemas['casrec_csv'] + '.' + casrec_col_table)
+            casrec_tables.append(source_schema + '.' + casrec_col_table)
             col = f'{casrec_col_table}."{casrec_col_name}"'
             if '' != v["transform_casrec"]["lookup_table"]:
                 db_lookup_func = v["transform_casrec"]["lookup_table"]
-                col = f'{db_lookup_func}({col})'
+                col = f'{source_schema}.{db_lookup_func}({col})'
         elif '' != v["transform_casrec"]["default_value"]:
             col = format_default_value(v)
         elif '' != v["transform_casrec"]["calculated"]:
@@ -214,24 +216,22 @@ def build_validation_statements(sql_lines):
         casrec_cols, casrec_tables = build_casrec_cols(map_dict)
         sirius_cols = build_sirius_cols(map_dict)
 
-        sql_lines.append(f"INSERT INTO {exception_table_name}(\n")
+        sql_lines.append(f"INSERT INTO {source_schema}.{exception_table_name}(\n")
         # casrec half
         sql_lines.append(f"{indent}SELECT * FROM(\n")
         sql_lines.append(f"{indent}{indent}SELECT DISTINCT\n")
         sql_lines.append(f"{casrec_cols}\n")
         sql_lines.append(f"{indent}{indent}FROM {casrec_tables}\n")
         sql_lines.append(f"{indent}{indent}ORDER BY caserecnumber ASC\n")
-        # sql_lines.append(f"{indent}{indent}LIMIT 10\n")
         sql_lines.append(f"{indent}) as csv_data\n")
         sql_lines.append(f"{indent}EXCEPT\n")
         # sirius half
         sql_lines.append(f"{indent}SELECT * FROM(\n")
         sql_lines.append(f"{indent}{indent}SELECT DISTINCT\n")
         sql_lines.append(sirius_cols + "\n")
-        sql_lines.append(f"{indent}{indent}FROM {sirius_table_name}\n")
+        sql_lines.append(f"{indent}{indent}FROM {target_schema}.{sirius_table_name}\n")
         sql_lines.append(f"{indent}{indent}WHERE clientsource = 'CASRECMIGRATION'\n")
         sql_lines.append(f"{indent}{indent}ORDER BY caserecnumber ASC\n")
-        # sql_lines.append(f"{indent}{indent}LIMIT 10\n")
         sql_lines.append(f"{indent}) as sirius_data\n")
         sql_lines.append(");\n\n")
 
@@ -241,7 +241,7 @@ def write_validation_sql(sql_lines):
     validation_sql_file = open(validation_sql_path, 'w')
     validation_sql_file.writelines(sql_lines)
     validation_sql_file.close()
-    log.info(f"Saved to file: {validation_sql_path}\n")
+    log.debug(f"Saved to file: {validation_sql_path}")
 
 
 def write_get_exceptions_sql():
@@ -249,7 +249,7 @@ def write_get_exceptions_sql():
     reported_mappings = []
     for mapping in mappings_to_run:
         exception_table_name = get_exception_table(mapping)
-        reported_mappings.append(f"SELECT '{mapping}' AS mapping, (SELECT count(*) FROM {exception_table_name})\n")
+        reported_mappings.append(f"SELECT '{mapping}' AS mapping, (SELECT count(*) FROM {source_schema}.{exception_table_name})\n")
     separator = 'UNION\n'
     sql = separator.join(reported_mappings)
     sql_file.writelines(sql)
@@ -257,15 +257,19 @@ def write_get_exceptions_sql():
 
 
 def pre_validation():
-    log.info(f"COPY CASREC CSV DATA TO TARGET DB FOR COMPARISON WORK")
-    copy_schema(
-        log=log,
-        sql_path=shared_sql_path,
-        from_config=config.db_config["migration"],
-        from_schema=config.schemas["pre_transform"],
-        to_config=config.db_config["target"],
-        to_schema=config.schemas["casrec_csv"]
-    )
+    if is_staging is False:
+        log.info(f"Validating with SIRIUS")
+        log.info(f"Copying casrec csv source data to Sirius for comparison work")
+        copy_schema(
+            log=log,
+            sql_path=shared_sql_path,
+            from_config=config.db_config["migration"],
+            from_schema=config.schemas["pre_transform"],
+            to_config=config.db_config["target"],
+            to_schema=config.schemas["pre_transform"]
+        )
+    else:
+        log.info(f"Validating with STAGING schema")
 
     log.info(f"GENERATE SQL")
     sql_lines = []
@@ -285,17 +289,29 @@ def post_validation():
     log.info("REPORT")
     mapping_df = get_mapping_report_df()
     write_get_exceptions_sql()
-    exceptions_df = get_validation_exceptions_df(conn_target)
+    exceptions_df = get_validation_exceptions_df()
     report_df = mapping_df.merge(exceptions_df, on='mapping')
     headers = ["Casrec Mapping", "Rows", "Unmapped", "Mapped", "Complete (%)", "Exceptions"]
     print(tabulate(report_df, headers, tablefmt="psql"))
 
 
+def set_validation_target():
+    global conn_target, target_schema
+    db_config = "migration" if is_staging else "target"
+    conn_target = psycopg2.connect(config.get_db_connection_string(db_config))
+    target_schema = "staging" if is_staging else "public"
+
+
 @click.command()
 @click.option("-v", "--verbose", count=True)
-def main(verbose):
+@click.option("--staging", is_flag=True, default=False)
+def main(verbose, staging):
     set_logging_level(verbose)
     log.info(helpers.log_title(message="Validation"))
+
+    global is_staging
+    is_staging = staging
+    set_validation_target()
 
     pre_validation()
 
@@ -304,7 +320,6 @@ def main(verbose):
     log.info("- ok\n")
 
     post_validation()
-
 
 
 if __name__ == "__main__":

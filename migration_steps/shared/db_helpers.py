@@ -115,7 +115,7 @@ def copy_schema(
                 ),
                 end="",
             )
-    log.info(f"Saved to file: {schema_dump}\n")
+    log.debug(f"Saved to file: {schema_dump}")
 
     log.debug("Import")
     os.environ["PGPASSWORD"] = to_config["password"]
