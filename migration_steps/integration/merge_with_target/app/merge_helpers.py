@@ -90,7 +90,11 @@ def merge_source_data_with_existing_data(source_data, existing_data, match_colum
 def reindex_new_data(db_config, df, table):
 
     max_id = get_max_id_from_sirius(db_config=db_config, table=table)
-    first_id = int(max_id) + 1
+    if max_id is not None:
+        first_id = int(max_id) + 1
+    else:
+        # Pick high number so won't fail on ingest of new data
+        first_id = 10000
 
     try:
         no_of_rows = len(df.index)
