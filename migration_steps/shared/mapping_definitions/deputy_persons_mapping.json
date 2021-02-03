@@ -7,7 +7,7 @@
             "is_pk": true,
             "fk_parents": "",
             "data_type": "int",
-            "table_name": "supervision_reporting__assets"
+            "table_name": "persons"
         },
         "transform_casrec": {
             "casrec_table": "",
@@ -20,15 +20,162 @@
             "additional_columns": ""
         }
     },
-    "financial_information_id": {
+    "email": {
+        "mapping_status": {
+            "is_complete": false
+        },
+        "sirius_details": {
+            "is_pk": "",
+            "fk_parents": "",
+            "data_type": "str",
+            "table_name": "persons"
+        },
+        "transform_casrec": {
+            "casrec_table": "",
+            "casrec_column_name": "Email",
+            "alias": "Email",
+            "requires_transformation": "",
+            "lookup_table": "",
+            "default_value": "",
+            "calculated": "",
+            "additional_columns": ""
+        }
+    },
+    "dob": {
+        "mapping_status": {
+            "is_complete": false
+        },
+        "sirius_details": {
+            "is_pk": "",
+            "fk_parents": "",
+            "data_type": "date",
+            "table_name": "persons"
+        },
+        "transform_casrec": {
+            "casrec_table": "",
+            "casrec_column_name": "",
+            "alias": "",
+            "requires_transformation": "",
+            "lookup_table": "",
+            "default_value": "",
+            "calculated": "",
+            "additional_columns": ""
+        }
+    },
+    "dateofdeath": {
+        "mapping_status": {
+            "is_complete": false
+        },
+        "sirius_details": {
+            "is_pk": "",
+            "fk_parents": "",
+            "data_type": "date",
+            "table_name": "persons"
+        },
+        "transform_casrec": {
+            "casrec_table": "",
+            "casrec_column_name": "",
+            "alias": "",
+            "requires_transformation": "",
+            "lookup_table": "",
+            "default_value": "",
+            "calculated": "",
+            "additional_columns": ""
+        }
+    },
+    "salutation": {
         "mapping_status": {
             "is_complete": true
         },
         "sirius_details": {
             "is_pk": "",
-            "fk_parents": "supervision_reporting__financial_information:id",
-            "data_type": "int",
-            "table_name": "supervision_reporting__assets"
+            "fk_parents": "",
+            "data_type": "str",
+            "table_name": "persons"
+        },
+        "transform_casrec": {
+            "casrec_table": "DEPUTY",
+            "casrec_column_name": "Title",
+            "alias": "Title",
+            "requires_transformation": "",
+            "lookup_table": "title_codes_lookup",
+            "default_value": "",
+            "calculated": "",
+            "additional_columns": ""
+        }
+    },
+    "firstname": {
+        "mapping_status": {
+            "is_complete": false
+        },
+        "sirius_details": {
+            "is_pk": "",
+            "fk_parents": "",
+            "data_type": "str",
+            "table_name": "persons"
+        },
+        "transform_casrec": {
+            "casrec_table": "DEPUTY",
+            "casrec_column_name": "Dep Forename",
+            "alias": "Dep Forename",
+            "requires_transformation": "",
+            "lookup_table": "",
+            "default_value": "",
+            "calculated": "",
+            "additional_columns": ""
+        }
+    },
+    "middlenames": {
+        "mapping_status": {
+            "is_complete": false
+        },
+        "sirius_details": {
+            "is_pk": "",
+            "fk_parents": "",
+            "data_type": "str",
+            "table_name": "persons"
+        },
+        "transform_casrec": {
+            "casrec_table": "DEPUTY",
+            "casrec_column_name": "",
+            "alias": "",
+            "requires_transformation": "",
+            "lookup_table": "",
+            "default_value": "",
+            "calculated": "",
+            "additional_columns": ""
+        }
+    },
+    "surname": {
+        "mapping_status": {
+            "is_complete": false
+        },
+        "sirius_details": {
+            "is_pk": "",
+            "fk_parents": "",
+            "data_type": "str",
+            "table_name": "persons"
+        },
+        "transform_casrec": {
+            "casrec_table": "DEPUTY",
+            "casrec_column_name": "Dep Surname",
+            "alias": "Dep Surname",
+            "requires_transformation": "",
+            "lookup_table": "",
+            "default_value": "",
+            "calculated": "",
+            "additional_columns": ""
+        }
+    },
+    "correspondencebypost": {
+        "mapping_status": {
+            "is_complete": false
+        },
+        "sirius_details": {
+            "is_pk": "",
+            "fk_parents": "",
+            "data_type": "bool",
+            "table_name": "persons"
         },
         "transform_casrec": {
             "casrec_table": "",
@@ -41,15 +188,15 @@
             "additional_columns": ""
         }
     },
-    "importid": {
+    "correspondencebyphone": {
         "mapping_status": {
             "is_complete": false
         },
         "sirius_details": {
             "is_pk": "",
             "fk_parents": "",
-            "data_type": "int",
-            "table_name": "supervision_reporting__assets"
+            "data_type": "bool",
+            "table_name": "persons"
         },
         "transform_casrec": {
             "casrec_table": "",
@@ -62,7 +209,49 @@
             "additional_columns": ""
         }
     },
-    "value_amount": {
+    "correspondencebyemail": {
+        "mapping_status": {
+            "is_complete": false
+        },
+        "sirius_details": {
+            "is_pk": "",
+            "fk_parents": "",
+            "data_type": "bool",
+            "table_name": "persons"
+        },
+        "transform_casrec": {
+            "casrec_table": "DEPUTY",
+            "casrec_column_name": "By Email",
+            "alias": "By Email",
+            "requires_transformation": "",
+            "lookup_table": "",
+            "default_value": "",
+            "calculated": "",
+            "additional_columns": ""
+        }
+    },
+    "createddate": {
+        "mapping_status": {
+            "is_complete": false
+        },
+        "sirius_details": {
+            "is_pk": "",
+            "fk_parents": "",
+            "data_type": "datetime",
+            "table_name": "persons"
+        },
+        "transform_casrec": {
+            "casrec_table": "",
+            "casrec_column_name": "",
+            "alias": "",
+            "requires_transformation": "",
+            "lookup_table": "",
+            "default_value": "",
+            "calculated": "",
+            "additional_columns": ""
+        }
+    },
+    "uid": {
         "mapping_status": {
             "is_complete": false
         },
@@ -70,7 +259,7 @@
             "is_pk": "",
             "fk_parents": "",
             "data_type": "int",
-            "table_name": "supervision_reporting__assets"
+            "table_name": "persons"
         },
         "transform_casrec": {
             "casrec_table": "",
@@ -85,13 +274,13 @@
     },
     "type": {
         "mapping_status": {
-            "is_complete": false
+            "is_complete": true
         },
         "sirius_details": {
             "is_pk": "",
             "fk_parents": "",
             "data_type": "str",
-            "table_name": "supervision_reporting__assets"
+            "table_name": "persons"
         },
         "transform_casrec": {
             "casrec_table": "",
@@ -99,167 +288,20 @@
             "alias": "",
             "requires_transformation": "",
             "lookup_table": "",
-            "default_value": "",
+            "default_value": "actor_deputy",
             "calculated": "",
             "additional_columns": ""
         }
     },
-    "address": {
+    "systemstatus": {
         "mapping_status": {
-            "is_complete": false
-        },
-        "sirius_details": {
-            "is_pk": "",
-            "fk_parents": "",
-            "data_type": "str",
-            "table_name": "supervision_reporting__assets"
-        },
-        "transform_casrec": {
-            "casrec_table": "",
-            "casrec_column_name": "",
-            "alias": "",
-            "requires_transformation": "",
-            "lookup_table": "",
-            "default_value": "",
-            "calculated": "",
-            "additional_columns": ""
-        }
-    },
-    "address2": {
-        "mapping_status": {
-            "is_complete": false
-        },
-        "sirius_details": {
-            "is_pk": "",
-            "fk_parents": "",
-            "data_type": "str",
-            "table_name": "supervision_reporting__assets"
-        },
-        "transform_casrec": {
-            "casrec_table": "",
-            "casrec_column_name": "",
-            "alias": "",
-            "requires_transformation": "",
-            "lookup_table": "",
-            "default_value": "",
-            "calculated": "",
-            "additional_columns": ""
-        }
-    },
-    "county": {
-        "mapping_status": {
-            "is_complete": false
-        },
-        "sirius_details": {
-            "is_pk": "",
-            "fk_parents": "",
-            "data_type": "str",
-            "table_name": "supervision_reporting__assets"
-        },
-        "transform_casrec": {
-            "casrec_table": "",
-            "casrec_column_name": "",
-            "alias": "",
-            "requires_transformation": "",
-            "lookup_table": "",
-            "default_value": "",
-            "calculated": "",
-            "additional_columns": ""
-        }
-    },
-    "postcode": {
-        "mapping_status": {
-            "is_complete": false
-        },
-        "sirius_details": {
-            "is_pk": "",
-            "fk_parents": "",
-            "data_type": "str",
-            "table_name": "supervision_reporting__assets"
-        },
-        "transform_casrec": {
-            "casrec_table": "",
-            "casrec_column_name": "",
-            "alias": "",
-            "requires_transformation": "",
-            "lookup_table": "",
-            "default_value": "",
-            "calculated": "",
-            "additional_columns": ""
-        }
-    },
-    "occupants": {
-        "mapping_status": {
-            "is_complete": false
-        },
-        "sirius_details": {
-            "is_pk": "",
-            "fk_parents": "",
-            "data_type": "str",
-            "table_name": "supervision_reporting__assets"
-        },
-        "transform_casrec": {
-            "casrec_table": "",
-            "casrec_column_name": "",
-            "alias": "",
-            "requires_transformation": "",
-            "lookup_table": "",
-            "default_value": "",
-            "calculated": "",
-            "additional_columns": ""
-        }
-    },
-    "owned": {
-        "mapping_status": {
-            "is_complete": false
-        },
-        "sirius_details": {
-            "is_pk": "",
-            "fk_parents": "",
-            "data_type": "str",
-            "table_name": "supervision_reporting__assets"
-        },
-        "transform_casrec": {
-            "casrec_table": "",
-            "casrec_column_name": "",
-            "alias": "",
-            "requires_transformation": "",
-            "lookup_table": "",
-            "default_value": "",
-            "calculated": "",
-            "additional_columns": ""
-        }
-    },
-    "owned_percentage": {
-        "mapping_status": {
-            "is_complete": false
-        },
-        "sirius_details": {
-            "is_pk": "",
-            "fk_parents": "",
-            "data_type": "Decimal",
-            "table_name": "supervision_reporting__assets"
-        },
-        "transform_casrec": {
-            "casrec_table": "",
-            "casrec_column_name": "",
-            "alias": "",
-            "requires_transformation": "",
-            "lookup_table": "",
-            "default_value": "",
-            "calculated": "",
-            "additional_columns": ""
-        }
-    },
-    "is_subject_equity_rel": {
-        "mapping_status": {
-            "is_complete": false
+            "is_complete": true
         },
         "sirius_details": {
             "is_pk": "",
             "fk_parents": "",
             "data_type": "bool",
-            "table_name": "supervision_reporting__assets"
+            "table_name": "persons"
         },
         "transform_casrec": {
             "casrec_table": "",
@@ -267,20 +309,20 @@
             "alias": "",
             "requires_transformation": "",
             "lookup_table": "",
-            "default_value": "",
+            "default_value": true,
             "calculated": "",
             "additional_columns": ""
         }
     },
-    "has_mortgage": {
+    "isreplacementattorney": {
         "mapping_status": {
-            "is_complete": false
+            "is_complete": true
         },
         "sirius_details": {
             "is_pk": "",
             "fk_parents": "",
             "data_type": "bool",
-            "table_name": "supervision_reporting__assets"
+            "table_name": "persons"
         },
         "transform_casrec": {
             "casrec_table": "",
@@ -288,20 +330,20 @@
             "alias": "",
             "requires_transformation": "",
             "lookup_table": "",
-            "default_value": "",
+            "default_value": false,
             "calculated": "",
             "additional_columns": ""
         }
     },
-    "has_charges": {
+    "istrustcorporation": {
         "mapping_status": {
-            "is_complete": false
+            "is_complete": true
         },
         "sirius_details": {
             "is_pk": "",
             "fk_parents": "",
             "data_type": "bool",
-            "table_name": "supervision_reporting__assets"
+            "table_name": "persons"
         },
         "transform_casrec": {
             "casrec_table": "",
@@ -309,96 +351,12 @@
             "alias": "",
             "requires_transformation": "",
             "lookup_table": "",
-            "default_value": "",
+            "default_value": false,
             "calculated": "",
             "additional_columns": ""
         }
     },
-    "is_rented_out": {
-        "mapping_status": {
-            "is_complete": false
-        },
-        "sirius_details": {
-            "is_pk": "",
-            "fk_parents": "",
-            "data_type": "bool",
-            "table_name": "supervision_reporting__assets"
-        },
-        "transform_casrec": {
-            "casrec_table": "",
-            "casrec_column_name": "",
-            "alias": "",
-            "requires_transformation": "",
-            "lookup_table": "",
-            "default_value": "",
-            "calculated": "",
-            "additional_columns": ""
-        }
-    },
-    "rent_agreement_end_date": {
-        "mapping_status": {
-            "is_complete": false
-        },
-        "sirius_details": {
-            "is_pk": "",
-            "fk_parents": "",
-            "data_type": "datetime",
-            "table_name": "supervision_reporting__assets"
-        },
-        "transform_casrec": {
-            "casrec_table": "",
-            "casrec_column_name": "",
-            "alias": "",
-            "requires_transformation": "",
-            "lookup_table": "",
-            "default_value": "",
-            "calculated": "",
-            "additional_columns": ""
-        }
-    },
-    "mortgageoutstandingamount_amount": {
-        "mapping_status": {
-            "is_complete": false
-        },
-        "sirius_details": {
-            "is_pk": "",
-            "fk_parents": "",
-            "data_type": "int",
-            "table_name": "supervision_reporting__assets"
-        },
-        "transform_casrec": {
-            "casrec_table": "",
-            "casrec_column_name": "",
-            "alias": "",
-            "requires_transformation": "",
-            "lookup_table": "",
-            "default_value": "",
-            "calculated": "",
-            "additional_columns": ""
-        }
-    },
-    "rentincomemonth_amount": {
-        "mapping_status": {
-            "is_complete": false
-        },
-        "sirius_details": {
-            "is_pk": "",
-            "fk_parents": "",
-            "data_type": "int",
-            "table_name": "supervision_reporting__assets"
-        },
-        "transform_casrec": {
-            "casrec_table": "",
-            "casrec_column_name": "",
-            "alias": "",
-            "requires_transformation": "",
-            "lookup_table": "",
-            "default_value": "",
-            "calculated": "",
-            "additional_columns": ""
-        }
-    },
-    "title": {
+    "previousnames": {
         "mapping_status": {
             "is_complete": false
         },
@@ -406,7 +364,7 @@
             "is_pk": "",
             "fk_parents": "",
             "data_type": "str",
-            "table_name": "supervision_reporting__assets"
+            "table_name": "persons"
         },
         "transform_casrec": {
             "casrec_table": "",
@@ -419,7 +377,7 @@
             "additional_columns": ""
         }
     },
-    "description": {
+    "caserecnumber": {
         "mapping_status": {
             "is_complete": false
         },
@@ -427,7 +385,7 @@
             "is_pk": "",
             "fk_parents": "",
             "data_type": "str",
-            "table_name": "supervision_reporting__assets"
+            "table_name": "persons"
         },
         "transform_casrec": {
             "casrec_table": "",
@@ -440,15 +398,99 @@
             "additional_columns": ""
         }
     },
-    "valuation_date": {
+    "clientaccommodation": {
         "mapping_status": {
             "is_complete": false
+        },
+        "sirius_details": {
+            "is_pk": "",
+            "fk_parents": "",
+            "data_type": "str",
+            "table_name": "persons"
+        },
+        "transform_casrec": {
+            "casrec_table": "",
+            "casrec_column_name": "",
+            "alias": "",
+            "requires_transformation": "",
+            "lookup_table": "",
+            "default_value": "",
+            "calculated": "",
+            "additional_columns": ""
+        }
+    },
+    "maritalstatus": {
+        "mapping_status": {
+            "is_complete": false
+        },
+        "sirius_details": {
+            "is_pk": "",
+            "fk_parents": "",
+            "data_type": "str",
+            "table_name": "persons"
+        },
+        "transform_casrec": {
+            "casrec_table": "",
+            "casrec_column_name": "",
+            "alias": "",
+            "requires_transformation": "",
+            "lookup_table": "",
+            "default_value": "",
+            "calculated": "",
+            "additional_columns": ""
+        }
+    },
+    "clientstatus": {
+        "mapping_status": {
+            "is_complete": true
+        },
+        "sirius_details": {
+            "is_pk": "",
+            "fk_parents": "",
+            "data_type": "str",
+            "table_name": "persons"
+        },
+        "transform_casrec": {
+            "casrec_table": "",
+            "casrec_column_name": "",
+            "alias": "",
+            "requires_transformation": "",
+            "lookup_table": "",
+            "default_value": "Active",
+            "calculated": "",
+            "additional_columns": ""
+        }
+    },
+    "statusdate": {
+        "mapping_status": {
+            "is_complete": true
         },
         "sirius_details": {
             "is_pk": "",
             "fk_parents": "",
             "data_type": "date",
-            "table_name": "supervision_reporting__assets"
+            "table_name": "persons"
+        },
+        "transform_casrec": {
+            "casrec_table": "",
+            "casrec_column_name": "",
+            "alias": "",
+            "requires_transformation": "",
+            "lookup_table": "",
+            "default_value": "",
+            "calculated": "current_date",
+            "additional_columns": ""
+        }
+    },
+    "countryofresidence": {
+        "mapping_status": {
+            "is_complete": false
+        },
+        "sirius_details": {
+            "is_pk": "",
+            "fk_parents": "",
+            "data_type": "str",
+            "table_name": "persons"
         },
         "transform_casrec": {
             "casrec_table": "",
@@ -461,15 +503,15 @@
             "additional_columns": ""
         }
     },
-    "address3": {
+    "newsletter": {
         "mapping_status": {
-            "is_complete": false
+            "is_complete": true
         },
         "sirius_details": {
             "is_pk": "",
             "fk_parents": "",
-            "data_type": "str",
-            "table_name": "supervision_reporting__assets"
+            "data_type": "bool",
+            "table_name": "persons"
         },
         "transform_casrec": {
             "casrec_table": "",
@@ -477,20 +519,209 @@
             "alias": "",
             "requires_transformation": "",
             "lookup_table": "",
-            "default_value": "",
+            "default_value": false,
             "calculated": "",
             "additional_columns": ""
         }
     },
-    "town": {
+    "specialcorrespondencerequirements_audiotape": {
+        "mapping_status": {
+            "is_complete": true
+        },
+        "sirius_details": {
+            "is_pk": "",
+            "fk_parents": "",
+            "data_type": "bool",
+            "table_name": "persons"
+        },
+        "transform_casrec": {
+            "casrec_table": "",
+            "casrec_column_name": "",
+            "alias": "",
+            "requires_transformation": "",
+            "lookup_table": "",
+            "default_value": false,
+            "calculated": "",
+            "additional_columns": ""
+        }
+    },
+    "specialcorrespondencerequirements_largeprint": {
+        "mapping_status": {
+            "is_complete": true
+        },
+        "sirius_details": {
+            "is_pk": "",
+            "fk_parents": "",
+            "data_type": "bool",
+            "table_name": "persons"
+        },
+        "transform_casrec": {
+            "casrec_table": "",
+            "casrec_column_name": "",
+            "alias": "",
+            "requires_transformation": "",
+            "lookup_table": "",
+            "default_value": false,
+            "calculated": "",
+            "additional_columns": ""
+        }
+    },
+    "specialcorrespondencerequirements_hearingimpaired": {
+        "mapping_status": {
+            "is_complete": true
+        },
+        "sirius_details": {
+            "is_pk": "",
+            "fk_parents": "",
+            "data_type": "bool",
+            "table_name": "persons"
+        },
+        "transform_casrec": {
+            "casrec_table": "",
+            "casrec_column_name": "",
+            "alias": "",
+            "requires_transformation": "",
+            "lookup_table": "",
+            "default_value": false,
+            "calculated": "",
+            "additional_columns": ""
+        }
+    },
+    "specialcorrespondencerequirements_spellingofnamerequirescare": {
+        "mapping_status": {
+            "is_complete": true
+        },
+        "sirius_details": {
+            "is_pk": "",
+            "fk_parents": "",
+            "data_type": "bool",
+            "table_name": "persons"
+        },
+        "transform_casrec": {
+            "casrec_table": "",
+            "casrec_column_name": "",
+            "alias": "",
+            "requires_transformation": "",
+            "lookup_table": "",
+            "default_value": false,
+            "calculated": "",
+            "additional_columns": ""
+        }
+    },
+    "digital": {
+        "mapping_status": {
+            "is_complete": true
+        },
+        "sirius_details": {
+            "is_pk": "",
+            "fk_parents": "",
+            "data_type": "bool",
+            "table_name": "persons"
+        },
+        "transform_casrec": {
+            "casrec_table": "",
+            "casrec_column_name": "",
+            "alias": "",
+            "requires_transformation": "",
+            "lookup_table": "",
+            "default_value": false,
+            "calculated": "",
+            "additional_columns": ""
+        }
+    },
+    "isorganisation": {
+        "mapping_status": {
+            "is_complete": true
+        },
+        "sirius_details": {
+            "is_pk": "",
+            "fk_parents": "",
+            "data_type": "bool",
+            "table_name": "persons"
+        },
+        "transform_casrec": {
+            "casrec_table": "",
+            "casrec_column_name": "",
+            "alias": "",
+            "requires_transformation": "",
+            "lookup_table": "",
+            "default_value": false,
+            "calculated": "",
+            "additional_columns": ""
+        }
+    },
+    "casesmanagedashybrid": {
         "mapping_status": {
             "is_complete": false
         },
         "sirius_details": {
             "is_pk": "",
             "fk_parents": "",
+            "data_type": "bool",
+            "table_name": "persons"
+        },
+        "transform_casrec": {
+            "casrec_table": "",
+            "casrec_column_name": "",
+            "alias": "",
+            "requires_transformation": "",
+            "lookup_table": "",
+            "default_value": false,
+            "calculated": "",
+            "additional_columns": ""
+        }
+    },
+    "supervisioncaseowner_id": {
+        "mapping_status": {
+            "is_complete": true
+        },
+        "sirius_details": {
+            "is_pk": "",
+            "fk_parents": "assignees:id",
+            "data_type": "int",
+            "table_name": "persons"
+        },
+        "transform_casrec": {
+            "casrec_table": "",
+            "casrec_column_name": "",
+            "alias": "",
+            "requires_transformation": "",
+            "lookup_table": "",
+            "default_value": 10,
+            "calculated": "",
+            "additional_columns": ""
+        }
+    },
+    "clientsource": {
+        "mapping_status": {
+            "is_complete": true
+        },
+        "sirius_details": {
+            "is_pk": "",
+            "fk_parents": "",
             "data_type": "str",
-            "table_name": "supervision_reporting__assets"
+            "table_name": "persons"
+        },
+        "transform_casrec": {
+            "casrec_table": "",
+            "casrec_column_name": "",
+            "alias": "",
+            "requires_transformation": "",
+            "lookup_table": "",
+            "default_value": "Casrec",
+            "calculated": "",
+            "additional_columns": ""
+        }
+    },
+    "updateddate": {
+        "mapping_status": {
+            "is_complete": true
+        },
+        "sirius_details": {
+            "is_pk": "",
+            "fk_parents": "",
+            "data_type": "datetime",
+            "table_name": "persons"
         },
         "transform_casrec": {
             "casrec_table": "",
@@ -499,7 +730,7 @@
             "requires_transformation": "",
             "lookup_table": "",
             "default_value": "",
-            "calculated": "",
+            "calculated": "current_date",
             "additional_columns": ""
         }
     }
