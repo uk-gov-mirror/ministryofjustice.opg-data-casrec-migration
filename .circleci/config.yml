@@ -255,9 +255,6 @@ jobs:
           name: Import Fixtures to Membrane
           command: ecs-runner -task import-fixtures-membrane -timeout 600
       - run:
-          name: Ingest Users
-          command: ecs-runner -task ingest-users -timeout 600
-      - run:
           name: Ingest Cases
           command: ecs-runner -task ingest-cases -timeout 600
       - run:

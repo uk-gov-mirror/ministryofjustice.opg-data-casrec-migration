@@ -67,21 +67,6 @@
         },
         "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/ingest-cases-${cluster}"
       },
-      "ingest-users": {
-        "Cluster": "${cluster}",
-        "LaunchType": "FARGATE",
-        "NetworkConfiguration": {
-          "AwsvpcConfiguration": {
-            "SecurityGroups": [
-              "${sec_group}"
-            ],
-            "Subnets": [
-              "${subnets}"
-            ]
-          }
-        },
-        "TaskDefinition": "arn:aws:ecs:eu-west-1:${account}:task-definition/ingest-users-${cluster}"
-      },
       "migrate-membrane": {
         "Cluster": "${cluster}",
         "LaunchType": "FARGATE",
