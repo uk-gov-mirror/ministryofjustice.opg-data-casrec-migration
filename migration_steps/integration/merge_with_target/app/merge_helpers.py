@@ -42,11 +42,19 @@ def get_max_id_from_sirius(db_config, table, id="id"):
 
     try:
         cursor.execute(query)
-        max_id = cursor.fetchall()
-        return max_id[0][0]
+        max_id = cursor.fetchall()[0][0]
+        if max_id:
+            log.debug(f"Max Sirius '{id}' in table '{table}': {max_id}")
+            return max_id
+        else:
+            log.debug(
+                f"No data for Sirius '{id}' in table '{table}', setting max_id to 0"
+            )
+            return 0
+
         cursor.close()
     except (Exception, psycopg2.DatabaseError) as error:
-        print("Error: %s" % error)
+        log.error("Error: %s" % error)
         conn.rollback()
         cursor.close()
         return 1
