@@ -41,6 +41,7 @@ def main(verbose):
     set_logging_level(verbose)
 
     log.info("Take a fresh copy of the Sirius data structure")
+
     copy_schema(
         log=log,
         sql_path=shared_sql_path,
