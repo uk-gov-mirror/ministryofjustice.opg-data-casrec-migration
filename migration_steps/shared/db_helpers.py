@@ -116,6 +116,12 @@ def copy_schema(
     log.debug("Import")
     os.environ["PGPASSWORD"] = to_config["password"]
     schemafile = open(schema_dump, "r")
+    print(to_config["user"])
+    print(to_config["host"])
+    print(to_config["port"])
+    print(to_config["name"])
+    print(f'{len(os.environ["PGPASSWORD"])}')
+    print(schemafile)
     print(
         sh.psql(
             "-U",
@@ -133,6 +139,7 @@ def copy_schema(
         ),
         end="",
     )
+    print("gets here 1")
 
 
 def execute_sql_file(sql_path, filename, conn, schema="public"):

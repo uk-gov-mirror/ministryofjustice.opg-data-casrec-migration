@@ -41,7 +41,7 @@ def main(verbose):
     set_logging_level(verbose)
 
     log.info("Take a fresh copy of the Sirius data structure")
-
+    print("gets here 0")
     copy_schema(
         log=log,
         sql_path=shared_sql_path,
@@ -51,6 +51,7 @@ def main(verbose):
         to_schema=config.schemas["pre_migration"],
         structure_only=True,
     )
+    print("gets here 2")
 
 
 if __name__ == "__main__":
