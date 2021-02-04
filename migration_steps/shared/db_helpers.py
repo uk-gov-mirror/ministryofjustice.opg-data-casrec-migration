@@ -121,7 +121,8 @@ def copy_schema(
     print(to_config["port"])
     print(to_config["name"])
     print(f'{len(os.environ["PGPASSWORD"])}')
-    print(schemafile)
+    for line in schemafile:
+        print(line)
     print(
         sh.psql(
             "-U",

@@ -1,0 +1,801 @@
+Using bucket casrec-migration-local
+Creating schema etl1
+Creating schema etl1...
+Schema etl1 created
+
+
+Creating progress table
+anon/account.csv
+file is: account.csv
+anon/cfoaccount.csv
+file is: cfoaccount.csv
+anon/contact_dm.csv
+file is: contact_dm.csv
+anon/crec.csv
+file is: crec.csv
+anon/crecind.csv
+file is: crecind.csv
+anon/crecline.csv
+file is: crecline.csv
+anon/cwsdata.csv
+file is: cwsdata.csv
+anon/deplink.csv
+file is: deplink.csv
+anon/deputy.csv
+file is: deputy.csv
+anon/deputy_address.csv
+file is: deputy_address.csv
+anon/deputy_remarks.csv
+file is: deputy_remarks.csv
+anon/deputylink.csv
+file is: deputylink.csv
+anon/deputyship.csv
+file is: deputyship.csv
+anon/drepvis.csv
+file is: drepvis.csv
+anon/drlog.csv
+file is: drlog.csv
+anon/feeaas.csv
+file is: feeaas.csv
+anon/feebacs.csv
+file is: feebacs.csv
+anon/feebacs_det.csv
+file is: feebacs_det.csv
+anon/feepays.csv
+file is: feepays.csv
+anon/feepays_det.csv
+file is: feepays_det.csv
+anon/feesched.csv
+file is: feesched.csv
+anon/feesched_det.csv
+file is: feesched_det.csv
+anon/order.csv
+file is: order.csv
+anon/panel_audit.csv
+file is: panel_audit.csv
+anon/panel_refer.csv
+file is: panel_refer.csv
+anon/panel_remarks.csv
+file is: panel_remarks.csv
+anon/panlink.csv
+file is: panlink.csv
+anon/panrec.csv
+file is: panrec.csv
+anon/pat.csv
+file is: pat.csv
+anon/phoenixmap.csv
+file is: phoenixmap.csv
+anon/prexpertise.csv
+file is: prexpertise.csv
+anon/prgeoarea.csv
+file is: prgeoarea.csv
+anon/prlang.csv
+file is: prlang.csv
+anon/prneeds.csv
+file is: prneeds.csv
+anon/prskills.csv
+file is: prskills.csv
+anon/remarks.csv
+file is: remarks.csv
+anon/setupextract.csv
+file is: setupextract.csv
+anon/sup_activity.csv
+file is: sup_activity.csv
+anon/tbpassfile.csv
+file is: tbpassfile.csv
+anon/visit.csv
+file is: visit.csv
+Will process all files
+Total files returned: 40
+Updated account.csv to IN_PROGRESS
+Processor 46266 has picked up account.csv
+Retrieving "anon/account.csv" from bucket
+Table etl1.account doesn't exist. Creating table...
+Table etl1.account created
+Inserting records into "etl1"."account"
+Rows inserted into "etl1"."account": 11288
+Updated account.csv to COMPLETE
+Processed account.csv
+
+
+Updated deplink.csv to IN_PROGRESS
+Processor 46266 has picked up deplink.csv
+Retrieving "anon/deplink.csv" from bucket
+Table etl1.deplink doesn't exist. Creating table...
+Table etl1.deplink created
+Inserting records into "etl1"."deplink"
+Rows inserted into "etl1"."deplink": 1116
+Updated deplink.csv to COMPLETE
+Processed deplink.csv
+
+
+Updated deputy.csv to IN_PROGRESS
+Processor 46266 has picked up deputy.csv
+Retrieving "anon/deputy.csv" from bucket
+Table etl1.deputy doesn't exist. Creating table...
+Table etl1.deputy created
+Inserting records into "etl1"."deputy"
+Rows inserted into "etl1"."deputy": 1008
+Updated deputy.csv to COMPLETE
+Processed deputy.csv
+
+
+Updated deputy_address.csv to IN_PROGRESS
+Processor 46266 has picked up deputy_address.csv
+Retrieving "anon/deputy_address.csv" from bucket
+Table etl1.deputy_address doesn't exist. Creating table...
+Table etl1.deputy_address created
+Inserting records into "etl1"."deputy_address"
+Rows inserted into "etl1"."deputy_address": 874
+Updated deputy_address.csv to COMPLETE
+Processed deputy_address.csv
+
+
+Updated deputylink.csv to IN_PROGRESS
+Processor 46266 has picked up deputylink.csv
+Retrieving "anon/deputylink.csv" from bucket
+Table etl1.deputylink doesn't exist. Creating table...
+Table etl1.deputylink created
+Inserting records into "etl1"."deputylink"
+Rows inserted into "etl1"."deputylink": 260
+Updated deputylink.csv to COMPLETE
+Processed deputylink.csv
+
+
+Updated deputyship.csv to IN_PROGRESS
+Processor 46266 has picked up deputyship.csv
+Retrieving "anon/deputyship.csv" from bucket
+Table etl1.deputyship doesn't exist. Creating table...
+Table etl1.deputyship created
+Inserting records into "etl1"."deputyship"
+Rows inserted into "etl1"."deputyship": 1732
+Updated deputyship.csv to COMPLETE
+Processed deputyship.csv
+
+
+Updated drepvis.csv to IN_PROGRESS
+Processor 46266 has picked up drepvis.csv
+Retrieving "anon/drepvis.csv" from bucket
+Table etl1.drepvis doesn't exist. Creating table...
+Table etl1.drepvis created
+Inserting records into "etl1"."drepvis"
+Rows inserted into "etl1"."drepvis": 452
+Updated drepvis.csv to COMPLETE
+Processed drepvis.csv
+
+
+Updated drlog.csv to IN_PROGRESS
+Processor 46266 has picked up drlog.csv
+Retrieving "anon/drlog.csv" from bucket
+Table etl1.drlog doesn't exist. Creating table...
+Table etl1.drlog created
+Inserting records into "etl1"."drlog"
+Rows inserted into "etl1"."drlog": 9130
+Updated drlog.csv to COMPLETE
+Processed drlog.csv
+
+
+Updated feesched.csv to IN_PROGRESS
+Processor 46266 has picked up feesched.csv
+Retrieving "anon/feesched.csv" from bucket
+Table etl1.feesched doesn't exist. Creating table...
+Table etl1.feesched created
+Inserting records into "etl1"."feesched"
+Rows inserted into "etl1"."feesched": 2087
+Updated feesched.csv to COMPLETE
+Processed feesched.csv
+
+
+Updated panel_audit.csv to IN_PROGRESS
+Processor 46266 has picked up panel_audit.csv
+Retrieving "anon/panel_audit.csv" from bucket
+Table etl1.panel_audit doesn't exist. Creating table...
+Table etl1.panel_audit created
+Inserting records into "etl1"."panel_audit"
+Rows inserted into "etl1"."panel_audit": 139
+Updated panel_audit.csv to COMPLETE
+Processed panel_audit.csv
+
+
+Updated panel_refer.csv to IN_PROGRESS
+Processor 46266 has picked up panel_refer.csv
+Retrieving "anon/panel_refer.csv" from bucket
+Table etl1.panel_refer doesn't exist. Creating table...
+Table etl1.panel_refer created
+Inserting records into "etl1"."panel_refer"
+Rows inserted into "etl1"."panel_refer": 3054
+Updated panel_refer.csv to COMPLETE
+Processed panel_refer.csv
+
+
+Updated panlink.csv to IN_PROGRESS
+Processor 46266 has picked up panlink.csv
+Retrieving "anon/panlink.csv" from bucket
+Table etl1.panlink doesn't exist. Creating table...
+Table etl1.panlink created
+Inserting records into "etl1"."panlink"
+Rows inserted into "etl1"."panlink": 247
+Updated panlink.csv to COMPLETE
+Processed panlink.csv
+
+
+Updated panrec.csv to IN_PROGRESS
+Processor 46266 has picked up panrec.csv
+Retrieving "anon/panrec.csv" from bucket
+Table etl1.panrec doesn't exist. Creating table...
+Table etl1.panrec created
+Inserting records into "etl1"."panrec"
+Rows inserted into "etl1"."panrec": 139
+Updated panrec.csv to COMPLETE
+Processed panrec.csv
+
+
+Updated phoenixmap.csv to IN_PROGRESS
+Processor 46266 has picked up phoenixmap.csv
+Retrieving "anon/phoenixmap.csv" from bucket
+Table etl1.phoenixmap doesn't exist. Creating table...
+Table etl1.phoenixmap created
+Inserting records into "etl1"."phoenixmap"
+Rows inserted into "etl1"."phoenixmap": 856
+Updated phoenixmap.csv to COMPLETE
+Processed phoenixmap.csv
+
+
+Updated prexpertise.csv to IN_PROGRESS
+Processor 46266 has picked up prexpertise.csv
+Retrieving "anon/prexpertise.csv" from bucket
+Table etl1.prexpertise doesn't exist. Creating table...
+Table etl1.prexpertise created
+Inserting records into "etl1"."prexpertise"
+Rows inserted into "etl1"."prexpertise": 832
+Updated prexpertise.csv to COMPLETE
+Processed prexpertise.csv
+
+
+Updated prgeoarea.csv to IN_PROGRESS
+Processor 46266 has picked up prgeoarea.csv
+Retrieving "anon/prgeoarea.csv" from bucket
+Table etl1.prgeoarea doesn't exist. Creating table...
+Table etl1.prgeoarea created
+Inserting records into "etl1"."prgeoarea"
+Rows inserted into "etl1"."prgeoarea": 1058
+Updated prgeoarea.csv to COMPLETE
+Processed prgeoarea.csv
+
+
+Updated prlang.csv to IN_PROGRESS
+Processor 46266 has picked up prlang.csv
+Retrieving "anon/prlang.csv" from bucket
+Table etl1.prlang doesn't exist. Creating table...
+Table etl1.prlang created
+Inserting records into "etl1"."prlang"
+Rows inserted into "etl1"."prlang": 338
+Updated prlang.csv to COMPLETE
+Processed prlang.csv
+
+
+Updated prneeds.csv to IN_PROGRESS
+Processor 46266 has picked up prneeds.csv
+Retrieving "anon/prneeds.csv" from bucket
+Table etl1.prneeds doesn't exist. Creating table...
+Table etl1.prneeds created
+Inserting records into "etl1"."prneeds"
+Rows inserted into "etl1"."prneeds": 271
+Updated prneeds.csv to COMPLETE
+Processed prneeds.csv
+
+
+Updated prskills.csv to IN_PROGRESS
+Processor 46266 has picked up prskills.csv
+Retrieving "anon/prskills.csv" from bucketUsing bucket casrec-migration-local
+Creating schema etl1
+Schema etl1 already exists
+
+
+Progress table exists
+anon/account.csv
+file is: account.csv
+anon/cfoaccount.csv
+file is: cfoaccount.csv
+anon/contact_dm.csv
+file is: contact_dm.csv
+anon/crec.csv
+file is: crec.csv
+anon/crecind.csv
+file is: crecind.csv
+anon/crecline.csv
+file is: crecline.csv
+anon/cwsdata.csv
+file is: cwsdata.csv
+anon/deplink.csv
+file is: deplink.csv
+anon/deputy.csv
+file is: deputy.csv
+anon/deputy_address.csv
+file is: deputy_address.csv
+anon/deputy_remarks.csv
+file is: deputy_remarks.csv
+anon/deputylink.csv
+file is: deputylink.csv
+anon/deputyship.csv
+file is: deputyship.csv
+anon/drepvis.csv
+file is: drepvis.csv
+anon/drlog.csv
+file is: drlog.csv
+anon/feeaas.csv
+file is: feeaas.csv
+anon/feebacs.csv
+file is: feebacs.csv
+anon/feebacs_det.csv
+file is: feebacs_det.csv
+anon/feepays.csv
+file is: feepays.csv
+anon/feepays_det.csv
+file is: feepays_det.csv
+anon/feesched.csv
+file is: feesched.csv
+anon/feesched_det.csv
+file is: feesched_det.csv
+anon/order.csv
+file is: order.csv
+anon/panel_audit.csv
+file is: panel_audit.csv
+anon/panel_refer.csv
+file is: panel_refer.csv
+anon/panel_remarks.csv
+file is: panel_remarks.csv
+anon/panlink.csv
+file is: panlink.csv
+anon/panrec.csv
+file is: panrec.csv
+anon/pat.csv
+file is: pat.csv
+anon/phoenixmap.csv
+file is: phoenixmap.csv
+anon/prexpertise.csv
+file is: prexpertise.csv
+anon/prgeoarea.csv
+file is: prgeoarea.csv
+anon/prlang.csv
+file is: prlang.csv
+anon/prneeds.csv
+file is: prneeds.csv
+anon/prskills.csv
+file is: prskills.csv
+anon/remarks.csv
+file is: remarks.csv
+anon/setupextract.csv
+file is: setupextract.csv
+anon/sup_activity.csv
+file is: sup_activity.csv
+anon/tbpassfile.csv
+file is: tbpassfile.csv
+anon/visit.csv
+file is: visit.csv
+Will process all files
+Total files returned: 40
+Updated deputy_remarks.csv to IN_PROGRESS
+Processor 89807 has picked up deputy_remarks.csv
+Retrieving "anon/deputy_remarks.csv" from bucket
+Table etl1.deputy_remarks doesn't exist. Creating table...
+Table etl1.deputy_remarks created
+Inserting records into "etl1"."deputy_remarks"
+Rows inserted into "etl1"."deputy_remarks": 9130
+Updated deputy_remarks.csv to COMPLETE
+Processed deputy_remarks.csv
+
+
+Updated feebacs.csv to IN_PROGRESS
+Processor 89807 has picked up feebacs.csv
+Retrieving "anon/feebacs.csv" from bucket
+Table etl1.feebacs doesn't exist. Creating table...
+Table etl1.feebacs created
+Inserting records into "etl1"."feebacs"
+Rows inserted into "etl1"."feebacs": 919
+Updated feebacs.csv to COMPLETE
+Processed feebacs.csv
+
+
+Updated feebacs_det.csv to IN_PROGRESS
+Processor 89807 has picked up feebacs_det.csv
+Retrieving "anon/feebacs_det.csv" from bucket
+Table etl1.feebacs_det doesn't exist. Creating table...
+Table etl1.feebacs_det created
+Inserting records into "etl1"."feebacs_det"
+Rows inserted into "etl1"."feebacs_det": 515
+Updated feebacs_det.csv to COMPLETE
+Processed feebacs_det.csv
+
+
+Updated feepays.csv to IN_PROGRESS
+Processor 89807 has picked up feepays.csv
+Retrieving "anon/feepays.csv" from bucket
+Table etl1.feepays doesn't exist. Creating table...
+Table etl1.feepays created
+Inserting records into "etl1"."feepays"
+Rows inserted into "etl1"."feepays": 904
+Updated feepays.csv to COMPLETE
+Processed feepays.csv
+
+
+Updated feepays_det.csv to IN_PROGRESS
+Processor 89807 has picked up feepays_det.csv
+Retrieving "anon/feepays_det.csv" from bucket
+Table etl1.feepays_det doesn't exist. Creating table...
+Table etl1.feepays_det created
+Inserting records into "etl1"."feepays_det"
+Rows inserted into "etl1"."feepays_det": 130
+Updated feepays_det.csv to COMPLETE
+Processed feepays_det.csv
+
+
+Updated feesched_det.csv to IN_PROGRESS
+Processor 89807 has picked up feesched_det.csv
+Retrieving "anon/feesched_det.csv" from bucket
+Table etl1.feesched_det doesn't exist. Creating table...
+Table etl1.feesched_det created
+Inserting records into "etl1"."feesched_det"
+Rows inserted into "etl1"."feesched_det": 474
+Updated feesched_det.csv to COMPLETE
+Processed feesched_det.csv
+
+
+Updated order.csv to IN_PROGRESS
+Processor 89807 has picked up order.csv
+Retrieving "anon/order.csv" from bucket
+Table etl1.order doesn't exist. Creating table...
+Table etl1.order created
+Inserting records into "etl1"."order"
+Rows inserted into "etl1"."order": 1832
+Updated order.csv to COMPLETE
+Processed order.csv
+
+
+Updated panel_remarks.csv to IN_PROGRESS
+Processor 89807 has picked up panel_remarks.csv
+Retrieving "anon/panel_remarks.csv" from bucket
+Table etl1.panel_remarks doesn't exist. Creating table...
+Table etl1.panel_remarks created
+Inserting records into "etl1"."panel_remarks"
+Rows inserted into "etl1"."panel_remarks": 1079
+Updated panel_remarks.csv to COMPLETE
+Processed panel_remarks.csv
+
+
+Updated pat.csv to IN_PROGRESS
+Processor 89807 has picked up pat.csv
+Retrieving "anon/pat.csv" from bucket
+Table etl1.pat doesn't exist. Creating table...
+Table etl1.pat created
+Inserting records into "etl1"."pat"
+Rows inserted into "etl1"."pat": 1000
+Updated pat.csv to COMPLETE
+Processed pat.csv
+
+
+Updated prskills.csv to IN_PROGRESS
+Processor 89807 has picked up prskills.csv
+Retrieving "anon/prskills.csv" from bucket
+Table etl1.prskills doesn't exist. Creating table...
+
+Table etl1.prskills doesn't exist. Creating table...
+Table etl1.prskills created
+Inserting records into "etl1"."prskills"
+Rows inserted into "etl1"."prskills": 1594
+Updated prskills.csv to COMPLETE
+Processed prskills.csv
+
+
+Updated setupextract.csv to IN_PROGRESS
+Processor 46266 has picked up setupextract.csv
+Retrieving "anon/setupextract.csv" from bucket
+Table etl1.setupextract doesn't exist. Creating table...
+Table etl1.setupextract created
+Inserting records into "etl1"."setupextract"
+Rows inserted into "etl1"."setupextract": 1569
+Updated setupextract.csv to COMPLETE
+Processed setupextract.csv
+
+
+Updated sup_activity.csv to IN_PROGRESS
+Processor 46266 has picked up sup_activity.csv
+Retrieving "anon/sup_activity.csv" from bucket
+Table etl1.sup_activity doesn't exist. Creating table...
+Table etl1.sup_activity created
+Inserting records into "etl1"."sup_activity"
+Rows inserted into "etl1"."sup_activity": 5538
+Updated sup_activity.csv to COMPLETE
+Processed sup_activity.csv
+
+
+Processor 46266 has finished processing
+Using bucket casrec-migration-local
+Creating schema etl1
+Schema etl1 already exists
+
+
+Progress table exists
+anon/account.csv
+file is: account.csv
+anon/cfoaccount.csv
+file is: cfoaccount.csv
+anon/contact_dm.csv
+file is: contact_dm.csv
+anon/crec.csv
+file is: crec.csv
+anon/crecind.csv
+file is: crecind.csv
+anon/crecline.csv
+file is: crecline.csv
+anon/cwsdata.csv
+file is: cwsdata.csv
+anon/deplink.csv
+file is: deplink.csv
+anon/deputy.csv
+file is: deputy.csv
+anon/deputy_address.csv
+file is: deputy_address.csv
+anon/deputy_remarks.csv
+file is: deputy_remarks.csv
+anon/deputylink.csv
+file is: deputylink.csv
+anon/deputyship.csv
+file is: deputyship.csv
+anon/drepvis.csv
+file is: drepvis.csv
+anon/drlog.csv
+file is: drlog.csv
+anon/feeaas.csv
+file is: feeaas.csv
+anon/feebacs.csv
+file is: feebacs.csv
+anon/feebacs_det.csv
+file is: feebacs_det.csv
+anon/feepays.csv
+file is: feepays.csv
+anon/feepays_det.csv
+file is: feepays_det.csv
+anon/feesched.csv
+file is: feesched.csv
+anon/feesched_det.csv
+file is: feesched_det.csv
+anon/order.csv
+file is: order.csv
+anon/panel_audit.csv
+file is: panel_audit.csv
+anon/panel_refer.csv
+file is: panel_refer.csv
+anon/panel_remarks.csv
+file is: panel_remarks.csv
+anon/panlink.csv
+file is: panlink.csv
+anon/panrec.csv
+file is: panrec.csv
+anon/pat.csv
+file is: pat.csv
+anon/phoenixmap.csv
+file is: phoenixmap.csv
+anon/prexpertise.csv
+file is: prexpertise.csv
+anon/prgeoarea.csv
+file is: prgeoarea.csv
+anon/prlang.csv
+file is: prlang.csv
+anon/prneeds.csv
+file is: prneeds.csv
+anon/prskills.csv
+file is: prskills.csv
+anon/remarks.csv
+file is: remarks.csv
+anon/setupextract.csv
+file is: setupextract.csv
+anon/sup_activity.csv
+file is: sup_activity.csv
+anon/tbpassfile.csv
+file is: tbpassfile.csv
+anon/visit.csv
+file is: visit.csv
+Will process all files
+Total files returned: 40
+Updated cfoaccount.csv to IN_PROGRESS
+Processor 34833 has picked up cfoaccount.csv
+Retrieving "anon/cfoaccount.csv" from bucket
+Table etl1.cfoaccount doesn't exist. Creating table...
+Table etl1.cfoaccount created
+Inserting records into "etl1"."cfoaccount"
+Rows inserted into "etl1"."cfoaccount": 626
+Updated cfoaccount.csv to COMPLETE
+Processed cfoaccount.csv
+
+
+Updated contact_dm.csv to IN_PROGRESS
+Processor 34833 has picked up contact_dm.csv
+Retrieving "anon/contact_dm.csv" from bucket
+Table etl1.contact_dm doesn't exist. Creating table...
+Table etl1.contact_dm created
+Inserting records into "etl1"."contact_dm"
+Rows inserted into "etl1"."contact_dm": 24
+Updated contact_dm.csv to COMPLETE
+Processed contact_dm.csv
+
+
+Updated crec.csv to IN_PROGRESS
+Processor 34833 has picked up crec.csv
+Retrieving "anon/crec.csv" from bucket
+Table etl1.crec doesn't exist. Creating table...
+Table etl1.crec created
+Inserting records into "etl1"."crec"
+Rows inserted into "etl1"."crec": 1365
+Updated crec.csv to COMPLETE
+Processed crec.csv
+
+
+Updated crecind.csv to IN_PROGRESS
+Processor 34833 has picked up crecind.csv
+Retrieving "anon/crecind.csv" from bucket
+Table etl1.crecind doesn't exist. Creating table...
+Table etl1.crecind created
+Inserting records into "etl1"."crecind"
+Rows inserted into "etl1"."crecind": 1858
+Updated crecind.csv to COMPLETE
+Processed crecind.csv
+
+
+Updated crecline.csv to IN_PROGRESS
+Processor 34833 has picked up crecline.csv
+Retrieving "anon/crecline.csv" from bucket
+Table etl1.crecline doesn't exist. Creating table...
+Table etl1.crecline created
+Inserting records into "etl1"."crecline"
+Rows inserted into "etl1"."crecline": 34829
+Updated crecline.csv to COMPLETE
+Processed crecline.csv
+
+
+Updated feeaas.csv to IN_PROGRESS
+Processor 34833 has picked up feeaas.csv
+Retrieving "anon/feeaas.csv" from bucket
+Table etl1.feeaas doesn't exist. Creating table...
+Table etl1.feeaas created
+Inserting records into "etl1"."feeaas"
+Rows inserted into "etl1"."feeaas": 8261
+Updated feeaas.csv to COMPLETE
+Processed feeaas.csv
+
+
+Updated tbpassfile.csv to IN_PROGRESS
+Processor 34833 has picked up tbpassfile.csv
+Retrieving "anon/tbpassfile.csv" from bucket
+Table etl1.tbpassfile doesn't exist. Creating table...
+Table etl1.tbpassfile created
+Inserting records into "etl1"."tbpassfile"
+Rows inserted into "etl1"."tbpassfile": 759
+Updated tbpassfile.csv to COMPLETE
+Processed tbpassfile.csv
+
+
+Updated visit.csv to IN_PROGRESS
+Processor 34833 has picked up visit.csv
+Retrieving "anon/visit.csv" from bucket
+Table etl1.visit doesn't exist. Creating table...
+Table etl1.visit created
+Inserting records into "etl1"."visit"
+Rows inserted into "etl1"."visit": 12024
+Updated visit.csv to COMPLETE
+Processed visit.csv
+
+
+Processor 34833 has finished processing
+Using bucket casrec-migration-local
+Creating schema etl1
+Schema etl1 already exists
+
+
+Progress table exists
+anon/account.csv
+file is: account.csv
+anon/cfoaccount.csv
+file is: cfoaccount.csv
+anon/contact_dm.csv
+file is: contact_dm.csv
+anon/crec.csv
+file is: crec.csv
+anon/crecind.csv
+file is: crecind.csv
+anon/crecline.csv
+file is: crecline.csv
+anon/cwsdata.csv
+file is: cwsdata.csv
+anon/deplink.csv
+file is: deplink.csv
+anon/deputy.csv
+file is: deputy.csv
+anon/deputy_address.csv
+file is: deputy_address.csv
+anon/deputy_remarks.csv
+file is: deputy_remarks.csv
+anon/deputylink.csv
+file is: deputylink.csv
+anon/deputyship.csv
+file is: deputyship.csv
+anon/drepvis.csv
+file is: drepvis.csv
+anon/drlog.csv
+file is: drlog.csv
+anon/feeaas.csv
+file is: feeaas.csv
+anon/feebacs.csv
+file is: feebacs.csv
+anon/feebacs_det.csv
+file is: feebacs_det.csv
+anon/feepays.csv
+file is: feepays.csv
+anon/feepays_det.csv
+file is: feepays_det.csv
+anon/feesched.csv
+file is: feesched.csv
+anon/feesched_det.csv
+file is: feesched_det.csv
+anon/order.csv
+file is: order.csv
+anon/panel_audit.csv
+file is: panel_audit.csv
+anon/panel_refer.csv
+file is: panel_refer.csv
+anon/panel_remarks.csv
+file is: panel_remarks.csv
+anon/panlink.csv
+file is: panlink.csv
+anon/panrec.csv
+file is: panrec.csv
+anon/pat.csv
+file is: pat.csv
+anon/phoenixmap.csv
+file is: phoenixmap.csv
+anon/prexpertise.csv
+file is: prexpertise.csv
+anon/prgeoarea.csv
+file is: prgeoarea.csv
+anon/prlang.csv
+file is: prlang.csv
+anon/prneeds.csv
+file is: prneeds.csv
+anon/prskills.csv
+file is: prskills.csv
+anon/remarks.csv
+file is: remarks.csv
+anon/setupextract.csv
+file is: setupextract.csv
+anon/sup_activity.csv
+file is: sup_activity.csv
+anon/tbpassfile.csv
+file is: tbpassfile.csv
+anon/visit.csv
+file is: visit.csv
+Will process all files
+Total files returned: 40
+Updated cwsdata.csv to IN_PROGRESS
+Processor 65668 has picked up cwsdata.csv
+Retrieving "anon/cwsdata.csv" from bucket
+Table etl1.cwsdata doesn't exist. Creating table...
+Table etl1.cwsdata created
+Inserting records into "etl1"."cwsdata"
+Rows inserted into "etl1"."cwsdata": 19347
+Updated cwsdata.csv to COMPLETE
+Processed cwsdata.csv
+
+
+Updated remarks.csv to IN_PROGRESS
+Processor 65668 has picked up remarks.csv
+Retrieving "anon/remarks.csv" from bucket
+Table etl1.remarks doesn't exist. Creating table...
+Table etl1.remarks created
+Inserting records into "etl1"."remarks"
+Rows inserted into "etl1"."remarks": 50000
+Rows inserted into "etl1"."remarks": 54672
+Updated remarks.csv to COMPLETE
+Processed remarks.csv
+
+
+Processor 65668 has finished processing
