@@ -18,6 +18,7 @@ def delete_all_schemas(conn):
     information_schema.schemata
     WHERE
     schema_name not like 'pg_%'
+    and schema not like 'etl%'
     and schema_name not in ('public', 'information_schema');
     """
     cursor.execute(get_schemas_statement)
