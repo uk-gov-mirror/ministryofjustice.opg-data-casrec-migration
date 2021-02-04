@@ -18,20 +18,18 @@ def delete_all_schemas(conn):
     information_schema.schemata
     WHERE
     schema_name not like 'pg_%'
-    and schema not like 'etl%'
     and schema_name not in ('public', 'information_schema');
     """
     cursor.execute(get_schemas_statement)
     schemas = ""
     for schema in cursor:
-        print(schema[0])
         schemas = schemas + schema[0] + ", "
     schemas = schemas[:-2]
     if len(schemas) > 0:
         delete_schemas_statement = f"""
         DROP SCHEMA {schemas} CASCADE;
         """
-        print(delete_schemas_statement)
+        print(f"Running '{delete_schemas_statement}'")
         cursor.execute(delete_schemas_statement)
         conn.commit()
     cursor.close()
@@ -122,13 +120,6 @@ def copy_schema(
     log.debug("Import")
     os.environ["PGPASSWORD"] = to_config["password"]
     schemafile = open(schema_dump, "r")
-    print(to_config["user"])
-    print(to_config["host"])
-    print(to_config["port"])
-    print(to_config["name"])
-    print(f'{len(os.environ["PGPASSWORD"])}')
-    for line in schemafile:
-        print(line)
     print(
         sh.psql(
             "-U",
@@ -146,7 +137,6 @@ def copy_schema(
         ),
         end="",
     )
-    print("gets here 1")
 
 
 def execute_sql_file(sql_path, filename, conn, schema="public"):
