@@ -7,18 +7,24 @@ workflows:
       - manage_workflow:
           name: manage workflow
           filters: {branches:{ignore:[master]}}
+      - reset_sirius:
+          name: reset the sirius fixtures development
+          requires: [manage workflow]
+          tf_workspace: development
+          filters: {branches:{ignore:[master]}}
       - build:
           name: build and unit tests
+          requires: [manage workflow]
           filters: {branches:{ignore:[master]}}
       - infrastructure:
           name: plan infra development
-          requires: [build and unit tests, manage workflow]
+          requires: [build and unit tests]
           tf_workspace: development
           tf_command: plan
           filters: {branches:{ignore:[master]}}
       - infrastructure:
           name: build infra development
-          requires: [plan infra development]
+          requires: [plan infra development, reset the sirius fixtures development]
           tf_workspace: development
           tf_command: apply
           filters: {branches:{ignore:[master]}}
@@ -26,14 +32,14 @@ workflows:
           name: run the step function
           requires: [build infra development]
           filters: {branches:{ignore:[master]}}
+      - run_elasticsearch_reset:
+          name: run elasticsearch reset
+          requires: [run the step function]
+          filters: {branches:{ignore:[master]}}
       - run_behat_tests:
           name: run behat tests
           requires: [run elasticsearch reset]
           tf_workspace: development
-          filters: {branches:{ignore:[master]}}
-      - run_elasticsearch_reset:
-          name: run elasticsearch reset
-          requires: [run the step function]
           filters: {branches:{ignore:[master]}}
       - cleanup:
           name: destroy branch environment
@@ -46,14 +52,27 @@ workflows:
           name: build and unit tests master
           filters: {branches:{only:[master]}}
       - reset_sirius:
-          name: reset the sirius fixtures development
+          name: reset the sirius fixtures development master
           tf_workspace: development
           filters: {branches:{only:[master]}}
       - infrastructure:
-          name: build infra development
-          requires: [reset the sirius fixtures development, build and unit tests master]
+          name: build infra development master
+          requires: [reset the sirius fixtures development master, build and unit tests master]
           tf_workspace: development
           tf_command: apply
+          filters: {branches:{only:[master]}}
+      - run_step_function:
+          name: run the step function
+          requires: [build infra development master]
+          filters: {branches:{only:[master]}}
+      - run_elasticsearch_reset:
+          name: run elasticsearch reset
+          requires: [run the step function]
+          filters: {branches:{only:[master]}}
+      - run_behat_tests:
+          name: run behat tests
+          requires: [run elasticsearch reset]
+          tf_workspace: development
           filters: {branches:{only:[master]}}
 
 orbs:
