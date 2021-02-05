@@ -1,20 +1,22 @@
-import os
-import sys
-from pathlib import Path
 from typing import Dict
+
+import psycopg2
+import sys
+import os
+from pathlib import Path
+
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, str(current_path) + "/../../../shared")
 
 from decorators import timer
 import logging
-
+import time
+import helpers
 import pandas as pd
 
 log = logging.getLogger("root")
 environment = os.environ.get("ENVIRONMENT")
-
-import helpers
 
 config = helpers.get_config(env=environment)
 

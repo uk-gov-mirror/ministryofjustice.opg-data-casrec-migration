@@ -2,7 +2,12 @@ import logging
 import os
 
 import pandas as pd
+
+import helpers
 from decorators import timer
+
+from transform_data.apply_datatypes import apply_datatypes
+from utilities.convert_json_to_mappings import MappingDefinitions
 
 from transform_data import calculations as process_calculations
 from transform_data import default_columns as process_default_columns
@@ -10,13 +15,9 @@ from transform_data import lookup_tables as process_lookup_tables
 from transform_data import simple_mappings as process_simple_mappings
 from transform_data import simple_transformations as process_simple_transformations
 from transform_data import unique_id as process_unique_id
-from transform_data.apply_datatypes import apply_datatypes
-from utilities.convert_json_to_mappings import MappingDefinitions
 
 log = logging.getLogger("root")
 environment = os.environ.get("ENVIRONMENT")
-
-import helpers
 
 config = helpers.get_config(env=environment)
 
