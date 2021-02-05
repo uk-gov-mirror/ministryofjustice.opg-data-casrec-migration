@@ -1,22 +1,20 @@
-from typing import Dict
-
-import psycopg2
-import sys
 import os
+import sys
 from pathlib import Path
-
+from typing import Dict
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, str(current_path) + "/../../../shared")
 
 from decorators import timer
 import logging
-import time
-import helpers
+
 import pandas as pd
 
 log = logging.getLogger("root")
 environment = os.environ.get("ENVIRONMENT")
+
+import helpers
 
 config = helpers.get_config(env=environment)
 
@@ -199,8 +197,10 @@ class InsertData:
             if len(col_diff) > 0:
 
                 if sirius_details:
-                    add_missing_colums_statement = self._add_missing_columns_with_datatypes(
-                        table_name, col_diff, mapping_details=sirius_details
+                    add_missing_colums_statement = (
+                        self._add_missing_columns_with_datatypes(
+                            table_name, col_diff, mapping_details=sirius_details
+                        )
                     )
                 else:
                     add_missing_colums_statement = self._add_missing_columns(

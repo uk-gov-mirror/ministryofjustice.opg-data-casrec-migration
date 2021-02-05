@@ -5,7 +5,7 @@ definition = {
 }
 
 
-def insert_person_caseitem(config, etl2_db):
+def insert_person_caseitem(config, target_db):
 
     persons_query = (
         f'select "id", "caserecnumber" from etl2.persons '
@@ -29,6 +29,6 @@ def insert_person_caseitem(config, etl2_db):
         columns={"id_case": "case_id", "id_person": "person_id"}
     )
 
-    etl2_db.insert_data(
+    target_db.insert_data(
         table_name=definition["destination_table_name"], df=person_caseitem_df
     )

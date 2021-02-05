@@ -2,13 +2,14 @@ import logging
 import os
 
 import pandas as pd
-import helpers
 
 from transform_data.conditional_lookups import conditional_lookup
 from utilities import standard_transformations
 
 log = logging.getLogger("root")
 environment = os.environ.get("ENVIRONMENT")
+
+import helpers
 
 config = helpers.get_config(env=environment)
 

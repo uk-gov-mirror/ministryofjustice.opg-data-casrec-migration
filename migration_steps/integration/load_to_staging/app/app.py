@@ -1,12 +1,12 @@
-import sys
 import os
+import sys
 from pathlib import Path
 
+from clear_database import empty_target_tables
+from move import generate_inserts
+from setup import insert_base_data
 
 # from utilities.clear_database import clear_tables
-from clear_database import empty_target_tables
-from setup import insert_base_data
-from move import generate_inserts
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, str(current_path) + "/../../../shared")
@@ -18,7 +18,7 @@ import click
 from sqlalchemy import create_engine
 import custom_logger
 from helpers import log_title
-import config2
+
 from dotenv import load_dotenv
 
 
@@ -28,7 +28,9 @@ env_path = current_path / "../../.env"
 load_dotenv(dotenv_path=env_path)
 
 environment = os.environ.get("ENVIRONMENT")
-config = config2.get_config(env=environment)
+import helpers
+
+config = helpers.get_config(env=environment)
 
 # logging
 # custom_logger.custom_log_level(levels=config.custom_log_levels)

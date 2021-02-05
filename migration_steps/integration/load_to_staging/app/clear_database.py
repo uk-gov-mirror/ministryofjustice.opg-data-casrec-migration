@@ -1,8 +1,8 @@
+import json
 import logging
+import os
 
 import psycopg2
-import os
-import json
 
 log = logging.getLogger("root")
 

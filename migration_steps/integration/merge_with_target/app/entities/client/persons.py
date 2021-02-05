@@ -1,23 +1,22 @@
 import logging
 import os
 
-import config2
+
 import pandas as pd
 from helpers import get_mapping_dict
-
-from merge_helpers import (
-    generate_select_query,
-    merge_source_data_with_existing_data,
-    reindex_existing_data,
-    reindex_new_data,
-    calculate_new_uid,
-)
+from merge_helpers import calculate_new_uid
+from merge_helpers import generate_select_query
+from merge_helpers import merge_source_data_with_existing_data
+from merge_helpers import reindex_existing_data
+from merge_helpers import reindex_new_data
 
 
 log = logging.getLogger("root")
 
 environment = os.environ.get("ENVIRONMENT")
-config = config2.get_config(env=environment)
+import helpers
+
+config = helpers.get_config(env=environment)
 
 row_limit = config.row_limit
 table = "persons"

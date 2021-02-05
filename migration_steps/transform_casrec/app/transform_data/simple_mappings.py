@@ -3,10 +3,10 @@ import os
 
 import pandas as pd
 
-import helpers
-
 log = logging.getLogger("root")
 environment = os.environ.get("ENVIRONMENT")
+
+import helpers
 
 config = helpers.get_config(env=environment)
 

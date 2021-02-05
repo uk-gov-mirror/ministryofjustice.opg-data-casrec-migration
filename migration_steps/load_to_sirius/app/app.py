@@ -1,9 +1,10 @@
 import json
-import sys
 import os
+import sys
 from pathlib import Path
 
-from move import insert_data_into_target, update_data_in_target
+from move import insert_data_into_target
+from move import update_data_in_target
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, str(current_path) + "/../../../shared")
@@ -14,7 +15,7 @@ import click
 from sqlalchemy import create_engine
 import custom_logger
 from helpers import log_title
-import config2
+
 from dotenv import load_dotenv
 
 
@@ -24,7 +25,9 @@ env_path = current_path / "../../.env"
 load_dotenv(dotenv_path=env_path)
 
 environment = os.environ.get("ENVIRONMENT")
-config = config2.get_config(env=environment)
+import helpers
+
+config = helpers.get_config(env=environment)
 
 # logging
 # custom_logger.custom_log_level(levels=config.custom_log_levels)

@@ -5,7 +5,7 @@ definition = {
 }
 
 
-def insert_person_notes(config, etl2_db):
+def insert_person_notes(config, target_db):
 
     persons_query = f'select "id", "caserecnumber" from etl2.persons;'
     persons_df = pd.read_sql_query(persons_query, config.connection_string)
@@ -27,6 +27,6 @@ def insert_person_notes(config, etl2_db):
 
     person_note_df = person_note_df[["person_id", "note_id"]]
 
-    etl2_db.insert_data(
+    target_db.insert_data(
         table_name=definition["destination_table_name"], df=person_note_df
     )

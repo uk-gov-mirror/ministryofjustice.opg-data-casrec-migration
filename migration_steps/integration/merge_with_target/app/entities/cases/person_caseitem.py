@@ -1,17 +1,17 @@
-import json
 import logging
 import os
 
-import config2
 import pandas as pd
 from helpers import get_mapping_dict
 
-from merge_helpers import generate_select_query, reindex_new_data, update_foreign_keys
+from merge_helpers import generate_select_query
 
 log = logging.getLogger("root")
 
 environment = os.environ.get("ENVIRONMENT")
-config = config2.get_config(env=environment)
+import helpers
+
+config = helpers.get_config(env=environment)
 
 row_limit = config.row_limit
 table = "person_caseitem"

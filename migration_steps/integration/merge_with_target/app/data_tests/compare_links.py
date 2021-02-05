@@ -6,11 +6,13 @@ from pandas._testing import assert_frame_equal
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, str(current_path) + "/../../../../shared")
-import config2
+
 import pandas as pd
 
 environment = os.environ.get("ENVIRONMENT")
-config = config2.get_config(env=environment)
+import helpers
+
+config = helpers.get_config(env=environment)
 
 
 def df_from_sql_file(sql_path, filename, conn, replacements=None, sort_col=None):
