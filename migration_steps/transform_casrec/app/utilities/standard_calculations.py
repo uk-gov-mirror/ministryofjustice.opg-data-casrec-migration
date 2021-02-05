@@ -2,12 +2,11 @@ import logging
 import os
 from datetime import datetime
 
+import helpers
 import pandas as pd
 
 log = logging.getLogger("root")
 environment = os.environ.get("ENVIRONMENT")
-
-import helpers
 
 config = helpers.get_config(env=environment)
 

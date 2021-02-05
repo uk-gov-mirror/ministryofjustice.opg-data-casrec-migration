@@ -2,13 +2,13 @@ import logging
 import os
 
 import pandas as pd
+import helpers
 
-from utilities.generate_source_query import format_additional_col_alias
+from transform_data.lookup_tables import map_lookup_tables
+from utilities.generate_source_query import additional_cols, format_additional_col_alias
 
 log = logging.getLogger("root")
 environment = os.environ.get("ENVIRONMENT")
-
-import helpers
 
 config = helpers.get_config(env=environment)
 
