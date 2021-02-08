@@ -6,7 +6,8 @@
         "sirius_details": {
             "is_pk": true,
             "fk_parents": "",
-            "data_type": "int"
+            "data_type": "int",
+            "table_name": "bonds"
         },
         "transform_casrec": {
             "casrec_table": "",
@@ -26,7 +27,8 @@
         "sirius_details": {
             "is_pk": "",
             "fk_parents": "cases:id",
-            "data_type": "int"
+            "data_type": "int",
+            "table_name": "bonds"
         },
         "transform_casrec": {
             "casrec_table": "",
@@ -41,17 +43,18 @@
     },
     "bondreferencenumber": {
         "mapping_status": {
-            "is_complete": false
+            "is_complete": true
         },
         "sirius_details": {
             "is_pk": "",
             "fk_parents": "",
-            "data_type": "str"
+            "data_type": "str",
+            "table_name": "bonds"
         },
         "transform_casrec": {
-            "casrec_table": "",
-            "casrec_column_name": "",
-            "alias": "",
+            "casrec_table": "ORDER",
+            "casrec_column_name": "Bond No.",
+            "alias": "Bond No.",
             "requires_transformation": "",
             "lookup_table": "",
             "default_value": "",
@@ -61,18 +64,19 @@
     },
     "requiredbondamount": {
         "mapping_status": {
-            "is_complete": false
+            "is_complete": true
         },
         "sirius_details": {
             "is_pk": "",
             "fk_parents": "",
-            "data_type": "Decimal"
+            "data_type": "Decimal",
+            "table_name": "bonds"
         },
         "transform_casrec": {
-            "casrec_table": "",
-            "casrec_column_name": "",
-            "alias": "",
-            "requires_transformation": "",
+            "casrec_table": "ORDER",
+            "casrec_column_name": "Bond Amount",
+            "alias": "Bond Amount",
+            "requires_transformation": "money_poundPence",
             "lookup_table": "",
             "default_value": "",
             "calculated": "",
@@ -81,18 +85,19 @@
     },
     "bondamounttaken": {
         "mapping_status": {
-            "is_complete": false
+            "is_complete": true
         },
         "sirius_details": {
             "is_pk": "",
             "fk_parents": "",
-            "data_type": "Decimal"
+            "data_type": "Decimal",
+            "table_name": "bonds"
         },
         "transform_casrec": {
-            "casrec_table": "",
-            "casrec_column_name": "",
-            "alias": "",
-            "requires_transformation": "",
+            "casrec_table": "ORDER",
+            "casrec_column_name": "Bond Amt OPG",
+            "alias": "Bond Amt OPG",
+            "requires_transformation": "money_poundPence",
             "lookup_table": "",
             "default_value": "",
             "calculated": "",
@@ -101,17 +106,18 @@
     },
     "renewaldateofbond": {
         "mapping_status": {
-            "is_complete": false
+            "is_complete": true
         },
         "sirius_details": {
             "is_pk": "",
             "fk_parents": "",
-            "data_type": "date"
+            "data_type": "date",
+            "table_name": "bonds"
         },
         "transform_casrec": {
-            "casrec_table": "",
-            "casrec_column_name": "",
-            "alias": "",
+            "casrec_table": "ORDER",
+            "casrec_column_name": "Bond Renewal",
+            "alias": "Bond Renewal",
             "requires_transformation": "",
             "lookup_table": "",
             "default_value": "",
@@ -121,77 +127,18 @@
     },
     "dischargedate": {
         "mapping_status": {
-            "is_complete": false
+            "is_complete": true
         },
         "sirius_details": {
             "is_pk": "",
             "fk_parents": "",
-            "data_type": "date"
+            "data_type": "date",
+            "table_name": "bonds"
         },
         "transform_casrec": {
-            "casrec_table": "",
-            "casrec_column_name": "",
-            "alias": "",
-            "requires_transformation": "",
-            "lookup_table": "",
-            "default_value": "",
-            "calculated": "",
-            "additional_columns": ""
-        }
-    },
-    "dispensedreason": {
-        "mapping_status": {
-            "is_complete": false
-        },
-        "sirius_details": {
-            "is_pk": "",
-            "fk_parents": "",
-            "data_type": "str"
-        },
-        "transform_casrec": {
-            "casrec_table": "",
-            "casrec_column_name": "",
-            "alias": "",
-            "requires_transformation": "",
-            "lookup_table": "",
-            "default_value": "",
-            "calculated": "",
-            "additional_columns": ""
-        }
-    },
-    "registeredonsystemdate": {
-        "mapping_status": {
-            "is_complete": false
-        },
-        "sirius_details": {
-            "is_pk": "",
-            "fk_parents": "",
-            "data_type": "date"
-        },
-        "transform_casrec": {
-            "casrec_table": "",
-            "casrec_column_name": "",
-            "alias": "",
-            "requires_transformation": "",
-            "lookup_table": "",
-            "default_value": "",
-            "calculated": "",
-            "additional_columns": ""
-        }
-    },
-    "status": {
-        "mapping_status": {
-            "is_complete": false
-        },
-        "sirius_details": {
-            "is_pk": "",
-            "fk_parents": "",
-            "data_type": "str"
-        },
-        "transform_casrec": {
-            "casrec_table": "",
-            "casrec_column_name": "",
-            "alias": "",
+            "casrec_table": "ORDER",
+            "casrec_column_name": "Bond Discharge",
+            "alias": "Bond Discharge",
             "requires_transformation": "",
             "lookup_table": "",
             "default_value": "",
@@ -206,34 +153,15 @@
         "sirius_details": {
             "is_pk": "",
             "fk_parents": "bond_providers:id",
-            "data_type": "int"
+            "data_type": "int",
+            "table_name": "bonds"
         },
         "transform_casrec": {
-            "casrec_table": "",
-            "casrec_column_name": "",
-            "alias": "",
+            "casrec_table": "ORDER",
+            "casrec_column_name": "Bond Co",
+            "alias": "Bond Co",
             "requires_transformation": "",
-            "lookup_table": "",
-            "default_value": "",
-            "calculated": "",
-            "additional_columns": ""
-        }
-    },
-    "oneoff": {
-        "mapping_status": {
-            "is_complete": false
-        },
-        "sirius_details": {
-            "is_pk": "",
-            "fk_parents": "",
-            "data_type": "bool"
-        },
-        "transform_casrec": {
-            "casrec_table": "",
-            "casrec_column_name": "",
-            "alias": "",
-            "requires_transformation": "",
-            "lookup_table": "",
+            "lookup_table": "bond_provider_lookup",
             "default_value": "",
             "calculated": "",
             "additional_columns": ""
