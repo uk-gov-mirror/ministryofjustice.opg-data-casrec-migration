@@ -2,6 +2,7 @@ import pandas as pd
 import io
 import os
 import re
+import time
 import argparse
 from sqlalchemy import create_engine
 import boto3
@@ -37,12 +38,21 @@ def get_list_of_files(bucket_name, s3, path, tables):
     return files_to_process
 
 
-def get_remaining_files(table_name, schema_name, engine):
-    remaining_files = f"""
-    SELECT file
-    FROM \"{schema_name}\".\"{table_name}\"
-    WHERE state = 'UNPROCESSED';
-    """
+def get_remaining_files(table_name, schema_name, engine, status, processor_id=None):
+
+    if processor_id is not None:
+        remaining_files = f"""
+            SELECT file
+            FROM \"{schema_name}\".\"{table_name}\"
+            WHERE state = '{status}'
+            AND processor_id = '{processor_id}';
+            """
+    else:
+        remaining_files = f"""
+            SELECT file
+            FROM \"{schema_name}\".\"{table_name}\"
+            WHERE state = '{status}';
+            """
 
     files = engine.execute(remaining_files)
     file_list = []
@@ -51,12 +61,22 @@ def get_remaining_files(table_name, schema_name, engine):
         return file_list
 
 
-def update_progress(table_name, schema_name, engine, file, status="IN_PROGRESS"):
-    row_update = f"""
-    UPDATE \"{schema_name}\".\"{table_name}\"
-    SET state = '{status}'
-    WHERE file = '{file}';
-    """
+def update_progress(
+    table_name, schema_name, engine, file, status="IN_PROGRESS", processor_id=None
+):
+
+    if processor_id is not None:
+        row_update = f"""
+            UPDATE \"{schema_name}\".\"{table_name}\"
+            SET state = '{status}', processor_id = '{processor_id}'
+            WHERE file = '{file}';
+            """
+    else:
+        row_update = f"""
+            UPDATE \"{schema_name}\".\"{table_name}\"
+            SET state = '{status}'
+            WHERE file = '{file}';
+            """
 
     response = engine.execute(row_update)
     if response.rowcount > 0:
@@ -79,7 +99,7 @@ def check_table_exists(table_name, schema_name, engine):
 
 
 def create_table_statement(table_name, schema, columns):
-    create_statement = f'CREATE TABLE "{schema}"."{table_name}" ('
+    create_statement = f'CREATE TABLE IF NOT EXISTS "{schema}"."{table_name}" ('
     for i, col in enumerate(columns):
         create_statement += f'"{col}" text'
         if i + 1 < len(columns):
@@ -128,13 +148,15 @@ def create_insert_statement(table_name, schema, columns, df):
     return insert_statement
 
 
-def get_row_count(table_name, schema_name, engine, status=None):
+def get_row_count(table_name, schema_name, engine, status=None, processor_id=None):
     get_count_statement = f"""
         SELECT COUNT(*) FROM {schema_name}.{table_name}
         """
 
     if status is not None:
         get_count_statement += f" WHERE state = '{status}'"
+        if processor_id is not None:
+            get_count_statement += f" AND processor_id = '{processor_id}'"
 
     get_count_result = engine.execute(get_count_statement)
     for r in get_count_result:
@@ -189,14 +211,10 @@ def dev_sirius_session():
 def main():
     parser = argparse.ArgumentParser(description="Load into casrec.")
     parser.add_argument(
-        "--entities",
-        default="all",
-        help="list of entities to load",
+        "--entities", default="all", help="list of entities to load",
     )
     parser.add_argument(
-        "--chunk",
-        default="50000",
-        help="chunk size",
+        "--chunk", default="50000", help="chunk size",
     )
     args = parser.parse_args()
 
@@ -217,6 +235,7 @@ def main():
     progress_table_cols = [
         "file",
         "state",
+        "processor_id",
     ]
     ci = os.getenv("CI")
 
@@ -284,11 +303,13 @@ def main():
 
     progress_df = pd.DataFrame(list_of_files)
     progress_df["state"] = "UNPROCESSED"
+    progress_df["process"] = "None"
     progress_df.rename(index={0: "file"})
 
     if (
         get_row_count(progress_table, schema, engine) > 0
         and get_row_count(progress_table, schema, engine, "UNPROCESSED") == 0
+        and get_row_count(progress_table, schema, engine, "READY_TO_PROCESS") == 0
     ):
         truncate_table(progress_table, schema, engine)
 
@@ -299,10 +320,42 @@ def main():
             )
         )
 
-    prev_table = ""
     while get_row_count(progress_table, schema, engine, status="UNPROCESSED") > 0:
+        file_to_set = get_remaining_files(
+            progress_table, schema, engine, "UNPROCESSED"
+        )[0]
+        update_progress(
+            progress_table,
+            schema,
+            engine,
+            file_to_set,
+            "READY_TO_PROCESS",
+            processor_id,
+        )
+        # To stop continual dirty reads
+        secs = rnd.uniform(0.00, 0.99)
+        time.sleep(secs)
 
-        file = get_remaining_files(progress_table, schema, engine)[0]
+    prev_table = ""
+
+    while (
+        get_row_count(
+            progress_table,
+            schema,
+            engine,
+            status="READY_TO_PROCESS",
+            processor_id=processor_id,
+        )
+        > 0
+    ):
+
+        file = get_remaining_files(
+            progress_table,
+            schema,
+            engine,
+            status="READY_TO_PROCESS",
+            processor_id=processor_id,
+        )[0]
         update_progress(progress_table, schema, engine, file, status="IN_PROGRESS")
         print(f"Processor {processor_id} has picked up {file}")
 
@@ -329,7 +382,7 @@ def main():
             table_name = regex.sub("", table_name)
 
         if table_name == prev_table:
-            print("Multpart file table detected")
+            print("Multipart file table detected")
         else:
             if check_table_exists(table_name, schema, engine):
                 truncate_table(table_name, schema, engine)
@@ -355,7 +408,7 @@ def main():
         else:
             print(f"No rows to insert for table {table_name}")
 
-        update_progress(progress_table, schema, engine, file, status="COMPLETE")
+        update_progress(progress_table, schema, engine, file, "COMPLETE", processor_id)
         print(f"Processed {file}\n\n")
 
     print(f"Processor {processor_id} has finished processing")
