@@ -20,6 +20,7 @@ from tabulate import tabulate
 import json
 from datetime import datetime
 import pprint
+
 pp = pprint.PrettyPrinter(indent=4)
 
 sql_path = current_path / "sql"
@@ -66,27 +67,24 @@ def get_mapping_report_df():
     summary_dict = json.load(open(file_path))
 
     mappings = []
-    for worksheet, worksheet_summary in summary_dict['worksheets'].items():
+    for worksheet, worksheet_summary in summary_dict["worksheets"].items():
         if worksheet in mappings_to_run:
             mappings.append([worksheet] + list(worksheet_summary.values()))
 
     return pd.DataFrame.from_records(
-        mappings,
-        columns=['mapping', 'rows', 'unmapped', 'mapped', 'complete']
+        mappings, columns=["mapping", "rows", "unmapped", "mapped", "complete"]
     )
 
 
 def get_validation_exceptions_df():
-    return df_from_sql_file(
-        sql_path, "get_validation_results.sql", conn_target
-    )
+    return df_from_sql_file(sql_path, "get_validation_results.sql", conn_target)
 
 
 def get_sirius_table(mapping):
     mapping_name_to_table = {
         "client_persons": "persons",
         "client_addresses": "addresses",
-        "client_phonenumbers": "phonenumbers"
+        "client_phonenumbers": "phonenumbers",
     }
     return mapping_name_to_table.get(mapping, mapping)
 
@@ -96,45 +94,62 @@ def get_exception_table(mapping):
 
 
 def build_exception_tables(sql_lines):
-    #drop all possible exception tables from last run
+    # drop all possible exception tables from last run
     for mapfile in helpers.get_all_mapped_fields().keys():
-        sql_lines.append(f"DROP TABLE IF EXISTS {source_schema}.{get_exception_table(mapfile)};\n")
+        sql_lines.append(
+            f"DROP TABLE IF EXISTS {source_schema}.{get_exception_table(mapfile)};\n"
+        )
     sql_lines.append("\n\n")
 
     for mapping in mappings_to_run:
         exception_table_name = get_exception_table(mapping)
         map_dict = helpers.get_mapping_dict(
-            file_name=mapping + '_mapping',
-            only_complete_fields=True,
-            include_pk=False
+            file_name=mapping + "_mapping", only_complete_fields=True, include_pk=False
         )
         sql_lines.append(f"CREATE TABLE {source_schema}.{exception_table_name}(\n")
-        separator = ',\n'
-        cols = separator.join([f"{indent}{sirius_col} text default NULL" for sirius_col in map_dict.keys()])
+        separator = ",\n"
+        cols = separator.join(
+            [
+                f"{indent}{sirius_col} text default NULL"
+                for sirius_col in map_dict.keys()
+            ]
+        )
         sql_lines.append(cols)
         sql_lines.append("\n);\n\n")
 
 
 def build_lookup_functions(sql_lines):
-    #drop all the lookup tables from last run
+    # drop all the lookup tables from last run
     for lookup_name, lookup in helpers.get_all_lookup_dicts().items():
-        sql_lines.append(f"DROP FUNCTION IF EXISTS {source_schema}.{lookup_name}(character varying);\n")
+        sql_lines.append(
+            f"DROP FUNCTION IF EXISTS {source_schema}.{lookup_name}(character varying);\n"
+        )
     sql_lines.append("\n\n")
 
     for lookup_name, lookup in helpers.get_all_lookup_dicts().items():
-        sql_lines.append(f"CREATE OR REPLACE FUNCTION {source_schema}.{lookup_name}(lookup_key varchar default null) RETURNS TEXT AS\n")
+        sql_lines.append(
+            f"CREATE OR REPLACE FUNCTION {source_schema}.{lookup_name}(lookup_key varchar default null) RETURNS TEXT AS\n"
+        )
         sql_lines.append(f"$$\n")
         sql_lines.append(f"{indent}SELECT CASE\n")
         for k, v in lookup.items():
-            sirius_value = v['sirius_mapping'].replace("'", "''")
-            sql_lines.append(f"{indent}{indent}WHEN ($1 = '{k}') THEN '{sirius_value}'\n")
+            try:
+                sirius_value = v["sirius_mapping"].replace("'", "''")
+            except AttributeError:
+                log.info(f"Unable to replace quotes in {k}")
+                sirius_value = v["sirius_mapping"]
+            sql_lines.append(
+                f"{indent}{indent}WHEN ($1 = '{k}') THEN '{sirius_value}'\n"
+            )
         sql_lines.append(f"{indent}END\n")
         sql_lines.append("$$ LANGUAGE sql;\n\n\n")
 
 
 def format_calculated_value(mapping):
     callables = {
-        "current_date": "'" + datetime.now().strftime("%Y-%m-%d") + "'" #just do today's date
+        "current_date": "'"
+        + datetime.now().strftime("%Y-%m-%d")
+        + "'"  # just do today's date
     }
     return callables.get(mapping["transform_casrec"]["calculated"])
 
@@ -150,14 +165,14 @@ def format_casrec_col_sql(mapping, col):
     if mapping["sirius_details"]["data_type"] in ["date"]:
         col_sql = f"CAST(NULLIF(TRIM({col}), '') AS DATE)"
     elif mapping["sirius_details"]["data_type"] in ["datetime"]:
-        if 'current_date' == mapping["transform_casrec"]["calculated"]:
+        if "current_date" == mapping["transform_casrec"]["calculated"]:
             col_sql = f"CAST(NULLIF(TRIM({col}), '') AS DATE)"
         else:
             col_sql = f"CAST(NULLIF(TRIM({col}), '') AS TIMESTAMP(0))"
     elif mapping["sirius_details"]["data_type"] in ["bool", "int"]:
         col_sql = col
     else:
-        col_sql = f'NULLIF(TRIM({col}), \'\')'
+        col_sql = f"NULLIF(TRIM({col}), '')"
 
     return col_sql
 
@@ -165,14 +180,14 @@ def format_casrec_col_sql(mapping, col):
 def build_sirius_cols(map_dict):
     sirius_cols = []
     for k, v in map_dict.items():
-        if 'current_date' == v["transform_casrec"]["calculated"]:
+        if "current_date" == v["transform_casrec"]["calculated"]:
             col_string = f"CAST({k} AS DATE) AS {k}"
         else:
             col_string = f"{k} AS {k}"
 
         sirius_cols.append(f"{indent}{indent}{indent}{col_string}")
 
-    separator = ',\n'
+    separator = ",\n"
     return separator.join(sirius_cols)
 
 
@@ -183,22 +198,22 @@ def build_casrec_cols(map_dict):
         if v["transform_casrec"]["casrec_table"]:
             casrec_col_table = v["transform_casrec"]["casrec_table"].lower()
             casrec_col_name = v["transform_casrec"]["casrec_column_name"]
-            casrec_tables.append(source_schema + '.' + casrec_col_table)
+            casrec_tables.append(source_schema + "." + casrec_col_table)
             col = f'{casrec_col_table}."{casrec_col_name}"'
-            if '' != v["transform_casrec"]["lookup_table"]:
+            if "" != v["transform_casrec"]["lookup_table"]:
                 db_lookup_func = v["transform_casrec"]["lookup_table"]
-                col = f'{source_schema}.{db_lookup_func}({col})'
-        elif '' != v["transform_casrec"]["default_value"]:
+                col = f"{source_schema}.{db_lookup_func}({col})"
+        elif "" != v["transform_casrec"]["default_value"]:
             col = format_default_value(v)
-        elif '' != v["transform_casrec"]["calculated"]:
+        elif "" != v["transform_casrec"]["calculated"]:
             col = format_calculated_value(v)
         casrec_cols.append(
             f"{indent}{indent}{indent}{format_casrec_col_sql(v, col)} AS {k}"
         )
 
-    separator = ',\n'
+    separator = ",\n"
     casrec_cols = separator.join(casrec_cols)
-    separator = ','
+    separator = ","
     casrec_tables = separator.join(set(casrec_tables))
     return casrec_cols, casrec_tables
 
@@ -208,9 +223,7 @@ def build_validation_statements(sql_lines):
         exception_table_name = get_exception_table(mapping)
         sirius_table_name = get_sirius_table(mapping)
         map_dict = helpers.get_mapping_dict(
-            file_name=mapping + '_mapping',
-            only_complete_fields=True,
-            include_pk=False
+            file_name=mapping + "_mapping", only_complete_fields=True, include_pk=False
         )
 
         casrec_cols, casrec_tables = build_casrec_cols(map_dict)
@@ -238,19 +251,21 @@ def build_validation_statements(sql_lines):
 
 def write_validation_sql(sql_lines):
     validation_sql_path = shared_sql_path / "validation.sql"
-    validation_sql_file = open(validation_sql_path, 'w')
+    validation_sql_file = open(validation_sql_path, "w")
     validation_sql_file.writelines(sql_lines)
     validation_sql_file.close()
     log.debug(f"Saved to file: {validation_sql_path}")
 
 
 def write_get_exceptions_sql():
-    sql_file = open(sql_path / "get_validation_results.sql", 'w')
+    sql_file = open(sql_path / "get_validation_results.sql", "w")
     reported_mappings = []
     for mapping in mappings_to_run:
         exception_table_name = get_exception_table(mapping)
-        reported_mappings.append(f"SELECT '{mapping}' AS mapping, (SELECT count(*) FROM {source_schema}.{exception_table_name})\n")
-    separator = 'UNION\n'
+        reported_mappings.append(
+            f"SELECT '{mapping}' AS mapping, (SELECT count(*) FROM {source_schema}.{exception_table_name})\n"
+        )
+    separator = "UNION\n"
     sql = separator.join(reported_mappings)
     sql_file.writelines(sql)
     sql_file.close()
@@ -266,7 +281,7 @@ def pre_validation():
             from_config=config.db_config["migration"],
             from_schema=config.schemas["pre_transform"],
             to_config=config.db_config["target"],
-            to_schema=config.schemas["pre_transform"]
+            to_schema=config.schemas["pre_transform"],
         )
     else:
         log.info(f"Validating with STAGING schema")
@@ -290,8 +305,15 @@ def post_validation():
     mapping_df = get_mapping_report_df()
     write_get_exceptions_sql()
     exceptions_df = get_validation_exceptions_df()
-    report_df = mapping_df.merge(exceptions_df, on='mapping')
-    headers = ["Casrec Mapping", "Rows", "Unmapped", "Mapped", "Complete (%)", "Exceptions"]
+    report_df = mapping_df.merge(exceptions_df, on="mapping")
+    headers = [
+        "Casrec Mapping",
+        "Rows",
+        "Unmapped",
+        "Mapped",
+        "Complete (%)",
+        "Exceptions",
+    ]
     print(tabulate(report_df, headers, tablefmt="psql"))
 
 
@@ -316,7 +338,9 @@ def main(verbose, staging):
     pre_validation()
 
     log.info("RUN VALIDATION")
-    execute_sql_file(shared_sql_path, "validation.sql", conn_target, config.schemas["public"])
+    execute_sql_file(
+        shared_sql_path, "validation.sql", conn_target, config.schemas["public"]
+    )
     log.info("- ok\n")
 
     post_validation()
