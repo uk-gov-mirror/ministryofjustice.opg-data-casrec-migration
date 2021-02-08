@@ -9,7 +9,7 @@ with persons_df as (
 
 deputyship_df as (
     select "Deputy No", "Case", "Order No"
-    from etl1.deputyship
+    from casrec_csv.deputyship
 ),
 
 cases_df as (

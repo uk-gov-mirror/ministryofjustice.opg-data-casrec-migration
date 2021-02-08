@@ -3,12 +3,12 @@ SQL equivalent:
 ```sql
 with addresses_df as (
     select *
-    from etl1.deputy_address
+    from casrec_csv.deputy_address
 ),
 
 deputyship_df as (
     select distinct "Dep Addr No", "Deputy No"
-    from etl1.deputyship
+    from casrec_csv.deputyship
 ),
 
 persons_df as (

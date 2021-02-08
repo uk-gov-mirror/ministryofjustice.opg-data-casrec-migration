@@ -30,12 +30,11 @@ class BaseConfig:
     }
 
     schemas = {
-        "pre_transform": "etl1",
+        "pre_transform": "casrec_csv",
         "post_transform": "etl2",
         "integration": "integration",
         "public": "public",
-        "pre_migration": "pre_migration",
-        "casrec_csv": "casrec_csv",
+        "pre_migration": "staging"
     }
 
     row_limit = 5
