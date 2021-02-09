@@ -3,7 +3,6 @@ import custom_logger
 import pytest
 import transform_data
 
-# from transform_data import simple_mappings, simple_transformations, default_columns, unique_id
 
 logger = logging.getLogger("tests")
 logger.addHandler(custom_logger.MyHandler())

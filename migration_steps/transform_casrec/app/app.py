@@ -37,11 +37,6 @@ log.addHandler(custom_logger.MyHandler())
 config.custom_log_level()
 verbosity_levels = config.verbosity_levels
 
-# database
-
-# etl2_db_engine = create_engine(config.connection_string)
-
-# etl2_db = InsertData(db_engine=etl2_db_engine, schema=config.etl2_schema)
 
 # database
 db_config = {
