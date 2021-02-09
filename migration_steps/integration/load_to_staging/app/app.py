@@ -6,7 +6,6 @@ from clear_database import empty_target_tables
 from move import generate_inserts
 from setup import insert_base_data
 
-# from utilities.clear_database import clear_tables
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, str(current_path) + "/../../../shared")

@@ -13,6 +13,5 @@ import helpers
 def get_test_config(monkeypatch):
     def local_config():
         print("Using test config")
-        # return LocalConfig()
 
     monkeypatch.setattr(helpers, "get_config", local_config)
