@@ -2,7 +2,10 @@ FROM opg_casrec_migration_base_image:latest
 COPY load_to_sirius/requirements.txt /migration/requirements.txt
 RUN pip3 install -r /migration/requirements.txt
 COPY load_to_sirius/app /migration/app
+COPY audit/app /audit/app
 COPY shared /shared
 WORKDIR /migration/app
 RUN chmod 755 /migration/app/*.py
+RUN chmod 755 /audit/app/*.py
+ENV PYTHONPATH "${PYTHONPATH}:/"
 CMD ["echo", "NO_OP"]

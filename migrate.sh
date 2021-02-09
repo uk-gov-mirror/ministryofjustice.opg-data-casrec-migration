@@ -11,7 +11,7 @@ then
   docker-compose run --rm load_s3 python3 load_s3_local.py
 else
   RESTORE_DOCKER_ID=$(docker ps -a | grep sirius-restore | awk {'print $1'})
-  docker cp db-snapshots/api.backup ${RESTORE_DOCKER_ID}:/db-snapshots/api.backup
+  docker cp sirius_db/db_snapshots/api.backup ${RESTORE_DOCKER_ID}:/db_snapshots/api.backup
   docker-compose up --no-deps -d postgres-sirius-restore
 fi
 docker-compose run --rm prepare prepare/prepare.sh
@@ -35,5 +35,8 @@ cat docker_load.log
 rm docker_load.log
 docker-compose run --rm transform_casrec python3 app.py --clear=True
 docker-compose run --rm integration integration/integration.sh
+
+docker-compose run --rm load_to_target python3 /audit/app/app.py -c before
 docker-compose run --rm load_to_target python3 app.py
+docker-compose run --rm load_to_target python3 /audit/app/app.py -c after
 docker-compose run --rm validation validation/validate.sh

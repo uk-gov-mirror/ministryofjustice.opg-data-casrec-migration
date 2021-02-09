@@ -162,7 +162,7 @@ You can now bring up our side using a different migrate script. You should bring
 
 ```
 docker-compose down
-./migrate_to_sirius
+./migrate_to_sirius.sh
 ```
 
 

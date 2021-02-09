@@ -19,6 +19,10 @@ services:
     volumes:
       - ./migration_steps/load_casrec/app:/app
 
+  postgres-sirius:
+    volumes:
+      - ./sirius_db/config/postgresql.conf:/var/lib/postgresql/data/postgresql.conf
+
   transform_casrec:
     volumes:
       - ./migration_steps/transform_casrec/app/:/app
@@ -34,6 +38,7 @@ services:
 
   load_to_target:
     volumes:
+      - ./migration_steps/audit:/audit
       - ./migration_steps/load_to_target/app:/app
       - ./migration_steps/shared:/shared
 

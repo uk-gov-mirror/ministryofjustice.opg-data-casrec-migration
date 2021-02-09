@@ -33,7 +33,7 @@ process.yml
 *crash.log
 
 *.csv
-db-snapshots/*.sql
+sirius_db/db_snapshots/*.sql
 
 casrec_data/do_anonymising/change_log.txt
 *PLAY*
