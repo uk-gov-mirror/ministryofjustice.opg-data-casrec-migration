@@ -6,7 +6,7 @@ definition = {
 }
 
 
-def insert_order_deputy(config, etl2_db):
+def insert_order_deputy(config, target_db):
 
     persons_query = (
         f'select "id", "c_deputy_no" from etl2.persons '
@@ -44,6 +44,6 @@ def insert_order_deputy(config, etl2_db):
         columns={"id_case": "case_id", "id_person": "deputy_id"}
     )
 
-    etl2_db.insert_data(
+    target_db.insert_data(
         table_name=definition["destination_table_name"], df=order_deputy_df
     )

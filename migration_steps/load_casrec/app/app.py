@@ -14,7 +14,7 @@ from sqlalchemy import create_engine
 import boto3
 import random as rnd
 from dotenv import load_dotenv
-from config2 import get_config
+from helpers import get_config
 
 
 environment = os.environ.get("ENVIRONMENT")
@@ -221,10 +221,14 @@ def dev_sirius_session():
 def main():
     parser = argparse.ArgumentParser(description="Load into casrec.")
     parser.add_argument(
-        "--entities", default="all", help="list of entities to load",
+        "--entities",
+        default="all",
+        help="list of entities to load",
     )
     parser.add_argument(
-        "--chunk", default="50000", help="chunk size",
+        "--chunk",
+        default="50000",
+        help="chunk size",
     )
     args = parser.parse_args()
 

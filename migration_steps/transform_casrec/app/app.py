@@ -1,5 +1,5 @@
-import sys
 import os
+import sys
 from pathlib import Path
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -12,6 +12,7 @@ from sqlalchemy import create_engine
 import custom_logger
 from helpers import log_title
 import helpers
+
 from dotenv import load_dotenv
 
 from run_data_tests import run_data_tests
@@ -25,6 +26,8 @@ env_path = current_path / "../../.env"
 load_dotenv(dotenv_path=env_path)
 
 environment = os.environ.get("ENVIRONMENT")
+
+
 config = helpers.get_config(env=environment)
 
 # logging
@@ -36,9 +39,18 @@ verbosity_levels = config.verbosity_levels
 
 # database
 
-etl2_db_engine = create_engine(config.connection_string)
+# etl2_db_engine = create_engine(config.connection_string)
 
-etl2_db = InsertData(db_engine=etl2_db_engine, schema=config.etl2_schema)
+# etl2_db = InsertData(db_engine=etl2_db_engine, schema=config.etl2_schema)
+
+# database
+db_config = {
+    "db_connection_string": config.get_db_connection_string("migration"),
+    "source_schema": config.schemas["pre_transform"],
+    "target_schema": config.schemas["post_transform"],
+}
+target_db_engine = create_engine(db_config["db_connection_string"])
+target_db = InsertData(db_engine=target_db_engine, schema=db_config["target_schema"])
 
 
 @click.command()
@@ -70,10 +82,15 @@ def main(clear, entity_list, include_tests, verbose):
         log.info(f"INFO logging enabled")
 
     log.info(log_title(message="Migration Step: Transform Casrec Data"))
+    log.info(
+        log_title(
+            message=f"Source: {db_config['source_schema']} Target: {db_config['target_schema']}"
+        )
+    )
     log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
 
     if clear:
-        clear_tables(config)
+        clear_tables(db_config=db_config)
 
     if entity_list:
         allowed_entities = (entity_list)[0].split(",")
@@ -85,13 +102,13 @@ def main(clear, entity_list, include_tests, verbose):
 
     # Data - each entity can be run independently
     if len(allowed_entities) == 0 or "clients" in allowed_entities:
-        clients.runner(config, etl2_db)
+        clients.runner(config, target_db=target_db, db_config=db_config)
 
     if len(allowed_entities) == 0 or "cases" in allowed_entities:
-        cases.runner(config, etl2_db)
+        cases.runner(target_db=target_db, db_config=db_config)
 
     if len(allowed_entities) == 0 or "supervision_level" in allowed_entities:
-        supervision_level.runner(config, etl2_db)
+        supervision_level.runner(target_db=target_db, db_config=db_config)
 
     if include_tests:
         run_data_tests(verbosity_level=verbosity_levels[verbose])

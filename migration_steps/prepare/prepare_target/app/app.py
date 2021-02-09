@@ -1,5 +1,5 @@
-import sys
 import os
+import sys
 from pathlib import Path
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -7,7 +7,7 @@ sys.path.insert(0, str(current_path) + "/../../../shared")
 
 import time
 import psycopg2
-from config2 import get_config
+from config import get_config
 from dotenv import load_dotenv
 from helpers import log_title
 from db_helpers import *

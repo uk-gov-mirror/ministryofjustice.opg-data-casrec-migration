@@ -7,7 +7,7 @@ from helpers import log_title
 log = logging.getLogger("root")
 
 
-def runner(config, etl2_db):
+def runner(config, target_db):
     """
     | Name          | Running Order | Requires |
     | ------------- | ------------- | -------- |
@@ -20,10 +20,10 @@ def runner(config, etl2_db):
     log.info(log_title(message="notes"))
 
     log.debug("insert_notes")
-    insert_notes(config, etl2_db)
+    insert_notes(config, target_db)
 
     log.debug("insert_person_notes")
-    insert_person_notes(config, etl2_db)
+    insert_person_notes(config, target_db)
 
 
 if __name__ == "__main__":

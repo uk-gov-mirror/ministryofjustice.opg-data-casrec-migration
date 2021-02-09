@@ -1,10 +1,10 @@
 import logging
 import os
+import sys
 from pathlib import Path
 
 import pandas as pd
 import pytest
-import sys
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, str(current_path) + "/../../shared")
@@ -14,7 +14,7 @@ sys.path.insert(0, str(current_path) + "/../../shared")
 
 import custom_logger
 import json
-import config2
+
 import db_helpers
 import helpers
 
@@ -25,7 +25,7 @@ logger.setLevel("INFO")
 
 @pytest.fixture
 def test_config():
-    config = config2.get_config(env="local")
+    config = helpers.get_config(env="local")
     return config
 
 

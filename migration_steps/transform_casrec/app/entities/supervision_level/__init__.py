@@ -8,7 +8,7 @@ from helpers import log_title
 log = logging.getLogger("root")
 
 
-def runner(config, etl2_db):
+def runner(db_config, target_db):
     """
     | Name                      | Running Order | Requires |
     | --------------------------| ------------- | -------- |
@@ -20,7 +20,7 @@ def runner(config, etl2_db):
     log.info(log_title(message="supervision level"))
 
     log.debug("insert_supervision_level_log")
-    insert_supervision_level_log(config, etl2_db)
+    insert_supervision_level_log(db_config, target_db)
 
 
 if __name__ == "__main__":
