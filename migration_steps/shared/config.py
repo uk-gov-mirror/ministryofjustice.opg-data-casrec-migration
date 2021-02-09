@@ -31,11 +31,11 @@ class BaseConfig:
     }
 
     schemas = {
-        "pre_transform": "etl1",
-        "post_transform": "etl2",
+        "pre_transform": "casrec_csv",
+        "post_transform": "transform",
         "integration": "integration",
         "public": "public",
-        "pre_migration": "pre_migration",
+        "pre_migration": "staging",
         "casrec_csv": "casrec_csv",
     }
 

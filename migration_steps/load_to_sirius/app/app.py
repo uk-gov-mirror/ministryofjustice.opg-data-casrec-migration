@@ -59,6 +59,11 @@ def main(verbose):
         log.info(f"INFO logging enabled")
 
     log.info(log_title(message="Load to Target Step: AKA do the migration already"))
+    log.info(
+        log_title(
+            message=f"Source: {db_config['source_schema']} Target: sirius.{db_config['target_schema']}"
+        )
+    )
     log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
 
     path = f"tables.json"

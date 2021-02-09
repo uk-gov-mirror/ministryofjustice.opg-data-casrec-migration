@@ -82,6 +82,11 @@ def main(clear, entity_list, include_tests, verbose):
         log.info(f"INFO logging enabled")
 
     log.info(log_title(message="Migration Step: Transform Casrec Data"))
+    log.info(
+        log_title(
+            message=f"Source: {db_config['source_schema']} Target: {db_config['target_schema']}"
+        )
+    )
     log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
 
     if clear:

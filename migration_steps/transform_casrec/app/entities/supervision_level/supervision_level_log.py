@@ -18,7 +18,7 @@ def insert_supervision_level_log(db_config, target_db):
         table_definition=definition,
     )
 
-    cases_query = f'select "id", "caserecnumber", "c_order_no" from etl2.cases;'
+    cases_query = f'select "id", "caserecnumber", "c_order_no" from {db_config["target_schema"]}.cases;'
     cases_df = pd.read_sql_query(cases_query, db_config["db_connection_string"])
 
     supervision_level_joined_df = supervision_level_df.merge(

@@ -19,7 +19,7 @@ def insert_phonenumbers_clients(db_config, target_db):
     )
 
     persons_query = (
-        f'select "id", "caserecnumber" from etl2.persons '
+        f'select "id", "caserecnumber" from {db_config["target_schema"]}.persons '
         f"where \"type\" = 'actor_client';"
     )
     persons_df = pd.read_sql_query(persons_query, db_config["db_connection_string"])

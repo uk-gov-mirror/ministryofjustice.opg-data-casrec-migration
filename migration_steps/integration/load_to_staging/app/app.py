@@ -66,6 +66,11 @@ def main(verbose, clear):
         log.info(f"INFO logging enabled")
 
     log.info(log_title(message="Integration Step: Load to Staging"))
+    log.info(
+        log_title(
+            message=f"Source: {db_config['source_schema']} Target: {db_config['target_schema']}"
+        )
+    )
     log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
 
     if clear:
