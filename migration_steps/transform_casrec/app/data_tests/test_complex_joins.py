@@ -1,3 +1,4 @@
+import pytest
 from pytest_cases import parametrize_with_cases
 
 from data_tests.conftest import list_of_test_cases
@@ -22,6 +23,7 @@ log = logging.getLogger("root")
     cases=list_of_test_cases,
     has_tag="many_to_one_join",
 )
+@pytest.mark.skip(reason="removed joins")
 def test_complex_joins(
     test_config,
     module_name,
