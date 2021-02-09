@@ -264,7 +264,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                 "Overrides": {
                     "ContainerOverrides": [{
                         "Name": "etl4",
-                        "Command": ["python3", "app.py"]
+                        "Command": ["python3", "app.py", "--audit=True"]
                     }]
                 }
             }

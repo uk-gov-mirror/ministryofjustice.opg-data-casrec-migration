@@ -36,7 +36,5 @@ rm docker_load.log
 docker-compose run --rm transform_casrec python3 app.py --clear=True
 docker-compose run --rm integration integration/integration.sh
 
-docker-compose run --rm load_to_target python3 /audit/app/app.py -c before
-docker-compose run --rm load_to_target python3 app.py
-docker-compose run --rm load_to_target python3 /audit/app/app.py -c after
+docker-compose run --rm load_to_target python3 app.py --audit=True
 docker-compose run --rm validation validation/validate.sh "$@"

@@ -4,30 +4,10 @@ from pathlib import Path
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, str(current_path) + "/../../shared")
-from dotenv import load_dotenv
-from sqlalchemy import create_engine
 import pandas as pd
-import click
 import time
-import logging
-import custom_logger
-import config2
+import sqlalchemy
 from db_helpers import create_schema
-
-env_path = current_path / "../../.env"
-load_dotenv(dotenv_path=env_path)
-environment = os.environ.get("ENVIRONMENT")
-config = config2.get_config(env=environment)
-
-config.custom_log_level()
-verbosity_levels = config.verbosity_levels
-log = logging.getLogger("root")
-log.addHandler(custom_logger.MyHandler())
-
-casrec_engine = create_engine(config.get_db_connection_string("migration"))
-sirius_engine = create_engine(config.get_db_connection_string("target"))
-casrec_schema = "audit"
-list_of_tables = []
 
 
 def copy_table(engine_from, engine_to, schema_from, schema_to, table_from, table_to):
@@ -43,11 +23,12 @@ def copy_table(engine_from, engine_to, schema_from, schema_to, table_from, table
         con=engine_to,
         if_exists="replace",
         index=False,
+        dtype={col_name: sqlalchemy.types.TEXT for col_name in df},
         chunksize=10000,
     )
 
 
-def get_update_rows_statement(audit_value, schema, table, pk):
+def get_update_rows_statement(audit_value, schema, table, pk, log):
     if audit_value == "current":
         new_audit_value = "new"
     elif audit_value == "previous":
@@ -57,13 +38,13 @@ def get_update_rows_statement(audit_value, schema, table, pk):
         exit(1)
 
     update_rows_statement = f"""
-        update {schema}.{table}_audit set audit_value = '{new_audit_value}'
+        update {schema}.{table} set audit_value = '{new_audit_value}'
         where {pk} in
         (select mt.{pk}
-        from {schema}.{table}_audit mt
+        from {schema}.{table} mt
         inner join
         (select {pk}, count(*)
-        from {schema}.{table}_audit
+        from {schema}.{table}
         group by {pk}
         having count(*) = 1) as st
         on mt.{pk} = st.{pk}
@@ -83,7 +64,7 @@ def get_change_statement(schema, table, from_src):
     return select_change
 
 
-def diff_old_new(engine, schema, table, pk):
+def diff_old_new(engine, schema, table, pk, log):
     ts = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
 
     df_from = pd.read_sql(get_change_statement(schema, table, True), engine)
@@ -104,15 +85,19 @@ def diff_old_new(engine, schema, table, pk):
         chunksize=10000,
     )
 
-    response = engine.execute(get_update_rows_statement("previous", schema, table, pk))
+    response = engine.execute(
+        get_update_rows_statement("previous", schema, table, pk, log)
+    )
     if response.rowcount > 0:
-        log.info(f"Updated {table} statuses for deleted rows")
-    response = engine.execute(get_update_rows_statement("current", schema, table, pk))
+        log.info(f"Audit - Updated {table} statuses for deleted rows")
+    response = engine.execute(
+        get_update_rows_statement("current", schema, table, pk, log)
+    )
     if response.rowcount > 0:
-        log.info(f"Updated {table} statuses for new rows")
+        log.info(f"Audit- Updated {table} statuses for new rows")
 
 
-def clear_up(engine, schema, table):
+def clear_up(engine, schema, table, log):
     for direction in ["before", "after"]:
         drop_statement = f"DROP TABLE {schema}.{table}_{direction}"
         response = engine.execute(drop_statement)
@@ -120,48 +105,54 @@ def clear_up(engine, schema, table):
             log.debug(f"Dropped {schema}.{table}_{direction}")
 
 
-@click.command()
-@click.option("-c", "--command", default="before")
-@click.option("-v", "--verbose", count=True)
-def main(command, verbose):
-    try:
-        log.setLevel(verbosity_levels[verbose])
-        log.info(f"{verbosity_levels[verbose]} logging enabled")
-    except KeyError:
-        log.setLevel("INFO")
-        log.info(f"{verbose} is not a valid verbosity level")
-        log.info(f"INFO logging enabled")
+def get_pk(engine, schema, table):
+    get_pk_statement = f"""
+        SELECT col.Column_Name from
+        INFORMATION_SCHEMA.TABLE_CONSTRAINTS tab,
+        INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE col
+        WHERE
+        col.Constraint_Name = tab.Constraint_Name
+        AND col.Table_Name = tab.Table_Name
+        AND Constraint_Type = 'PRIMARY KEY'
+        AND tab.table_schema = '{schema}'
+        AND col.Table_Name = '{table}'
+        """
+    response = engine.execute(get_pk_statement)
+    for r in response:
+        primary_key = r.values()[0]
+        return primary_key
 
+
+def run_audit(sirius_engine, casrec_engine, command, log, tables_list):
+    casrec_schema = "audit"
+    sirius_schema = "public"
     create_schema(log, casrec_engine, casrec_schema)
 
-    table = "persons"
-
     if command == "before":
-        copy_table(
-            sirius_engine,
-            casrec_engine,
-            "public",
-            casrec_schema,
-            table,
-            f"{table}_before",
-        )
-        log.info(f"Copied {table} before update to {table}_before")
+        for table in tables_list:
+            copy_table(
+                sirius_engine,
+                casrec_engine,
+                sirius_schema,
+                casrec_schema,
+                table,
+                f"{table}_before",
+            )
+            log.info(f"Audit - Copied {table} before update to {table}_before")
     elif command == "after":
-        copy_table(
-            sirius_engine,
-            casrec_engine,
-            "public",
-            casrec_schema,
-            table,
-            f"{table}_after",
-        )
-        log.info(f"Copied {table} after update to {table}_after")
-        diff_old_new(casrec_engine, casrec_schema, table, "id")
-        clear_up(casrec_engine, casrec_schema, table)
+        for table in tables_list:
+            pk = get_pk(sirius_engine, sirius_schema, table)
+            copy_table(
+                sirius_engine,
+                casrec_engine,
+                sirius_schema,
+                casrec_schema,
+                table,
+                f"{table}_after",
+            )
+            log.info(f"Audit - Copied {table} after update to {table}_after")
+            diff_old_new(casrec_engine, casrec_schema, table, pk, log)
+            clear_up(casrec_engine, casrec_schema, table, log)
     else:
         log.error(f"ERROR Invalid command")
         exit(1)
-
-
-if __name__ == "__main__":
-    main()

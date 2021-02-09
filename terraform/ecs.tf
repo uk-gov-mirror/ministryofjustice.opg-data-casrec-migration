@@ -98,7 +98,7 @@ resource "aws_iam_role_policy" "etl_task_s3" {
 resource "aws_security_group" "etl" {
   name_prefix = "casrec-migration-ecs-${terraform.workspace}-"
   vpc_id      = data.aws_vpc.sirius.id
-  description = "Casrec Migration ECS tasks SG"
+  description = "ETL1 ECS task"
 
   lifecycle {
     create_before_destroy = true
@@ -106,7 +106,7 @@ resource "aws_security_group" "etl" {
 
   tags = merge(
     local.default_tags,
-    map("Name", "casrec-migration-ecs-${terraform.workspace}")
+    map("Name", "etl1-ecs-${terraform.workspace}")
   )
 }
 

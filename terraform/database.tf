@@ -36,8 +36,8 @@ resource "aws_rds_cluster" "cluster_serverless" {
 }
 
 resource "aws_security_group" "db" {
-  name        = "casrec-migration-${terraform.workspace}-rds"
-  description = "casrec-migration rds SG"
+  name        = "casrec-migration-${terraform.workspace}"
+  description = "etl to rds access"
   vpc_id      = data.aws_vpc.sirius.id
   tags = merge(
     local.default_tags,
