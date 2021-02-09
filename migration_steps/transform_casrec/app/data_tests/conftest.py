@@ -27,7 +27,7 @@ list_of_test_cases = [
     cases_clients_phonenumbers,
     cases_cases,
     cases_supervision_level_log,
-    cases_person_caseitem,
+    # cases_person_caseitem,
 ]
 
 

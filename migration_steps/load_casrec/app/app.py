@@ -1,14 +1,24 @@
+import sys
+import os
+from pathlib import Path
+
+current_path = Path(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, str(current_path) + "/../../../shared")
+
 import pandas as pd
 import io
-import os
 import re
 import time
 import argparse
 from sqlalchemy import create_engine
 import boto3
 import random as rnd
-from pathlib import Path
 from dotenv import load_dotenv
+from helpers import get_config
+
+
+environment = os.environ.get("ENVIRONMENT")
+config = get_config(environment)
 
 
 def get_list_of_files(bucket_name, s3, path, tables):
@@ -211,10 +221,14 @@ def dev_sirius_session():
 def main():
     parser = argparse.ArgumentParser(description="Load into casrec.")
     parser.add_argument(
-        "--entities", default="all", help="list of entities to load",
+        "--entities",
+        default="all",
+        help="list of entities to load",
     )
     parser.add_argument(
-        "--chunk", default="50000", help="chunk size",
+        "--chunk",
+        default="50000",
+        help="chunk size",
     )
     args = parser.parse_args()
 
@@ -284,7 +298,7 @@ def main():
         s3 = s3_session.client("s3")
 
     bucket_name = f"casrec-migration-{environment}"
-    schema = "etl1"
+    schema = config.schemas["pre_transform"]
 
     print(f"Using bucket {bucket_name}")
 

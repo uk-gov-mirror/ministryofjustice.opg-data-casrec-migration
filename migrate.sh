@@ -39,4 +39,4 @@ docker-compose run --rm integration integration/integration.sh
 docker-compose run --rm load_to_target python3 /audit/app/app.py -c before
 docker-compose run --rm load_to_target python3 app.py
 docker-compose run --rm load_to_target python3 /audit/app/app.py -c after
-docker-compose run --rm validation validation/validate.sh
+docker-compose run --rm validation validation/validate.sh "$@"

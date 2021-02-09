@@ -1,7 +1,6 @@
-import sys
 import os
+import sys
 from pathlib import Path
-
 
 from utilities.clear_database import clear_tables
 from utilities.db_insert import InsertData
@@ -17,7 +16,7 @@ import click
 from sqlalchemy import create_engine
 import custom_logger
 from helpers import log_title
-import config2
+
 from dotenv import load_dotenv
 
 
@@ -27,7 +26,9 @@ env_path = current_path / "../../.env"
 load_dotenv(dotenv_path=env_path)
 
 environment = os.environ.get("ENVIRONMENT")
-config = config2.get_config(env=environment)
+import helpers
+
+config = helpers.get_config(env=environment)
 
 # logging
 # custom_logger.custom_log_level(levels=config.custom_log_levels)
@@ -66,6 +67,11 @@ def main(verbose, clear):
         log.info(f"INFO logging enabled")
 
     log.info(log_title(message="Integration Step: Merge Casrec data with Sirius data"))
+    log.info(
+        log_title(
+            message=f"Source: {db_config['source_schema']} Target: {db_config['target_schema']}"
+        )
+    )
     log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
 
     if clear:

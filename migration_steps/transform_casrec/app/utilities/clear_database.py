@@ -5,10 +5,10 @@ import psycopg2
 log = logging.getLogger("root")
 
 
-def clear_tables(config):
-    log.info("Clearing tables")
+def clear_tables(db_config):
+    log.info(f"Clearing tables in '{db_config['target_schema']}' schema")
 
-    conn = psycopg2.connect(config.connection_string)
+    conn = psycopg2.connect(db_config["db_connection_string"])
 
     cursor = conn.cursor()
 
@@ -17,14 +17,14 @@ def clear_tables(config):
         SELECT
             table_name
         FROM information_schema.tables
-        WHERE table_schema = '{config.etl2_schema}'"""
+        WHERE table_schema = '{db_config['target_schema']}'"""
     )
 
     tables = [x[0] for x in cursor.fetchall()]
 
     for t in tables:
-        log.log(config.VERBOSE, (f"drop table if exists {config.etl2_schema}.{t};"))
-        cursor.execute(f"drop table if exists {config.etl2_schema}.{t};")
+        log.log(5, (f"drop table if exists {db_config['target_schema']}.{t};"))
+        cursor.execute(f"drop table if exists {db_config['target_schema']}.{t};")
 
     conn.commit()
     cursor.close()

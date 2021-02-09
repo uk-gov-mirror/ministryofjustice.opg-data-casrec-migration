@@ -1,8 +1,6 @@
 import json
 
 import pandas as pd
-
-
 from transform_data import transform
 from utilities.generate_source_query import generate_select_string_from_mapping
 from utilities.helpers import get_mapping_file
@@ -15,7 +13,7 @@ definition = {
 }
 
 
-def insert_addresses_deputies(config, etl2_db):
+def insert_addresses_deputies(config, target_db):
 
     with open(get_mapping_file(file_name="addresses_deputy_mapping")) as mapping_json:
         mapping_dict = json.load(mapping_json)
@@ -69,6 +67,6 @@ def insert_addresses_deputies(config, etl2_db):
         columns={"id_address": "id", "id_person": "person_id"}
     )
 
-    etl2_db.insert_data(
+    target_db.insert_data(
         table_name=definition["destination_table_name"], df=address_depno_persons_df
     )

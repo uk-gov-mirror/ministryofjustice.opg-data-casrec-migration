@@ -46,7 +46,8 @@ def test_all_fields(test_config, complete_status):
         ]
     )
     log.log(
-        config.VERBOSE, untested_fields,
+        config.VERBOSE,
+        untested_fields,
     )
 
     total_expected = sum([len(x) for x in expected_fields.values()])
@@ -64,4 +65,4 @@ def test_all_fields(test_config, complete_status):
         config.VERBOSE, f"Actual percentage of fields tested: {percentage_complete}%"
     )
 
-    assert percentage_complete > config.MIN_PERCENTAGE_FIELDS_TESTED
+    assert percentage_complete >= config.MIN_PERCENTAGE_FIELDS_TESTED

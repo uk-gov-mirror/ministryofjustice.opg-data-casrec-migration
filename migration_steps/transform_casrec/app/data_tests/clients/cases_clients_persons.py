@@ -29,14 +29,14 @@ def case_clients_1(test_config):
         SELECT
             "{merge_columns['source']}",
             {', '.join(source_columns)}
-        FROM {config.etl1_schema}.{source_table}
+        FROM {config.schemas['pre_transform']}.{source_table}
     """
 
     transformed_query = f"""
         SELECT
             {merge_columns['transformed']},
             {', '.join(transformed_columns)}
-        FROM {config.etl2_schema}.{destination_table}
+        FROM {config.schemas['post_transform']}.{destination_table}
         WHERE "type" = 'actor_client'
     """
 
@@ -70,7 +70,7 @@ def case_clients_2(test_config):
     source_query = f"""
         SELECT
             {', '.join(source_columns)}
-        FROM {config.etl2_schema}.{destination_table}
+        FROM {config.schemas['post_transform']}.{destination_table}
     """
 
     return (defaults, source_query, module_name)
@@ -96,14 +96,14 @@ def case_clients_3(test_config):
         SELECT
             "{merge_columns['source']}",
             {', '.join(source_columns)}
-        FROM {config.etl1_schema}.{source_table}
+        FROM {config.schemas['pre_transform']}.{source_table}
     """
 
     transformed_query = f"""
         SELECT
             {merge_columns['transformed']},
             {', '.join(transformed_columns)}
-        FROM {config.etl2_schema}.{destination_table}
+        FROM {config.schemas['post_transform']}.{destination_table}
         WHERE "type" = 'actor_client'
     """
 
@@ -113,7 +113,7 @@ def case_clients_3(test_config):
 @case(tags="calculated")
 def case_clients_4(test_config):
 
-    today = pd.Timestamp(2021, 1, 6)
+    today = pd.Timestamp.today()
 
     calculated_fields = {
         "statusdate": today,
@@ -126,7 +126,7 @@ def case_clients_4(test_config):
     source_query = f"""
         SELECT
             {', '.join(source_columns)}
-        FROM {config.etl2_schema}.persons
+        FROM {config.schemas['post_transform']}.persons
     """
 
     return (calculated_fields, source_query, module_name)
@@ -139,13 +139,13 @@ def case_clients_count(test_config):
     source_query = f"""
         SELECT
             *
-        FROM {config.etl1_schema}.{source_table}
+        FROM {config.schemas['pre_transform']}.{source_table}
     """
 
     transformed_query = f"""
         SELECT
             *
-        FROM {config.etl2_schema}.{destination_table}
+        FROM {config.schemas['post_transform']}.{destination_table}
         WHERE "type" = 'actor_client'
     """
 

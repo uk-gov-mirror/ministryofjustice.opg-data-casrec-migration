@@ -199,11 +199,11 @@ The Migration steps, in order, are:
 ### load_casrec
 
 - Reads the S3 files and saves them intact into a postgres database schema, one table per csv file
-- Schema created: `casrecmigration.etl1`
+- Schema created: `casrecmigration.casrec_csv`
 
 ### transform_casrec
 
-- Reads data from the `etl1` schema and performs a series of transformations on the columns
+- Reads data from the `casrec_csv` schema and performs a series of transformations on the columns
 - Makes extensive use of pandas to perform the transformations
 - Arrives at a schema more closely resembling the Sirius DB
 - outputs schema `etl2`
@@ -238,7 +238,7 @@ host: localhost
 port: 6666
 user: casrec
 pass: casrec
-schema: etl1
+schema: casrec_csv
 
 db:   sirius
 host: localhost
@@ -255,7 +255,7 @@ pass: api
 schema: public
 ```
 
-If you don't see the tables in datagrip/pycharm db client, go across to 'schemas' and check that you have all necessary schemas checked (in this case `etl1`)
+If you don't see the tables in datagrip/pycharm db client, go across to 'schemas' and check that you have all necessary schemas checked (in this case `casrec_csv`)
 
 ## Reset DB fixtures on sirius manually
 ```

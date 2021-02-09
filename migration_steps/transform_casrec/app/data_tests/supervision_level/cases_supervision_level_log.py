@@ -26,14 +26,14 @@ def case_supervision_log_lookups(test_config):
         SELECT
             "{merge_columns['source']}",
             {', '.join(source_columns)}
-        FROM {config.etl1_schema}.{source_table}
+        FROM {config.schemas['pre_transform']}.{source_table}
     """
 
     transformed_query = f"""
         SELECT
             {merge_columns['transformed']},
             {', '.join(transformed_columns)}
-        FROM {config.etl2_schema}.{destination_table}
+        FROM {config.schemas['post_transform']}.{destination_table}
     """
 
     return (lookup_fields, merge_columns, source_query, transformed_query, module_name)
@@ -42,7 +42,7 @@ def case_supervision_log_lookups(test_config):
 @case(tags="calculated")
 def case_supervision_log_calcs(test_config):
 
-    today = pd.Timestamp(2021, 1, 6)
+    today = pd.Timestamp.today()
     calculated_fields = {
         "appliesfrom": today,
         "createddate": today,
@@ -54,7 +54,7 @@ def case_supervision_log_calcs(test_config):
     source_query = f"""
         SELECT
             {', '.join(source_columns)}
-        FROM {config.etl2_schema}.{destination_table}
+        FROM {config.schemas['post_transform']}.{destination_table}
     """
 
     return (calculated_fields, source_query, module_name)
@@ -79,14 +79,14 @@ def case_supervision_level_join(test_config):
         SELECT
             "{merge_columns['fk_child']}",
             {', '.join(fk_child_col)}
-        FROM {config.etl2_schema}.{destination_table}
+        FROM {config.schemas['post_transform']}.{destination_table}
     """
 
     fk_parent_query = f"""
             SELECT
                 "{merge_columns['fk_parent']}",
                 {', '.join(fk_parent_col)}
-            FROM {config.etl2_schema}.{parent_table[0]}
+            FROM {config.schemas['post_transform']}.{parent_table[0]}
         """
 
     return (join_columns, merge_columns, fk_child_query, fk_parent_query, module_name)
@@ -99,13 +99,13 @@ def case_supervision_level_count(test_config):
     source_query = f"""
         SELECT
             *
-        FROM {config.etl1_schema}.{source_table}
+        FROM {config.schemas['pre_transform']}.{source_table}
     """
 
     transformed_query = f"""
         SELECT
             *
-        FROM {config.etl2_schema}.{destination_table}
+        FROM {config.schemas['post_transform']}.{destination_table}
     """
 
     return (source_query, transformed_query, module_name)
