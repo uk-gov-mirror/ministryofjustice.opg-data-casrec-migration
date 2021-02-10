@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 from pathlib import Path
@@ -74,7 +75,9 @@ def main(verbose):
             ],
         }
     ]
-    table_list = ["persons"]
+    path = f"{os.path.dirname(__file__)}/tables.json"
+    with open(path) as tables_json:
+        table_list = json.load(tables_json)
 
     sequences = check_sequences(sequences=sequence_list, db_config=db_config)
     log.info(f"Sequences: {sequences}")
