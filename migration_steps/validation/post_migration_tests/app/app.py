@@ -2,6 +2,7 @@ import os
 import sys
 from pathlib import Path
 
+from checks.continuous_ids import check_continuous
 from checks.sequences import check_sequences
 from checks.uid_sequence import check_uid_sequences
 
@@ -73,6 +74,7 @@ def main(verbose):
             ],
         }
     ]
+    table_list = ["persons"]
 
     sequences = check_sequences(sequences=sequence_list, db_config=db_config)
     log.info(f"Sequences: {sequences}")
@@ -80,6 +82,9 @@ def main(verbose):
         sequences=uid_sequence_list, db_config=db_config
     )
     log.info(f"UID Sequences: {uid_sequences}")
+
+    continuous_ids = check_continuous(table_list=table_list, db_config=db_config)
+    log.info(f"continuous_ids: {continuous_ids}")
 
 
 if __name__ == "__main__":
