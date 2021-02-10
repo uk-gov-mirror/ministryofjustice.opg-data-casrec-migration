@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 
 from checks.sequences import check_sequences
+from checks.uid_sequence import check_uid_sequences
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, str(current_path) + "/../../../shared")
@@ -63,9 +64,22 @@ def main(verbose):
     sequence_list = [
         {"sequence_name": "persons_id_seq", "table": "persons", "column": "id"}
     ]
+    uid_sequence_list = [
+        {
+            "sequence_name": "global_uid_seq",
+            "fields": [
+                {"table": "persons", "column": "uid"},
+                {"table": "cases", "column": "uid"},
+            ],
+        }
+    ]
 
     sequences = check_sequences(sequences=sequence_list, db_config=db_config)
     log.info(f"Sequences: {sequences}")
+    uid_sequences = check_uid_sequences(
+        sequences=uid_sequence_list, db_config=db_config
+    )
+    log.info(f"UID Sequences: {uid_sequences}")
 
 
 if __name__ == "__main__":

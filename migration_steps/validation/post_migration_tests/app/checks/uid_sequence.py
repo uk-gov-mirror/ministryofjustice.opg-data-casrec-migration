@@ -6,31 +6,44 @@ import psycopg2
 log = logging.getLogger("root")
 
 
-def get_max_value(table, column, db_config):
+def get_max_value(fields: Dict, db_config: Dict) -> int:
     connection_string = db_config["sirius_db_connection_string"]
     conn = psycopg2.connect(connection_string)
     cursor = conn.cursor()
 
-    query = f"SELECT max({column}) from {db_config['sirius_schema']}.{table};"
+    actual_max_uid = 0
 
-    try:
-        cursor.execute(query)
-        max_id = cursor.fetchall()[0][0]
-        if max_id:
-            log.debug(f"Max Sirius '{column}' in table '{table}': {max_id}")
-            return max_id
-        else:
-            log.debug(
-                f"No data for Sirius '{column}' in table '{table}', setting max_id to 0"
-            )
-            return 0
+    for field in fields:
+        query = f"SELECT max({field['column']}) from {db_config['sirius_schema']}.{field['table']};"
 
-        cursor.close()
-    except (Exception, psycopg2.DatabaseError) as error:
-        log.error("Error: %s" % error)
-        conn.rollback()
-        cursor.close()
-        return 0
+        try:
+            cursor.execute(query)
+            max_uid = cursor.fetchall()[0][0]
+            if max_uid:
+                log.debug(
+                    f"Max Sirius '{field['column']}' in table '{field['table']}': {max_uid}"
+                )
+
+                if max_uid > actual_max_uid:
+                    actual_max_uid = max_uid
+
+            else:
+                log.debug(
+                    f"No data for Sirius '{field['column']}' in table '{field['table']}', setting max_id to 0"
+                )
+
+            cursor.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            log.error("Error: %s" % error)
+            conn.rollback()
+            cursor.close()
+
+        return actual_max_uid
+
+
+def decode_uid(uid: int) -> int:
+    min_uid = 70000000000
+    return int(str(uid)[:-1]) - min_uid
 
 
 def get_sequence_currval(sequence_name, db_config):
@@ -59,7 +72,7 @@ def get_sequence_currval(sequence_name, db_config):
         return 0
 
 
-def check_sequences(sequences: List[Dict], db_config: Dict) -> bool:
+def check_uid_sequences(sequences: List[Dict], db_config: Dict) -> bool:
     """
     check that the next value of the sequence has been reset correctly
     after the migrated data was inserted
@@ -72,14 +85,19 @@ def check_sequences(sequences: List[Dict], db_config: Dict) -> bool:
         current_sequence_value = get_sequence_currval(
             sequence_name=sequence["sequence_name"], db_config=db_config
         )
-        max_column_value = get_max_value(
-            table=sequence["table"], column=sequence["column"], db_config=db_config
-        )
+        max_column_value = get_max_value(fields=sequence["fields"], db_config=db_config)
+        max_seq_value = decode_uid(uid=max_column_value)
 
-        if current_sequence_value == max_column_value:
+        if current_sequence_value == max_seq_value:
+            log.debug(
+                f"Current sequence value ({current_sequence_value}) == max used value ({max_seq_value})"
+            )
             report["pass"].append(sequence["sequence_name"])
 
         else:
+            log.debug(
+                f"Current sequence value ({current_sequence_value}) != max used value ({max_seq_value})"
+            )
             report["fail"].append(sequence["sequence_name"])
 
     log.info(report)
