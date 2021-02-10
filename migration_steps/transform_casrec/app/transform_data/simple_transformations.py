@@ -51,8 +51,8 @@ def do_simple_transformations(
             transformed_df = conditional_lookup(
                 final_col=t["aggregate_col"],
                 data_col=t["original_columns"],
-                lookup_col=t["lookup_table"][1],
-                lookup_file_name=t["lookup_table"][0],
+                lookup_col=t["additional_columns"],
+                lookup_file_name=t["lookup_table"],
                 df=transformed_df,
             )
 
