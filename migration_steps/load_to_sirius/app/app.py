@@ -9,21 +9,19 @@ from move import update_data_in_target
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, str(current_path) + "/../../../shared")
 
+from audit import run_audit
 import logging
 import time
 import click
 from sqlalchemy import create_engine
 import custom_logger
 from helpers import log_title
-
 from dotenv import load_dotenv
-
 
 # set config
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 env_path = current_path / "../../.env"
 load_dotenv(dotenv_path=env_path)
-
 environment = os.environ.get("ENVIRONMENT")
 import helpers
 
@@ -49,7 +47,8 @@ target_db_engine = create_engine(db_config["target_db_connection_string"])
 
 @click.command()
 @click.option("-v", "--verbose", count=True)
-def main(verbose):
+@click.option("-a", "--audit", count=False)
+def main(verbose, audit):
     try:
         log.setLevel(verbosity_levels[verbose])
         log.info(f"{verbosity_levels[verbose]} logging enabled")
@@ -72,6 +71,11 @@ def main(verbose):
     with open(path) as tables_json:
         tables_list = json.load(tables_json)
 
+    if audit:
+        log.info(f"Running Pre-Audit - Table Copies")
+        run_audit(target_db_engine, source_db_engine, "before", log, tables_list)
+        log.info(f"Finished Pre-Audit - Table Copies")
+
     for i, table in enumerate(tables_list):
         log.debug(f"This is table number {i + 1} of {len(tables_list)}")
 
@@ -81,6 +85,11 @@ def main(verbose):
         update_data_in_target(
             db_config=db_config, source_db_engine=source_db_engine, table=table
         )
+
+    if audit:
+        log.info(f"Running Post-Audit - Table Copies and Comparisons")
+        run_audit(target_db_engine, source_db_engine, "after", log, tables_list)
+        log.info(f"Finished Post-Audit - Table Copies and Comparisons")
 
 
 if __name__ == "__main__":

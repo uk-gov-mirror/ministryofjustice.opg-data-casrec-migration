@@ -9,6 +9,7 @@ services:
       POSTGRES_PASSWORD: casrec # pragma: allowlist secret
       POSTGRES_DB: casrecmigration
       PGPASSWORD: casrec # pragma: allowlist secret
+
   localstack:
     image: localstack/localstack:0.10.9
     ports:
@@ -116,9 +117,9 @@ services:
   postgres-sirius-restore:
     image: postgres:10.11
     entrypoint: pg_restore
-    volumes: ["./db-snapshots:/db-snapshots"]
+    volumes: ["./sirius_db/db_snapshots:/db_snapshots"]
     command:
-      - /db-snapshots/api.backup
+      - /db_snapshots/api.backup
       - --clean
       - --if-exists
       - --host=postgres-sirius

@@ -34,7 +34,7 @@ services:
 
   load_to_target:
     volumes:
-      - ./migration_steps/load_to_target/app:/app
+      - ./migration_steps/load_to_sirius/app:/migration/app
       - ./migration_steps/shared:/shared
 
   validation:

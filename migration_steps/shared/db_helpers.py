@@ -35,6 +35,30 @@ def delete_all_schemas(log, conn):
     cursor.close()
 
 
+def create_schema(log, engine, schema):
+    schema_exist_statement = f"""
+    SELECT
+    EXISTS(SELECT
+    1
+    FROM
+    information_schema.schemata
+    WHERE
+    schema_name = '{schema}');
+    """
+
+    schema_exists_result = engine.execute(schema_exist_statement)
+    for r in schema_exists_result:
+        exists = r.values()[0]
+
+    if not exists:
+        log.info(f"Creating schema {schema}...")
+        create_schema_sql = f"CREATE SCHEMA {schema} AUTHORIZATION casrec;"
+        engine.execute(create_schema_sql)
+        log.info(f"Schema {schema} created\n\n")
+    else:
+        log.debug(f"Schema {schema} already exists\n\n")
+
+
 def copy_schema(
     log, sql_path, from_config, from_schema, to_config, to_schema, structure_only=False
 ):
