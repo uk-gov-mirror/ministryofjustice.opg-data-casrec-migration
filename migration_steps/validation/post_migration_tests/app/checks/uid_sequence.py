@@ -13,32 +13,39 @@ def get_max_value(fields: Dict, db_config: Dict) -> int:
 
     actual_max_uid = 0
 
-    for field in fields:
-        query = f"SELECT max({field['column']}) from {db_config['sirius_schema']}.{field['table']};"
+    table_subquery = ""
+    for i, f in enumerate(fields):
+        single_table_subquery = f"SELECT MAX({f['column']}) AS uid FROM {f['table']}"
+        if i + 1 < len(fields):
+            single_table_subquery += " UNION ALL "
+        table_subquery += single_table_subquery
 
-        try:
-            cursor.execute(query)
-            max_uid = cursor.fetchall()[0][0]
-            if max_uid:
-                log.debug(
-                    f"Max Sirius '{field['column']}' in table '{field['table']}': {max_uid}"
-                )
+    query = f"""
+        WITH uids AS (
+            {table_subquery}
+        )
+        SELECT MAX(uid) from uids;
+    """
 
-                if max_uid > actual_max_uid:
-                    actual_max_uid = max_uid
+    try:
+        cursor.execute(query)
+        max_uid = cursor.fetchall()[0][0]
+        if max_uid:
+            log.debug(f"Max Sirius value: {max_uid}")
 
-            else:
-                log.debug(
-                    f"No data for Sirius '{field['column']}' in table '{field['table']}', setting max_id to 0"
-                )
+            if max_uid > actual_max_uid:
+                actual_max_uid = max_uid
 
-            cursor.close()
-        except (Exception, psycopg2.DatabaseError) as error:
-            log.error("Error: %s" % error)
-            conn.rollback()
-            cursor.close()
+        else:
+            log.debug(f"No data for Sirius value, setting max_id to 0")
 
-        return actual_max_uid
+        cursor.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        log.error("Error: %s" % error)
+        conn.rollback()
+        cursor.close()
+
+    return actual_max_uid
 
 
 def decode_uid(uid: int) -> int:

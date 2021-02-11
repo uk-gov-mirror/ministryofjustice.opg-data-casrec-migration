@@ -3,7 +3,7 @@ import os
 import sys
 from pathlib import Path
 
-from reset_sequences import reset_all_sequences
+from reset_sequences import reset_all_sequences, reset_all_uid_sequences
 from move import insert_data_into_target
 from move import update_data_in_target
 
@@ -101,6 +101,18 @@ def main(verbose, audit):
         {"sequence_name": "persons_id_seq", "table": "persons", "column": "id"}
     ]
     reset_all_sequences(sequence_list=sequence_list, db_config=db_config)
+
+    uid_sequence_list = [
+        {
+            "sequence_name": "global_uid_seq",
+            "fields": [
+                {"table": "persons", "column": "uid"},
+                {"table": "cases", "column": "uid"},
+            ],
+        }
+    ]
+
+    reset_all_uid_sequences(uid_sequence_list=uid_sequence_list, db_config=db_config)
 
 
 if __name__ == "__main__":
