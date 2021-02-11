@@ -3,6 +3,7 @@ import os
 import sys
 from pathlib import Path
 
+from reset_sequences import reset_all_sequences
 from move import insert_data_into_target
 from move import update_data_in_target
 
@@ -16,12 +17,15 @@ import click
 from sqlalchemy import create_engine
 import custom_logger
 from helpers import log_title
+
 from dotenv import load_dotenv
+
 
 # set config
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 env_path = current_path / "../../.env"
 load_dotenv(dotenv_path=env_path)
+
 environment = os.environ.get("ENVIRONMENT")
 import helpers
 
@@ -90,6 +94,13 @@ def main(verbose, audit):
         log.info(f"Running Post-Audit - Table Copies and Comparisons")
         run_audit(target_db_engine, source_db_engine, "after", log, tables_list)
         log.info(f"Finished Post-Audit - Table Copies and Comparisons")
+
+    # Post migration db jobs
+
+    sequence_list = [
+        {"sequence_name": "persons_id_seq", "table": "persons", "column": "id"}
+    ]
+    reset_all_sequences(sequence_list=sequence_list, db_config=db_config)
 
 
 if __name__ == "__main__":
