@@ -17,6 +17,7 @@ import click
 from sqlalchemy import create_engine
 import custom_logger
 from helpers import log_title
+import table_helpers
 
 from dotenv import load_dotenv
 
@@ -69,11 +70,7 @@ def main(verbose, audit):
     )
     log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
 
-    path = f"tables.json"
-    log.info(f"path: {path}")
-
-    with open(path) as tables_json:
-        tables_list = json.load(tables_json)
+    tables_list = table_helpers.get_table_list(table_helpers.get_table_file())
 
     if audit:
         log.info(f"Running Pre-Audit - Table Copies")
@@ -96,22 +93,11 @@ def main(verbose, audit):
         log.info(f"Finished Post-Audit - Table Copies and Comparisons")
 
     # Post migration db jobs
-
-    sequence_list = [
-        {"sequence_name": "persons_id_seq", "table": "persons", "column": "id"}
-    ]
+    sequence_list = table_helpers.get_sequences_list(table_helpers.get_table_file())
     reset_all_sequences(sequence_list=sequence_list, db_config=db_config)
-
-    uid_sequence_list = [
-        {
-            "sequence_name": "global_uid_seq",
-            "fields": [
-                {"table": "persons", "column": "uid"},
-                {"table": "cases", "column": "uid"},
-            ],
-        }
-    ]
-
+    uid_sequence_list = table_helpers.get_uid_sequences_list(
+        table_helpers.get_table_file()
+    )
     reset_all_uid_sequences(uid_sequence_list=uid_sequence_list, db_config=db_config)
 
 

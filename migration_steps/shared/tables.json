@@ -1,0 +1,48 @@
+{
+	"persons": {
+		"sequences": [{
+			"name": "persons_id_seq",
+			"column": "id",
+			"type": "pk"
+		},{
+			"name": "global_uid_seq",
+			"column": "id",
+			"type": "uid"
+		}]
+	},
+	"addresses": {
+		"sequences": [{
+			"name": "addresses_id_seq",
+			"column": "id",
+			"type": "pk"
+		}]
+	},
+	"phonenumbers": {
+		"sequences": [{
+			"name": "phonenumbers_id_seq",
+			"column": "id",
+			"type": "pk"
+		}]
+	},
+	"cases": {
+		"sequences": [{
+			"name": "cases_id_seq",
+			"column": "id",
+			"type": "pk"
+		},{
+			"name": "global_uid_seq",
+			"column": "id",
+			"type": "uid"
+		}]
+	},
+	"person_caseitem": {
+		"sequences": []
+	},
+	"supervision_level_log": {
+		"sequences": [{
+			"name": "supervision_level_log_id_seq",
+			"column": "id",
+			"type": "pk"
+		}]
+	}
+}

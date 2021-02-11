@@ -38,12 +38,12 @@ def get_min_migrated_record(db_config, table, column="id"):
 
 
 def get_previous_original_record(db_config, table, col_value, column="id"):
-    connection_string = db_config["sirius_db_connection_string"]
-    conn = psycopg2.connect(connection_string)
-    cursor = conn.cursor()
 
     query = f"SELECT max({column}) from {db_config['sirius_schema']}.{table} WHERE {column} < {col_value};"
 
+    connection_string = db_config["sirius_db_connection_string"]
+    conn = psycopg2.connect(connection_string)
+    cursor = conn.cursor()
     try:
         cursor.execute(query)
         previous_value = cursor.fetchall()[0][0]
@@ -67,6 +67,7 @@ def get_previous_original_record(db_config, table, col_value, column="id"):
 
 
 def check_continuous(table_list, db_config):
+    table_list.remove("person_caseitem")
     report = {"pass": [], "fail": []}
 
     for table in table_list:

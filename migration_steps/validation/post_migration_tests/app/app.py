@@ -31,6 +31,7 @@ load_dotenv(dotenv_path=env_path)
 
 environment = os.environ.get("ENVIRONMENT")
 import helpers
+import table_helpers
 
 config = helpers.get_config(env=environment)
 
@@ -67,21 +68,11 @@ def main(verbose):
 
     log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
 
-    sequence_list = [
-        {"sequence_name": "persons_id_seq", "table": "persons", "column": "id"}
-    ]
-    uid_sequence_list = [
-        {
-            "sequence_name": "global_uid_seq",
-            "fields": [
-                {"table": "persons", "column": "uid"},
-                {"table": "cases", "column": "uid"},
-            ],
-        }
-    ]
-    path = f"{os.path.dirname(__file__)}/tables.json"
-    with open(path) as tables_json:
-        table_list = json.load(tables_json)
+    table_list = table_helpers.get_table_list(table_helpers.get_table_file())
+    sequence_list = table_helpers.get_sequences_list(table_helpers.get_table_file())
+    uid_sequence_list = table_helpers.get_uid_sequences_list(
+        table_helpers.get_table_file()
+    )
 
     tests = []
     sequences = check_sequences(sequences=sequence_list, db_config=db_config)

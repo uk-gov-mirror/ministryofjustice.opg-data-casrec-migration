@@ -22,6 +22,7 @@ def format_details(details):
 
 
 def format_report(list_of_tests):
+    print(list_of_tests)
     report = []
     for t in list_of_tests:
         if t["result"][0]:
