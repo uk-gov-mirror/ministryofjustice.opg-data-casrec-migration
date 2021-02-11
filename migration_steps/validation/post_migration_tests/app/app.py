@@ -3,10 +3,13 @@ import os
 import sys
 from pathlib import Path
 
+from tabulate import tabulate
+
 from checks.address_lines import check_address_line_format
 from checks.continuous_ids import check_continuous
 from checks.sequences import check_sequences
 from checks.uid_sequence import check_uid_sequences
+from utilities import format_report
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, str(current_path) + "/../../../shared")
@@ -80,18 +83,24 @@ def main(verbose):
     with open(path) as tables_json:
         table_list = json.load(tables_json)
 
+    tests = []
     sequences = check_sequences(sequences=sequence_list, db_config=db_config)
-    log.info(f"Sequences: {sequences}")
+    tests.append({"name": "Sequences", "result": sequences})
     uid_sequences = check_uid_sequences(
         sequences=uid_sequence_list, db_config=db_config
     )
-    log.info(f"UID Sequences: {uid_sequences}")
+    tests.append({"name": "UID Sequences", "result": uid_sequences})
 
     continuous_ids = check_continuous(table_list=table_list, db_config=db_config)
-    log.info(f"continuous_ids: {continuous_ids}")
+    tests.append({"name": "Continuous IDs", "result": continuous_ids})
 
+    # This should be in data validation - once it's added in there remove here pls
     address_line_format = check_address_line_format(db_config=db_config)
-    log.info(f"address_line_format: {address_line_format}")
+    tests.append({"name": "Address Line Formatting", "result": address_line_format})
+
+    report = format_report(tests)
+
+    print(report)
 
 
 if __name__ == "__main__":

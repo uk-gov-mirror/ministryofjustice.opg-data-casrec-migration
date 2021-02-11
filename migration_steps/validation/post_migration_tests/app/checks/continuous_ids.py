@@ -81,8 +81,7 @@ def check_continuous(table_list, db_config):
         else:
             report["fail"].append(table)
 
-    log.info(report)
     if len(report["fail"]) == 0:
-        return True
+        return (True, report)
     else:
-        return False
+        return (False, report)

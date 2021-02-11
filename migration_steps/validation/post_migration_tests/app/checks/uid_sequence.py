@@ -100,8 +100,7 @@ def check_uid_sequences(sequences: List[Dict], db_config: Dict) -> bool:
             )
             report["fail"].append(sequence["sequence_name"])
 
-    log.info(report)
     if len(report["fail"]) == 0:
-        return True
+        return (True, report)
     else:
-        return False
+        return (False, report)

@@ -79,7 +79,14 @@ def check_address_line_format(db_config, number_of_lines=10):
     )
 
     type_check = [type(x[0]) == list for x in address_lines]
+    passes = len([x for x in type_check if x == True])
+    fails = len([x for x in type_check if x == False])
+    report = {
+        "pass": [f"{passes}/{number_of_lines}"],
+        "fail": [f"{fails}/{number_of_lines}"],
+    }
+
     if False in type_check:
-        return False
+        return (False, report)
     else:
-        return True
+        return (True, report)
