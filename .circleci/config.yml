@@ -7,44 +7,70 @@ workflows:
       - manage_workflow:
           name: manage workflow
           filters: {branches:{ignore:[master]}}
-      - reset_sirius:
-          name: reset the sirius fixtures development
-          requires: [manage workflow]
-          tf_workspace: development
-          filters: {branches:{ignore:[master]}}
-      - build:
-          name: build and unit tests
+      - get_latest_image:
+          name: get latest tag
           requires: [manage workflow]
           filters: {branches:{ignore:[master]}}
       - infrastructure:
           name: plan infra development
-          requires: [build and unit tests]
-          tf_workspace: development
+          requires: [get latest tag]
+          tf_workspace: preproduction
           tf_command: plan
           filters: {branches:{ignore:[master]}}
       - infrastructure:
           name: build infra development
-          requires: [plan infra development, reset the sirius fixtures development]
-          tf_workspace: development
+          requires: [plan infra development]
+          tf_workspace: preproduction
           tf_command: apply
           filters: {branches:{ignore:[master]}}
-      - run_step_function:
-          name: run the step function
-          requires: [build infra development]
-          filters: {branches:{ignore:[master]}}
-      - run_elasticsearch_reset:
-          name: run elasticsearch reset
-          requires: [run the step function]
-          filters: {branches:{ignore:[master]}}
-      - run_behat_tests:
-          name: run behat tests
-          requires: [run elasticsearch reset]
-          tf_workspace: development
-          filters: {branches:{ignore:[master]}}
-      - cleanup:
-          name: destroy branch environment
-          requires: [run elasticsearch reset, run behat tests]
-          filters: {branches:{ignore:[master]}}
+#      - run_step_function:
+#          name: run the step function
+#          tf_workspace: preproduction
+#          requires: [build infra development]
+#          filters: {branches:{ignore:[master]}}
+#      - run_elasticsearch_reset:
+#          name: run elasticsearch reset
+#          tf_workspace: preproduction
+#          requires: [run the step function]
+#          filters: {branches:{ignore:[master]}}
+#      - reset_sirius:
+#          name: reset the sirius fixtures development
+#          requires: [manage workflow]
+#          tf_workspace: development
+#          filters: {branches:{ignore:[master]}}
+#      - build:
+#          name: build and unit tests
+#          requires: [manage workflow]
+#          filters: {branches:{ignore:[master]}}
+#      - infrastructure:
+#          name: plan infra development
+#          requires: [build and unit tests]
+#          tf_workspace: development
+#          tf_command: plan
+#          filters: {branches:{ignore:[master]}}
+#      - infrastructure:
+#          name: build infra development
+#          requires: [plan infra development, reset the sirius fixtures development]
+#          tf_workspace: development
+#          tf_command: apply
+#          filters: {branches:{ignore:[master]}}
+#      - run_step_function:
+#          name: run the step function
+#          requires: [build infra development]
+#          filters: {branches:{ignore:[master]}}
+#      - run_elasticsearch_reset:
+#          name: run elasticsearch reset
+#          requires: [run the step function]
+#          filters: {branches:{ignore:[master]}}
+#      - run_behat_tests:
+#          name: run behat tests
+#          requires: [run elasticsearch reset]
+#          tf_workspace: development
+#          filters: {branches:{ignore:[master]}}
+#      - cleanup:
+#          name: destroy branch environment
+#          requires: [run elasticsearch reset, run behat tests]
+#          filters: {branches:{ignore:[master]}}
 
   master:
     jobs:
@@ -371,3 +397,23 @@ jobs:
       - run:
           name: Output
           command: terraform output -json > terraform.output.json
+  get_latest_image:
+    executor: migration/python
+    resource_class: small
+    environment:
+      AWS_REGION: eu-west-1
+      AWS_CONFIG_FILE: ~/project/aws_config
+      AWS_REGISTRY: 311462405659.dkr.ecr.eu-west-1.amazonaws.com
+    steps:
+      - checkout
+      - run:
+          name: Install requirements
+          command: pip install boto3 click
+      - run:
+          name: Set latest version
+          command: python get_image.py --role sirius-ci >> ~/project/VERSION
+          working_directory: ~/project/docs/ci_scripts
+      - persist_to_workspace:
+          root: .
+          paths:
+            - VERSION

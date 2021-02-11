@@ -43,11 +43,11 @@ locals {
 // data sources for sirius behat
 
 data "aws_iam_role" "sirius_behat_task_role" {
-  name = "api-ecs-${local.account.sirius_env}-20201231085901651400000007"
+  name = "api-ecs-${local.account.sirius_env}-${local.account.sirius-api-role-suffix}"
 }
 
 data "aws_iam_role" "sirius_behat_execution_role" {
-  name = "execution-role-${local.account.sirius_env}-2020123108590178950000000f"
+  name = "execution-role-${local.account.sirius_env}-${local.account.sirius-exec_role-suffix}"
 }
 
 data "aws_ecr_repository" "api_app" {
@@ -72,7 +72,7 @@ data "aws_secretsmanager_secret" "user_one_password" {
 }
 
 data "aws_ecs_container_definition" "casmigrate_api" {
-  task_definition = "api-casmigrate"
+  task_definition = "api-${local.account.sirius_env}"
   container_name  = "api_app"
 }
 
