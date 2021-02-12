@@ -1,3 +1,4 @@
+import pandas as pd
 from utilities.basic_data_table import get_basic_data_table
 
 definition = {
@@ -17,8 +18,24 @@ def insert_cases(db_config, target_db):
         table_definition=definition,
     )
 
+    persons_query = (
+        f'select "id", "caserecnumber" from {db_config["target_schema"]}.persons '
+        f"where \"type\" = 'actor_client';"
+    )
+    persons_df = pd.read_sql_query(persons_query, db_config["db_connection_string"])
+
+    persons_df = persons_df[["id", "caserecnumber"]]
+
+    cases_joined_df = cases_df.merge(
+        persons_df, how="left", left_on="caserecnumber", right_on="caserecnumber"
+    )
+
+    cases_joined_df["client_id"] = cases_joined_df["id_y"]
+    cases_joined_df = cases_joined_df.drop(columns=["id_y"])
+    cases_joined_df = cases_joined_df.rename(columns={"id_x": "id"})
+
     target_db.insert_data(
         table_name=definition["destination_table_name"],
-        df=cases_df,
+        df=cases_joined_df,
         sirius_details=sirius_details,
     )
