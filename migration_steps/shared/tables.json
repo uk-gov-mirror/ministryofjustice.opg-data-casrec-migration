@@ -6,7 +6,7 @@
 			"type": "pk"
 		},{
 			"name": "global_uid_seq",
-			"column": "id",
+			"column": "uid",
 			"type": "uid"
 		}]
 	},
@@ -31,7 +31,7 @@
 			"type": "pk"
 		},{
 			"name": "global_uid_seq",
-			"column": "id",
+			"column": "uid",
 			"type": "uid"
 		}]
 	},
