@@ -198,13 +198,13 @@ def create_schema(schema, engine):
         print(f"Schema {schema} already exists\n\n")
 
 
-def dev_sirius_session():
+def sirius_session(account):
 
     client = boto3.client("sts")
     account_id = client.get_caller_identity()["Account"]
     print(f"Current users account: {account_id}")
 
-    role_to_assume = "arn:aws:iam::288342028542:role/sirius-ci"
+    role_to_assume = f"arn:aws:iam::{account}:role/sirius-ci"
     response = client.assume_role(
         RoleArn=role_to_assume, RoleSessionName="assumed_role"
     )
@@ -221,14 +221,10 @@ def dev_sirius_session():
 def main():
     parser = argparse.ArgumentParser(description="Load into casrec.")
     parser.add_argument(
-        "--entities",
-        default="all",
-        help="list of entities to load",
+        "--entities", default="all", help="list of entities to load",
     )
     parser.add_argument(
-        "--chunk",
-        default="50000",
-        help="chunk size",
+        "--chunk", default="50000", help="chunk size",
     )
     args = parser.parse_args()
 
@@ -239,6 +235,7 @@ def main():
     env_path = current_path / "../../.env"
     load_dotenv(dotenv_path=env_path)
 
+    account = os.environ["SIRIUS_ACCOUNT"]
     password = os.environ["DB_PASSWORD"]
     db_host = os.environ["DB_HOST"]
     port = os.environ["DB_PORT"]
@@ -292,7 +289,7 @@ def main():
             aws_secret_access_key="fake",
         )
     elif ci == "true":
-        s3_session = dev_sirius_session()
+        s3_session = sirius_session(account)
         s3 = s3_session.client("s3")
     else:
         s3 = s3_session.client("s3")

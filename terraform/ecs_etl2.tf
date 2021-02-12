@@ -52,7 +52,11 @@ locals {
       {
         name  = "ENVIRONMENT",
         value = terraform.workspace
-      }
+      },
+      {
+        name  = "SIRIUS_ACCOUNT",
+        value = local.account.account_id
+      },
     ]
   })
 }
