@@ -1,44 +1,42 @@
 import requests
+import json
+import jsonschema
 
 
-response = requests.get("http://frontend:8080/auth/login")
+def get_session():
+    response = requests.get("http://frontend:8080")
+    cookie = response.headers["Set-Cookie"]
+    xsrf = response.headers["X-XSRF-TOKEN"]
+    headers_dict = {"Cookie": cookie, "x-xsrf-token": xsrf}
+    data = {}
+    # {"email": "case.manager@opgtest.com", "password": "FAKE"}
+    with requests.Session() as s:
+        p = s.post("http://frontend:8080/auth/login", data=data, headers=headers_dict)
+        print(f"Login returns: {p.status_code}")
+        return s, headers_dict
 
-print(response.status_code)
-cookie = response.headers["Set-Cookie"]
-xsrf = response.headers["X-XSRF-TOKEN"]
 
-print(cookie)
-print(xsrf)
+def pp_json(json_thing, sort=True, indents=4):
+    if type(json_thing) is str:
+        print(json.dumps(json.loads(json_thing), sort_keys=sort, indent=indents))
+    else:
+        print(json.dumps(json_thing, sort_keys=sort, indent=indents))
+    return None
 
-headers_dict = {"Cookie": cookie, "x-xsrf-token": xsrf}
-# data = {"email": "case.manager@opgtest.com", "password": "FAKEPW"}
 
-with requests.Session() as s:
-    p = s.post("http://frontend:8080/auth/login", data=data, headers=headers_dict)
-    # print the html returned or something more intelligent to see if it's a successful login page.
-    print(p.status_code)
-    # print(p.headers)
+sess, headers_dict = get_session()
+r = sess.get("http://frontend:8080/api/v1/clients/45", headers=headers_dict)
+json_obj = json.loads(r.text)
+
+with open("client.schema.json", "r") as json_file:
+    json_schema_obj = json.load(json_file)
+
+response = jsonschema.validate(instance=json_obj, schema=json_schema_obj)
+
+print(response)
+
+with open("client.json", "w") as outfile:
+    json.dump(json_obj, outfile, indent=4, sort_keys=True)
+
     #
-    # # An authorised request.
-    # r = s.get('http://frontend:8080/supervision')
-    #
-    # print(r.status_code)
-    #
-    r = s.get("http://frontend:8080/api/v1/clients/45", headers=headers_dict)
-    print(r.text)
-    #
-    print(s.cookies.get_dict())
-    # print(s.auth)
-    # print(s.headers)
-
-
-#
-# print(response.headers)
-# print(response.content)
-# print(response.status_code)
-# print(response.cookies)
-# print(response.request)
-
-# curl -i --location --request GET 'http://frontend:8080/api/v1/clients/45' \
-# --header 'x-xsrf-token: UGolw9tmdfakj7o/F9ubtg==' \
-# --header 'Cookie: sirius=8nulr09bcrhpi4nkfcf7cukksj; XSRF-TOKEN=UGolw9tmdfakj7o%2FF9ubtg%3D%3D' \
+    # r = s.get("http://frontend:8080/api/v1/clients/45/annual-reports", headers=headers_dict)

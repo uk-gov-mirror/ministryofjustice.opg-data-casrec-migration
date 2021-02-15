@@ -33,7 +33,11 @@ def get_list_of_files(bucket_name, s3, path, tables):
         file = file_folder.split("/")[1]
         if folder == path and len(file) > 1:
             print(f"file is: {file}")
-            files_in_bucket.append(file)
+            ignore_list = ["remark", "sletter", "risk_assessment", "repvis", "account"]
+            if any(word in file for word in ignore_list):
+                print(f"ignoring {file} files for now...")
+            else:
+                files_in_bucket.append(file)
 
     if tables[0].lower() == "all":
         print("Will process all files")
@@ -67,17 +71,26 @@ def get_remaining_files(table_name, schema_name, engine, status, processor_id=No
     files = engine.execute(remaining_files)
     file_list = []
     for r in files:
+        print(r.values)
         file_list.append(r.values()[0])
         return file_list
-    file_list.append("no_value")
     return file_list
 
 
 def update_progress(
     table_name, schema_name, engine, file, status="IN_PROGRESS", processor_id=None
 ):
-
-    if processor_id is not None:
+    file_left = file.split(".")[0]
+    print(file_left)
+    if status == "READY_TO_PROCESS" and file_left[-1].isdigit():
+        regex = re.compile("[^a-zA-Z]")
+        file_left = regex.sub("", file_left)
+        row_update = f"""
+            UPDATE \"{schema_name}\".\"{table_name}\"
+            SET state = '{status}', processor_id = '{processor_id}'
+            WHERE file LIKE '{str(file_left)}%%';
+            """
+    elif processor_id is not None:
         row_update = f"""
             UPDATE \"{schema_name}\".\"{table_name}\"
             SET state = '{status}', processor_id = '{processor_id}'
@@ -85,6 +98,7 @@ def update_progress(
             """
     else:
         row_update = f"""
+            BEGIN WORK;
             UPDATE \"{schema_name}\".\"{table_name}\"
             SET state = '{status}'
             WHERE file = '{file}';
@@ -110,6 +124,22 @@ def check_table_exists(table_name, schema_name, engine):
         return table_exists
 
 
+def table_exists_already(table_name, table_lookup, schema_name, engine):
+    check_exists_statement = f"""
+        SELECT COUNT(*)
+        FROM "{schema_name}"."{table_lookup}"
+        WHERE table_name = \'{table_name}\';
+    """
+
+    check_exists_result = engine.execute(check_exists_statement)
+    for r in check_exists_result:
+        row_count = r.values()[0]
+    if row_count > 0:
+        return True
+    else:
+        return False
+
+
 def create_table_statement(table_name, schema, columns):
     create_statement = f'CREATE TABLE IF NOT EXISTS "{schema}"."{table_name}" ('
     for i, col in enumerate(columns):
@@ -119,6 +149,13 @@ def create_table_statement(table_name, schema, columns):
     create_statement += "); \n\n\n"
 
     return create_statement
+
+
+def add_lookup_table_row(table_name, table_lookup, schema_name, engine):
+    insert_statement = f"""
+        INSERT INTO "{schema_name}"."{table_lookup}" (table_name) VALUES (\'{table_name}\');
+    """
+    engine.execute(insert_statement)
 
 
 def truncate_table(table_name, schema, engine):
@@ -250,6 +287,9 @@ def main():
         "state",
         "processor_id",
     ]
+    table_lookup = "table_list"
+    table_lookup_cols = ["table_name"]
+
     ci = os.getenv("CI")
 
     processor_id = rnd.randint(0, 99999)
@@ -312,6 +352,12 @@ def main():
     else:
         print("Progress table exists")
 
+    if not check_table_exists(table_lookup, schema, engine):
+        print(f"Creating table_lookup table")
+        engine.execute(create_table_statement(table_lookup, schema, table_lookup_cols))
+    else:
+        print("table_lookup table exists")
+
     list_of_files = get_list_of_files(bucket_name, s3, path, table_list)
 
     progress_df = pd.DataFrame(list_of_files)
@@ -334,10 +380,10 @@ def main():
         )
 
     while get_row_count(progress_table, schema, engine, status="UNPROCESSED") > 0:
-        file_to_set = get_remaining_files(
-            progress_table, schema, engine, "UNPROCESSED"
-        )[0]
-        if file_to_set != "no_value":
+        files = get_remaining_files(progress_table, schema, engine, "UNPROCESSED")
+        if len(files) > 0:
+            file_to_set = files[0]
+
             update_progress(
                 progress_table,
                 schema,
@@ -346,11 +392,9 @@ def main():
                 "READY_TO_PROCESS",
                 processor_id,
             )
-        # To stop continual dirty reads
-        secs = rnd.uniform(0.00, 0.99)
+        # To allow multiple processes to get involved
+        secs = rnd.uniform(3.00, 5.99)
         time.sleep(secs)
-
-    prev_table = ""
 
     while (
         get_row_count(
@@ -395,30 +439,34 @@ def main():
             regex = re.compile("[^a-zA-Z]")
             table_name = regex.sub("", table_name)
 
-        if table_name == prev_table:
+        if table_exists_already(table_name, table_lookup, schema, engine):
             print("Multipart file table detected")
         else:
-            if check_table_exists(table_name, schema, engine):
-                truncate_table(table_name, schema, engine)
-            else:
-                print(f"Table {schema}.{table_name} doesn't exist. Creating table...")
-                engine.execute(create_table_statement(table_name, schema, columns))
-                print(f"Table {schema}.{table_name} created")
-
-        prev_table = table_name
+            print(f"Table {schema}.{table_name} doesn't exist. Creating table...")
+            engine.execute(create_table_statement(table_name, schema, columns))
+            print(f"Table {schema}.{table_name} created")
+            add_lookup_table_row(table_name, table_lookup, schema, engine)
 
         print(f'Inserting records into "{schema}"."{table_name}"')
         if len(df_renamed.index) > 0:
-            n = chunk_size  # chunk row size
-            list_df = [df_renamed[i : i + n] for i in range(0, df_renamed.shape[0], n)]
+            try:
+                n = chunk_size  # chunk row size
+                list_df = [
+                    df_renamed[i : i + n] for i in range(0, df_renamed.shape[0], n)
+                ]
 
-            for df_chunked in list_df:
-                engine.execute(
-                    create_insert_statement(table_name, schema, columns, df_chunked)
+                for df_chunked in list_df:
+                    engine.execute(
+                        create_insert_statement(table_name, schema, columns, df_chunked)
+                    )
+                    print(
+                        f'Rows inserted into "{schema}"."{table_name}": {get_row_count(table_name, schema, engine)}'
+                    )
+            except Exception:
+                update_progress(
+                    progress_table, schema, engine, file, "FAILED", processor_id
                 )
-                print(
-                    f'Rows inserted into "{schema}"."{table_name}": {get_row_count(table_name, schema, engine)}'
-                )
+                print(f"Failed to process {file}\n\n")
         else:
             print(f"No rows to insert for table {table_name}")
 

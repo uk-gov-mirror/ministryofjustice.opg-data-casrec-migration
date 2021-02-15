@@ -43,7 +43,7 @@ services:
       SIRIUS_DB_PORT: 5432
       ENVIRONMENT: local
       SIRIUS_ACCOUNT: NA
-    depends_on: [casrec_db, postgres-sirius]
+    depends_on: [casrec_db]
   load_casrec:
     build:
       context: ./migration_steps
@@ -104,7 +104,7 @@ services:
       SIRIUS_DB_PORT: 5432
       ENVIRONMENT: local
       SIRIUS_ACCOUNT: NA
-    depends_on: [casrec_db, postgres-sirius]
+    depends_on: [casrec_db]
   wait-for-it:
     build: ./wait-for-it
   load_to_target:

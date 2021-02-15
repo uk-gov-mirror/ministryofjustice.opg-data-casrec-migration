@@ -48,22 +48,25 @@ def main(verbose):
     conn_target = psycopg2.connect(config.get_db_connection_string("target"))
     conn_source = psycopg2.connect(config.get_db_connection_string("migration"))
     delete_all_schemas(log=log, conn=conn_source)
+    log.info("Deleted Schemas")
     log.debug(
         "(operations which need to be performed on Sirius DB ahead of the final Casrec Migration)"
     )
     execute_sql_file(sql_path, "prepare_sirius.sql", conn_target)
 
     log.info("Roll back previous migration")
-    max_orig_person_id = result_from_sql_file(
-        sql_path, "get_max_orig_person_id.sql", conn_target
-    )
-    execute_generated_sql(
-        sql_path,
-        "rollback_fixtures.template.sql",
-        "{max_orig_person_id}",
-        max_orig_person_id,
-        conn_target,
-    )
+
+    if environment in ("local", "development"):
+        max_orig_person_id = result_from_sql_file(
+            sql_path, "get_max_orig_person_id.sql", conn_target
+        )
+        execute_generated_sql(
+            sql_path,
+            "rollback_fixtures.template.sql",
+            "{max_orig_person_id}",
+            max_orig_person_id,
+            conn_target,
+        )
 
     conn_target.close()
 
@@ -74,9 +77,6 @@ if __name__ == "__main__":
     log.setLevel(1)
     log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
 
-    if environment in ("local", "development"):
-        main()
-    else:
-        log.warning("Skipping step not designed to run on environment %s", environment)
+    main()
 
     print(f"Total time: {round(time.process_time() - t, 2)}")

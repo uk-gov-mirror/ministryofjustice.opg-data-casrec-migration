@@ -141,37 +141,9 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                     }
                 },
                 {
-                    "StartAt": "Run Load Casrec Task 2",
+                    "StartAt": "Run Load Casrec Task 5",
                     "States": {
-                        "Run Load Casrec Task 2": {
-                            "Type": "Task",
-                            "Resource": "arn:aws:states:::ecs:runTask.sync",
-                            "Parameters": {
-                                "LaunchType": "FARGATE",
-                                "Cluster": "${aws_ecs_cluster.migration.arn}",
-                                "TaskDefinition": "${aws_ecs_task_definition.etl1.arn}",
-                                "NetworkConfiguration": {
-                                    "AwsvpcConfiguration": {
-                                        "Subnets": [${local.subnets_string}],
-                                        "SecurityGroups": ["${aws_security_group.etl.id}"],
-                                        "AssignPublicIp": "DISABLED"
-                                    }
-                                },
-                                "Overrides": {
-                                    "ContainerOverrides": [{
-                                        "Name": "etl1",
-                                        "Command": ["python3", "app.py"]
-                                    }]
-                                }
-                            },
-                            "End": true
-                        }
-                    }
-                },
-                {
-                    "StartAt": "Run Load Casrec Task 3",
-                    "States": {
-                        "Run Load Casrec Task 3": {
+                        "Run Load Casrec Task 5": {
                             "Type": "Task",
                             "Resource": "arn:aws:states:::ecs:runTask.sync",
                             "Parameters": {
