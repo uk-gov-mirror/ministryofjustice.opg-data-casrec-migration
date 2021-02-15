@@ -104,7 +104,6 @@ def reindex_new_data(db_config, df, table):
         no_of_rows = len(df.index)
 
         new_df = df[df["method"] == "INSERT"]
-        print(new_df)
 
         new_df = new_df.rename(columns={"id": "transformation_id"})
 
