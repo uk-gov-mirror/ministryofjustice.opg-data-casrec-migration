@@ -69,6 +69,8 @@ def get_remaining_files(table_name, schema_name, engine, status, processor_id=No
     for r in files:
         file_list.append(r.values()[0])
         return file_list
+    file_list.append("no_value")
+    return file_list
 
 
 def update_progress(
@@ -335,14 +337,15 @@ def main():
         file_to_set = get_remaining_files(
             progress_table, schema, engine, "UNPROCESSED"
         )[0]
-        update_progress(
-            progress_table,
-            schema,
-            engine,
-            file_to_set,
-            "READY_TO_PROCESS",
-            processor_id,
-        )
+        if file_to_set != "no_value":
+            update_progress(
+                progress_table,
+                schema,
+                engine,
+                file_to_set,
+                "READY_TO_PROCESS",
+                processor_id,
+            )
         # To stop continual dirty reads
         secs = rnd.uniform(0.00, 0.99)
         time.sleep(secs)
