@@ -6,6 +6,7 @@ from pytest_cases import case
 module_name = "client_persons"
 source_table = "pat"
 destination_table = "persons"
+destination_condition = "WHERE type = 'actor_client'"
 
 
 @case(tags="simple")
@@ -37,7 +38,7 @@ def case_clients_1(test_config):
             {merge_columns['transformed']},
             {', '.join(transformed_columns)}
         FROM {config.schemas['post_transform']}.{destination_table}
-        WHERE "type" = 'actor_client'
+        {destination_condition}
     """
 
     return (simple_matches, merge_columns, source_query, transformed_query, module_name)
@@ -46,7 +47,7 @@ def case_clients_1(test_config):
 @case(tags="default")
 def case_clients_2(test_config):
     defaults = {
-        "type": "actor_client",
+        # "type": "actor_client",
         "systemstatus": True,
         "isreplacementattorney": False,
         "istrustcorporation": False,
@@ -71,6 +72,7 @@ def case_clients_2(test_config):
         SELECT
             {', '.join(source_columns)}
         FROM {config.schemas['post_transform']}.{destination_table}
+        {destination_condition}
     """
 
     return (defaults, source_query, module_name)
@@ -104,7 +106,7 @@ def case_clients_3(test_config):
             {merge_columns['transformed']},
             {', '.join(transformed_columns)}
         FROM {config.schemas['post_transform']}.{destination_table}
-        WHERE "type" = 'actor_client'
+        {destination_condition}
     """
 
     return (lookup_fields, merge_columns, source_query, transformed_query, module_name)
@@ -127,6 +129,7 @@ def case_clients_4(test_config):
         SELECT
             {', '.join(source_columns)}
         FROM {config.schemas['post_transform']}.persons
+        {destination_condition}
     """
 
     return (calculated_fields, source_query, module_name)
@@ -146,7 +149,7 @@ def case_clients_count(test_config):
         SELECT
             *
         FROM {config.schemas['post_transform']}.{destination_table}
-        WHERE "type" = 'actor_client'
+        {destination_condition}
     """
 
     return (source_query, transformed_query, module_name)

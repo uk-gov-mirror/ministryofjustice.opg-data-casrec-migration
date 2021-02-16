@@ -39,7 +39,7 @@ def test_default_values(test_config, defaults, source_query, module_name):
         matches = source_sample_df[k] == source_sample_df["compare_col"]
         total_matches = matches.sum()
         success = total_matches == source_sample_df.shape[0]
-        log.log(
+        print(
             config.VERBOSE,
             f"checking {k} == {v}...." f" {'OK' if success else 'oh no'} ",
         )

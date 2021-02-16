@@ -4,21 +4,18 @@ from pytest_cases import case
 
 
 module_name = "client_persons"
-source_table = "pat"
+source_table = "deputy"
 destination_table = "persons"
+destination_condition = "WHERE type = 'actor_deputy'"
 
 
 @case(tags="simple")
-def case_clients_1(test_config):
+def case_deputies_1(test_config):
     simple_matches = {
-        "DOB": ["dob"],
-        "Create": ["createddate"],
-        "Forename": ["firstname", "middlenames"],
-        "Surname": ["surname"],
-        "AKA Name": ["previousnames"],
-        "Adrs5": ["countryofresidence"],
+        "Dep Forename": ["firstname"],
+        "Dep Surname": ["surname"],
     }
-    merge_columns = {"source": "Case", "transformed": "caserecnumber"}
+    merge_columns = {"source": "Email", "transformed": "email"}
 
     config = test_config
 
@@ -37,31 +34,31 @@ def case_clients_1(test_config):
             {merge_columns['transformed']},
             {', '.join(transformed_columns)}
         FROM {config.schemas['post_transform']}.{destination_table}
-        WHERE "type" = 'actor_client'
+        {destination_condition}
     """
 
     return (simple_matches, merge_columns, source_query, transformed_query, module_name)
 
 
 @case(tags="default")
-def case_clients_2(test_config):
+def case_deputies_2(test_config):
     defaults = {
-        "type": "actor_client",
+        # "type": "actor_client",
         "systemstatus": True,
         "isreplacementattorney": False,
         "istrustcorporation": False,
         "clientstatus": "Active",
-        "correspondencebywelsh": False,
+        # "correspondencebywelsh": False,
         "newsletter": False,
-        "specialcorrespondencerequirements_audiotape": False,
-        "specialcorrespondencerequirements_largeprint": False,
-        "specialcorrespondencerequirements_hearingimpaired": False,
-        "specialcorrespondencerequirements_spellingofnamerequirescare": False,
+        # "specialcorrespondencerequirements_audiotape": False,
+        # "specialcorrespondencerequirements_largeprint": False,
+        # "specialcorrespondencerequirements_hearingimpaired": False,
+        # "specialcorrespondencerequirements_spellingofnamerequirescare": False,
         "digital": False,
         "isorganisation": False,
         "casesmanagedashybrid": False,
         "supervisioncaseowner_id": 10,
-        "clientsource": "CASRECMIGRATION",
+        # "clientsource": "CASRECMIGRATION",
     }
 
     config = test_config
@@ -71,6 +68,7 @@ def case_clients_2(test_config):
         SELECT
             {', '.join(source_columns)}
         FROM {config.schemas['post_transform']}.{destination_table}
+        {destination_condition}
     """
 
     return (defaults, source_query, module_name)
@@ -78,14 +76,12 @@ def case_clients_2(test_config):
 
 @case(tags="lookups")
 # title is commented out because the anon data is wrong so it will never pass
-def case_clients_3(test_config):
+def case_deputies_3(test_config):
 
     lookup_fields = {
-        "maritalstatus": {"Marital Status": "marital_status_lookup"},
-        "clientaccommodation": {"Accom Type": "accommodation_type_lookup"},
-        # "Title": {"salutation": get_lookup_dict(file_name="title_codes_lookup")}
+        "correspondencebyemail": {"By Email": "Corres_Indicator_lookup"},
     }
-    merge_columns = {"source": "Case", "transformed": "caserecnumber"}
+    merge_columns = {"source": "Email", "transformed": "email"}
 
     config = test_config
 
@@ -104,14 +100,14 @@ def case_clients_3(test_config):
             {merge_columns['transformed']},
             {', '.join(transformed_columns)}
         FROM {config.schemas['post_transform']}.{destination_table}
-        WHERE "type" = 'actor_client'
+        {destination_condition}
     """
 
     return (lookup_fields, merge_columns, source_query, transformed_query, module_name)
 
 
 @case(tags="calculated")
-def case_clients_4(test_config):
+def case_deputies_4(test_config):
 
     today = pd.Timestamp.today()
 
@@ -127,13 +123,14 @@ def case_clients_4(test_config):
         SELECT
             {', '.join(source_columns)}
         FROM {config.schemas['post_transform']}.persons
+        {destination_condition}
     """
 
     return (calculated_fields, source_query, module_name)
 
 
 @case(tags="row_count")
-def case_clients_count(test_config):
+def case_deputies_count(test_config):
 
     config = test_config
     source_query = f"""
@@ -146,7 +143,7 @@ def case_clients_count(test_config):
         SELECT
             *
         FROM {config.schemas['post_transform']}.{destination_table}
-        WHERE "type" = 'actor_client'
+        {destination_condition}
     """
 
     return (source_query, transformed_query, module_name)

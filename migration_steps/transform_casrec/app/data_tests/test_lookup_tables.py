@@ -86,9 +86,10 @@ def test_map_lookup_tables(
             match = (
                 result_df[i].map(lookup_dict).fillna("").equals(result_df[k].fillna(""))
             )
+            print(result_df[i].map(lookup_dict).fillna(""))
+            print(result_df[k].fillna(""))
 
-            log.log(
-                config.VERBOSE,
+            print(
                 f"checking {k} == {i}...."
                 f""
                 f" {'OK' if match is True else 'oh no'} ",
