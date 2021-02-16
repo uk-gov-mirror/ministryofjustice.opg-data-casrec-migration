@@ -2,6 +2,23 @@ import pandas as pd
 from helpers import get_mapping_dict
 from transform_data import transform
 from utilities.generate_source_query import generate_select_string_from_mapping
+import logging
+
+log = logging.getLogger("root")
+
+
+def get_source_table(mapping_dict):
+    source_table_list = [
+        v["casrec_table"].lower()
+        for k, v in mapping_dict.items()
+        if v["casrec_table"] != ""
+    ]
+    no_dupes = list(set(source_table_list))
+    if len(no_dupes) == 1:
+        return list(set(source_table_list))[0]
+    else:
+        log.error("Multiple source tables")
+        return ""
 
 
 def get_basic_data_table(mapping_file_name, table_definition, db_config):
@@ -9,6 +26,8 @@ def get_basic_data_table(mapping_file_name, table_definition, db_config):
     mapping_dict = get_mapping_dict(
         file_name=mapping_file_name, stage_name="transform_casrec"
     )
+
+    source_table = get_source_table(mapping_dict=mapping_dict)
 
     sirius_details = get_mapping_dict(
         file_name=mapping_file_name,
@@ -18,7 +37,7 @@ def get_basic_data_table(mapping_file_name, table_definition, db_config):
 
     source_data_query = generate_select_string_from_mapping(
         mapping=mapping_dict,
-        source_table_name=table_definition["source_table_name"],
+        source_table_name=source_table,
         additional_columns=table_definition["source_table_additional_columns"],
         db_schema=db_config["source_schema"],
     )
