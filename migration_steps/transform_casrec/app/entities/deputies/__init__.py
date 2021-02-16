@@ -22,7 +22,7 @@ def runner(target_db, db_config):
     log.debug("insert_persons_deputies")
     insert_persons_deputies(target_db=target_db, db_config=db_config)
 
-    log.debug("insert_addresses_deputies")
+    # log.debug("insert_addresses_deputies")
     # insert_addresses_deputies(target_db=target_db, db_config=db_config)
 
 

@@ -2,7 +2,7 @@ from utilities.basic_data_table import get_basic_data_table
 
 definition = {
     "source_table_name": "deputy",
-    "source_table_additional_columns": ["Deputy No", "Special"],
+    "source_table_additional_columns": ["Deputy No"],
     "destination_table_name": "persons",
 }
 
