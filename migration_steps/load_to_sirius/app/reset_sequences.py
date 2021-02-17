@@ -54,7 +54,7 @@ def reset_uid_sequence(sequence_details, db_config):
         SELECT MAX(uid) from uids;
     """
 
-    log.debug(query)
+    # log.debug(query)
 
     connection_string = db_config["target_db_connection_string"]
     conn = psycopg2.connect(connection_string)
@@ -74,7 +74,7 @@ def reset_uid_sequence(sequence_details, db_config):
         reset_query = f"""
             SELECT setval('{sequence_details['sequence_name']}', {max_sequence_val});
         """
-        log.debug(reset_query)
+        # log.debug(reset_query)
 
         cursor.execute(reset_query)
 
