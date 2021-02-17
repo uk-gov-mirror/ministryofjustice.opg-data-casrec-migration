@@ -14,6 +14,9 @@ def case_deputies_1(test_config):
     simple_matches = {
         "Dep Forename": ["firstname"],
         "Dep Surname": ["surname"],
+        # "Email": ['email'], # can't test as it's also the merge col
+        # "AKA Name": ['othernames'], # marked as `not mapped`
+        # "Mobile": ['mobilenumber'] # marked as `not mapped`
     }
     merge_columns = {"source": "Email", "transformed": "email"}
 
@@ -43,22 +46,17 @@ def case_deputies_1(test_config):
 @case(tags="default")
 def case_deputies_2(test_config):
     defaults = {
-        # "type": "actor_client",
+        "type": "actor_deputy",
         "systemstatus": True,
         "isreplacementattorney": False,
         "istrustcorporation": False,
         "clientstatus": "Active",
-        # "correspondencebywelsh": False,
         "newsletter": False,
-        # "specialcorrespondencerequirements_audiotape": False,
-        # "specialcorrespondencerequirements_largeprint": False,
-        # "specialcorrespondencerequirements_hearingimpaired": False,
-        # "specialcorrespondencerequirements_spellingofnamerequirescare": False,
         "digital": False,
         "isorganisation": False,
         "casesmanagedashybrid": False,
         "supervisioncaseowner_id": 10,
-        # "clientsource": "CASRECMIGRATION",
+        "clientsource": "Casrec",
     }
 
     config = test_config
@@ -79,7 +77,11 @@ def case_deputies_2(test_config):
 def case_deputies_3(test_config):
 
     lookup_fields = {
-        "correspondencebyemail": {"By Email": "Corres_Indicator_lookup"},
+        # "salutation": {"Title": "title_codes_lookup"},
+        "correspondencebyemail": {
+            "By Email": "Corres_Indicator_lookup"
+        },  # lookup needs null value
+        # "correspondencebywelsh": {"Welsh": "Welsh_indicator_lookup"} # lookup currently doesn't exist
     }
     merge_columns = {"source": "Email", "transformed": "email"}
 
