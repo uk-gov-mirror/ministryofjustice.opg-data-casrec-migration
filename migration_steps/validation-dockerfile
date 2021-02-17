@@ -4,5 +4,6 @@ COPY validation/requirements.txt /requirements.txt
 RUN pip3 install -r requirements.txt
 COPY validation/validate.sh /validation/validate.sh
 COPY validation/validate_db /validation/validate_db
+COPY validation/post_migration_tests /validation/post_migration_tests
 COPY shared /shared
 CMD ["echo", "NO_OP"]

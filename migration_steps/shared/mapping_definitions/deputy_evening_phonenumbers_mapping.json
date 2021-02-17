@@ -52,9 +52,9 @@
             "table_name": "phonenumbers"
         },
         "transform_casrec": {
-            "casrec_table": "PAT",
-            "casrec_column_name": "Client Phone",
-            "alias": "Client Phone",
+            "casrec_table": "DEPUTY",
+            "casrec_column_name": "Contact Tele2",
+            "alias": "Contact Tele2",
             "requires_transformation": "",
             "lookup_table": "",
             "default_value": "",

@@ -4,7 +4,7 @@ import os
 import pandas as pd
 from helpers import get_mapping_dict
 
-from merge_helpers import calculate_new_uid
+from merge_helpers import calculate_new_uid, update_foreign_keys
 from merge_helpers import generate_select_query
 from merge_helpers import merge_source_data_with_existing_data
 from merge_helpers import reindex_existing_data
@@ -20,6 +20,7 @@ config = helpers.get_config(env=environment)
 row_limit = config.row_limit
 table = "cases"
 match_columns = ["caserecnumber"]
+fk = {"parent_table": "persons", "parent_col": "id", "fk_col": "client_id"}
 
 mapping_file_name = "cases_mapping"
 sirius_details = get_mapping_dict(
@@ -31,6 +32,8 @@ source_columns = list(sirius_details.keys())
 
 
 def merge_source_into_target(db_config, target_db):
+
+    # Get source data
     log.log(config.VERBOSE, "This is a standard data table")
     source_data_query = generate_select_query(
         schema=db_config["source_schema"], table=table, columns=source_columns
@@ -45,6 +48,7 @@ def merge_source_into_target(db_config, target_db):
         f"source_data_df\n{source_data_df.head(n=row_limit).to_markdown()}",
     )
 
+    # Get existing data
     existing_data_query = generate_select_query(
         schema=db_config["sirius_schema"], table=table, columns=match_columns + ["id"]
     )
@@ -66,8 +70,35 @@ def merge_source_into_target(db_config, target_db):
         config.DATA,
         f"merged_data_df\n{merged_data_df.head(n=row_limit).to_markdown()}",
     )
+
+    # Link to clients
+    fk_data_query = f"""
+         SELECT id,  caserecnumber FROM {db_config['target_schema']}.persons
+         WHERE type = 'actor_client';
+     """
+
+    fk_data_df = pd.read_sql_query(
+        con=db_config["db_connection_string"], sql=fk_data_query
+    )
+
+    merged_with_client_id_df = merged_data_df.merge(
+        fk_data_df,
+        how="left",
+        left_on="caserecnumber",
+        right_on="caserecnumber",
+    )
+
+    merged_with_client_id_df = merged_with_client_id_df.drop(columns=["client_id"])
+    merged_with_client_id_df = merged_with_client_id_df.rename(
+        columns={"id_y": "client_id", "id_x": "id"}
+    )
+
+    # Insert new data
+
     log.info("Reindexing new data")
-    new_data_df = reindex_new_data(df=merged_data_df, table=table, db_config=db_config)
+    new_data_df = reindex_new_data(
+        df=merged_with_client_id_df, table=table, db_config=db_config
+    )
 
     log.info("Adding new UID to new data")
     new_data_df = calculate_new_uid(
@@ -79,8 +110,11 @@ def merge_source_into_target(db_config, target_db):
     target_db.insert_data(
         table_name=table, df=new_data_df, sirius_details=sirius_details
     )
+
+    # Insert existing data
+
     log.info("Reindexing existing data")
-    existing_data = reindex_existing_data(df=merged_data_df, table=table)
+    existing_data = reindex_existing_data(df=merged_with_client_id_df, table=table)
     log.info("Inserting existing data")
 
     target_db.insert_data(

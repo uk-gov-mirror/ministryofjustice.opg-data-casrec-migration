@@ -35,6 +35,7 @@ class MappingDefinitions:
             if v["requires_transformation"] == "conditional_lookup":
                 d["lookup_table"] = v["lookup_table"]
                 d["original_columns"] = v["casrec_column_name"]
+                d["additional_columns"] = v["additional_columns"]
             if tr in transformations:
                 transformations[tr].append(d)
             else:
