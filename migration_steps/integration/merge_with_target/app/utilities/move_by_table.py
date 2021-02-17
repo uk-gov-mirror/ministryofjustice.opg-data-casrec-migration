@@ -14,9 +14,11 @@ def move_a_table(db_config, target_db, table_name):
         con=db_config["db_connection_string"], sql=source_data_query
     )
 
-    source_data_df = calculate_new_uid(
-        db_config=db_config, df=source_data_df, table=table_name, column_name="uid"
-    )
+    # source_data_df = calculate_new_uid(
+    #     db_config=db_config, df=source_data_df, table=table_name, column_name="uid"
+    # )
+
+    log.info(f"This is where we would work out if we need to insert or update data")
 
     log.info("Reindexing new data")
 
