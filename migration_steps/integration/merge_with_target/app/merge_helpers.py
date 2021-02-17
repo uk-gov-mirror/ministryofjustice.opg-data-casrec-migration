@@ -7,8 +7,11 @@ from utilities.generate_luhn_checksum import append_checksum
 log = logging.getLogger("root")
 
 
-def generate_select_query(schema, table, columns, where_clause=None):
-    query = f"SELECT {', '.join(columns)} from {schema}.{table}"
+def generate_select_query(schema, table, columns=None, where_clause=None):
+    if columns:
+        query = f"SELECT {', '.join(columns)} from {schema}.{table}"
+    else:
+        query = f"SELECT * from {schema}.{table}"
 
     if where_clause:
         where = ""
@@ -146,9 +149,9 @@ def reindex_new_data(db_config, df, table):
     try:
         no_of_rows = len(df.index)
 
-        new_df = df[df["method"] == "INSERT"]
+        # new_df = df[df["method"] == "INSERT"]
 
-        new_df = new_df.rename(columns={"id": "transformation_id"})
+        new_df = df.rename(columns={"id": "transformation_id"})
 
         new_df.insert(0, "id", range(first_id, first_id + len(new_df)))
 

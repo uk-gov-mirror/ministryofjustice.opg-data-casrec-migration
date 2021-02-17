@@ -4,6 +4,7 @@ from pathlib import Path
 
 from utilities.clear_database import clear_tables
 from utilities.db_insert import InsertData
+from utilities.move_by_table import move_a_table
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, str(current_path) + "/../../../shared")
@@ -15,6 +16,7 @@ import click
 from sqlalchemy import create_engine
 import custom_logger
 from helpers import log_title
+import table_helpers
 
 from dotenv import load_dotenv
 
@@ -76,11 +78,20 @@ def main(verbose, clear):
     if clear:
         clear_tables(db_config)
 
-    log.info("Merging source data into target")
-    client.merge_source_data(db_config=db_config, target_db=target_db)
-    cases.merge_source_data(db_config=db_config, target_db=target_db)
-    supervision_level.merge_source_data(db_config=db_config, target_db=target_db)
-    deputies.merge_source_data(db_config=db_config, target_db=target_db)
+    log.info(
+        f"Moving data from '{db_config['source_schema']}' schema to '{db_config['target_schema']}' schema and reindexing pks"
+    )
+    tables_list = table_helpers.get_table_list(
+        table_helpers.get_table_file(), type="data"
+    )
+    for table in tables_list:
+        move_a_table(db_config=db_config, target_db=target_db, table_name=table)
+
+    log.info(f"Joining entities together with fks")
+    # client.merge_source_data(db_config=db_config, target_db=target_db)
+    # cases.merge_source_data(db_config=db_config, target_db=target_db)
+    # supervision_level.merge_source_data(db_config=db_config, target_db=target_db)
+    # deputies.merge_source_data(db_config=db_config, target_db=target_db)
 
 
 if __name__ == "__main__":

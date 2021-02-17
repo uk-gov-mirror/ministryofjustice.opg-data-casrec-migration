@@ -17,8 +17,11 @@ def get_table_file(file_name="tables"):
     return tables_dict
 
 
-def get_table_list(table_dict):
-    return list(table_dict.keys())
+def get_table_list(table_dict, type=None):
+    if type:
+        return [k for k, v in table_dict.items() if v["table_type"] == type]
+    else:
+        return list(table_dict.keys())
 
 
 def get_sequences_list(table_dict):
