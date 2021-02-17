@@ -29,13 +29,17 @@ sirius_details = get_mapping_dict(
     only_complete_fields=False,
 )
 source_columns = list(sirius_details.keys())
+source_conditions = {"type": "actor_client"}
 
 
 def merge_source_into_target(db_config, target_db):
     log.log(config.VERBOSE, "This is a standard data table")
 
     source_data_query = generate_select_query(
-        schema=db_config["source_schema"], table=table, columns=source_columns
+        schema=db_config["source_schema"],
+        table=table,
+        columns=source_columns,
+        where_clause=source_conditions,
     )
     log.debug(f"Getting source data using query {source_data_query}")
     source_data_df = pd.read_sql_query(
