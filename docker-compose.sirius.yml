@@ -67,7 +67,6 @@ services:
       DB_HOST: casrec_db
       DB_PORT: 5432
       ENVIRONMENT: docker
-      SIRIUS_ACCOUNT: NA
     depends_on: [localstack, casrec_db]
   integration:
     build:
@@ -85,7 +84,6 @@ services:
       SIRIUS_DB_HOST: docker.for.mac.localhost
       SIRIUS_DB_PORT: 5432
       ENVIRONMENT: local
-      SIRIUS_ACCOUNT: NA
     depends_on: [casrec_db]
   validation:
     build:
@@ -103,7 +101,6 @@ services:
       SIRIUS_DB_HOST: postgres-sirius
       SIRIUS_DB_PORT: 5432
       ENVIRONMENT: local
-      SIRIUS_ACCOUNT: NA
     depends_on: [casrec_db]
   wait-for-it:
     build: ./wait-for-it
@@ -123,5 +120,4 @@ services:
       SIRIUS_DB_HOST: docker.for.mac.localhost
       SIRIUS_DB_PORT: 5432
       ENVIRONMENT: local
-      SIRIUS_ACCOUNT: NA
     depends_on: [casrec_db]

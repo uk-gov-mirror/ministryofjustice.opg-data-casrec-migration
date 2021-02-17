@@ -98,7 +98,6 @@ def update_progress(
             """
     else:
         row_update = f"""
-            BEGIN WORK;
             UPDATE \"{schema_name}\".\"{table_name}\"
             SET state = '{status}'
             WHERE file = '{file}';
