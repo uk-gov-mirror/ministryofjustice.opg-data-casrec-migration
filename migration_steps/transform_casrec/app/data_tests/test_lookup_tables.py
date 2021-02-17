@@ -81,14 +81,13 @@ def test_map_lookup_tables(
     for k, v in lookup_fields.items():
         for i, j in v.items():
 
-            lookup_dict = get_lookup_dict(file_name=j)
+            lookup_dict = get_lookup_dict(file_name=j.lower())
 
             match = (
                 result_df[i].map(lookup_dict).fillna("").equals(result_df[k].fillna(""))
             )
 
-            log.log(
-                config.VERBOSE,
+            print(
                 f"checking {k} == {i}...."
                 f""
                 f" {'OK' if match is True else 'oh no'} ",

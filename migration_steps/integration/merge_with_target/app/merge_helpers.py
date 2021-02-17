@@ -33,27 +33,32 @@ def generate_max_id_query(schema, table, id="id"):
     return query
 
 
-def get_max_id_from_sirius(db_config, table, id="id"):
-    connection_string = db_config["sirius_db_connection_string"]
+def get_max_id_from_existing_table(db_connection_string, db_schema, table, id="id"):
+    connection_string = db_connection_string
     conn = psycopg2.connect(connection_string)
     cursor = conn.cursor()
 
-    query = generate_max_id_query(schema=db_config["sirius_schema"], table=table, id=id)
+    query = generate_max_id_query(schema=db_schema, table=table, id=id)
 
     try:
         cursor.execute(query)
         max_id = cursor.fetchall()[0][0]
         if max_id:
-            log.debug(f"Max Sirius '{id}' in table '{table}': {max_id}")
+            log.debug(f"Max '{id}' in table '{db_schema}.{table}': {max_id}")
             return max_id
         else:
             log.debug(
-                f"No data for Sirius '{id}' in table '{table}', setting max_id to 0"
+                f"No data for '{id}' in table '{db_schema}.{table}', setting max_id to 0"
             )
             return 0
 
         cursor.close()
-    except (Exception, psycopg2.DatabaseError) as error:
+    except psycopg2.DatabaseError:
+        log.debug(
+            f"No data for '{id}' in table '{db_schema}.{table}', setting max_id to 0"
+        )
+        return 0
+    except (Exception) as error:
         log.error("Error: %s" % error)
         conn.rollback()
         cursor.close()
@@ -61,9 +66,36 @@ def get_max_id_from_sirius(db_config, table, id="id"):
 
 
 def calculate_new_uid(db_config, df, table, column_name):
-    max_uid = get_max_id_from_sirius(db_config=db_config, table=table, id=column_name)
-    max_uid_without_checksum = int(str(max_uid)[:-1])
-    next_uid_without_checksum = max_uid_without_checksum + 1
+
+    sirius_max_uid = get_max_id_from_existing_table(
+        db_connection_string=db_config["sirius_db_connection_string"],
+        db_schema=db_config["sirius_schema"],
+        table=table,
+        id=column_name,
+    )
+
+    target_max_uid = get_max_id_from_existing_table(
+        db_connection_string=db_config["db_connection_string"],
+        db_schema=db_config["target_schema"],
+        table=table,
+        id=column_name,
+    )
+
+    try:
+        sirius_max_uid_without_checksum = int(str(sirius_max_uid)[:-1])
+    except ValueError:
+        sirius_max_uid_without_checksum = 0
+    try:
+        target_max_uid_without_checksum = int(str(target_max_uid)[:-1])
+    except ValueError:
+        target_max_uid_without_checksum = 0
+
+    next_uid_without_checksum = (
+        sirius_max_uid_without_checksum + target_max_uid_without_checksum + 1
+    )
+    log.debug(
+        f"Starting with uid {next_uid_without_checksum} (without final checksum digit)"
+    )
 
     df.insert(
         0,
@@ -97,8 +129,19 @@ def merge_source_data_with_existing_data(source_data, existing_data, match_colum
 
 def reindex_new_data(db_config, df, table):
 
-    max_id = get_max_id_from_sirius(db_config=db_config, table=table)
-    first_id = int(max_id) + 1
+    sirius_max_id = get_max_id_from_existing_table(
+        db_connection_string=db_config["sirius_db_connection_string"],
+        db_schema=db_config["sirius_schema"],
+        table=table,
+    )
+    target_max_id = get_max_id_from_existing_table(
+        db_connection_string=db_config["db_connection_string"],
+        db_schema=db_config["target_schema"],
+        table=table,
+    )
+
+    first_id = int(sirius_max_id) + int(target_max_id) + 1
+    log.debug(f"Starting with id {first_id}")
 
     try:
         no_of_rows = len(df.index)

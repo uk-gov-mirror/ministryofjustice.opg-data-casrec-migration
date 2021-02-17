@@ -91,8 +91,7 @@ def test_simple_transformations(
 
             match = result_df[k].equals(result_df[i])
 
-            log.log(
-                config.VERBOSE,
+            print(
                 f"checking {k} == {i}.... " f"{'OK' if match is True else 'oh no'} ",
             )
 

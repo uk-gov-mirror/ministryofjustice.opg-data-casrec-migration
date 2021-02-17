@@ -16,7 +16,7 @@ import helpers
 from dotenv import load_dotenv
 
 from run_data_tests import run_data_tests
-from entities import clients, cases, supervision_level
+from entities import clients, cases, supervision_level, deputies
 from utilities.clear_database import clear_tables
 from utilities.db_insert import InsertData
 
@@ -104,6 +104,9 @@ def main(clear, entity_list, include_tests, verbose):
 
     if len(allowed_entities) == 0 or "supervision_level" in allowed_entities:
         supervision_level.runner(target_db=target_db, db_config=db_config)
+
+    if len(allowed_entities) == 0 or "deputies" in allowed_entities:
+        deputies.runner(target_db=target_db, db_config=db_config)
 
     if include_tests:
         run_data_tests(verbosity_level=verbosity_levels[verbose])

@@ -7,8 +7,7 @@ from utilities.db_insert import InsertData
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, str(current_path) + "/../../../shared")
-from entities import client, supervision_level, cases
-
+from entities import client, supervision_level, cases, deputies
 
 import logging
 import time
@@ -81,6 +80,7 @@ def main(verbose, clear):
     client.merge_source_data(db_config=db_config, target_db=target_db)
     cases.merge_source_data(db_config=db_config, target_db=target_db)
     supervision_level.merge_source_data(db_config=db_config, target_db=target_db)
+    deputies.merge_source_data(db_config=db_config, target_db=target_db)
 
 
 if __name__ == "__main__":
