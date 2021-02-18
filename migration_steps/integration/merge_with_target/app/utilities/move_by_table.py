@@ -5,27 +5,25 @@ import logging
 log = logging.getLogger("root")
 
 
-def move_a_table(db_config, target_db, table_name):
-    source_data_query = generate_select_query(
-        schema=db_config["source_schema"], table=table_name
-    )
-    log.debug(f"Getting source data using query {source_data_query}")
-    source_data_df = pd.read_sql_query(
-        con=db_config["db_connection_string"], sql=source_data_query
-    )
+def move_all_tables(db_config, target_db, table_list):
 
-    # source_data_df = calculate_new_uid(
-    #     db_config=db_config, df=source_data_df, table=table_name, column_name="uid"
-    # )
+    for table, details in table_list.items():
+        table_name = table
 
-    log.info(f"This is where we would work out if we need to insert or update data")
+        keys = [x for x in details["fks"] + [details["pk"]] if len(x) > 0]
 
-    log.info("Reindexing new data")
+        source_data_query = generate_select_query(
+            schema=db_config["source_schema"], table=table_name
+        )
+        log.debug(f"Getting source data using query {source_data_query}")
+        source_data_df = pd.read_sql_query(
+            con=db_config["db_connection_string"], sql=source_data_query
+        )
 
-    source_data_df = reindex_new_data(
-        df=source_data_df, table=table_name, db_config=db_config
-    )
+        for key in keys:
+            new_key = f"transform_schema_{key}"
+            source_data_df[new_key] = source_data_df[key]
 
-    log.info("Inserting new data")
+        log.info("Inserting new data")
 
-    target_db.insert_data(table_name=table_name, df=source_data_df)
+        target_db.insert_data(table_name=table_name, df=source_data_df)

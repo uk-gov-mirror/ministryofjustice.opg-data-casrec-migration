@@ -1,5 +1,6 @@
 import json
 import os
+from collections import OrderedDict
 
 
 def get_current_directory():
@@ -12,7 +13,7 @@ def get_table_file(file_name="tables"):
     file_path = os.path.join(dirname, f"{file_name}.json")
 
     with open(file_path) as tables_json:
-        tables_dict = json.load(tables_json)
+        tables_dict = json.load(tables_json, object_pairs_hook=OrderedDict)
 
     return tables_dict
 
