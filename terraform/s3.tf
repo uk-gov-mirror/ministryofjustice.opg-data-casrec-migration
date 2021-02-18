@@ -56,4 +56,25 @@ data "aws_iam_policy_document" "casrec_migration" {
       variable = "s3:x-amz-server-side-encryption"
     }
   }
+
+  statement {
+    sid     = "DenyNoneSSLRequests"
+    effect  = "Deny"
+    actions = ["s3:*"]
+    resources = [
+      aws_s3_bucket.casrec_migration.arn,
+      "${aws_s3_bucket.casrec_migration.arn}/*"
+    ]
+
+    condition {
+      test     = "Bool"
+      variable = "aws:SecureTransport"
+      values   = [false]
+    }
+
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+  }
 }
