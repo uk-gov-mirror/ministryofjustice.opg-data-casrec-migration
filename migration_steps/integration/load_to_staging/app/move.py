@@ -31,12 +31,9 @@ def add_missing_columns_query(table, schema, columns):
     return query
 
 
-def generate_inserts(db_config, db_engine):
+def generate_inserts(db_config, db_engine, tables):
 
-    path = f"{os.path.dirname(__file__)}/tables.json"
-
-    with open(path) as tables_json:
-        tables_list = json.load(tables_json)
+    tables_list = tables
 
     for i, table in enumerate(tables_list):
         log.info(f"Inserting {table} into {db_config['target_schema']}")

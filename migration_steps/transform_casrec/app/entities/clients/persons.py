@@ -1,7 +1,6 @@
 from utilities.basic_data_table import get_basic_data_table
 
 definition = {
-    "sheet_name": "persons (Client)",
     "source_table_name": "pat",
     "source_table_additional_columns": ["Term Type"],
     "destination_table_name": "persons",

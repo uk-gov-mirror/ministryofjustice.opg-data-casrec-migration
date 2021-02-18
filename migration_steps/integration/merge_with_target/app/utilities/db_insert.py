@@ -165,17 +165,22 @@ class InsertData:
     def _add_missing_columns_with_datatypes(
         self, table_name, col_diff, mapping_details
     ):
+
         statement = f"ALTER TABLE {self.schema}.{table_name} "
         for i, col in enumerate(col_diff):
-            if col in mapping_details:
-                data_type = mapping_details[col]["data_type"]
-            else:
+            if col[:2] == "c_":
                 data_type = "text"
+            else:
+
+                data_type = (
+                    self.datatype_remap[mapping_details[col]["data_type"]]
+                    if mapping_details[col]["data_type"] in self.datatype_remap
+                    else mapping_details[col]["data_type"]
+                )
             statement += f'ADD COLUMN "{col}" {data_type}'
             if i + 1 < len(col_diff):
                 statement += ","
         statement += ";"
-
         return statement
 
     def _add_missing_columns(self, table_name, col_diff):

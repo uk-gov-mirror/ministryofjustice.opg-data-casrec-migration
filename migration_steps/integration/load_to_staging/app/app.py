@@ -17,6 +17,7 @@ import click
 from sqlalchemy import create_engine
 import custom_logger
 from helpers import log_title
+import table_helpers
 
 from dotenv import load_dotenv
 
@@ -71,13 +72,18 @@ def main(verbose, clear):
         )
     )
     log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
+    tables_list = table_helpers.get_table_list(table_helpers.get_table_file())
 
     if clear:
-        empty_target_tables(db_config=db_config, db_engine=target_db_engine)
+        empty_target_tables(
+            db_config=db_config, db_engine=target_db_engine, tables=tables_list[:]
+        )
 
     insert_base_data(db_config=db_config, db_engine=target_db_engine)
 
-    generate_inserts(db_config=db_config, db_engine=target_db_engine)
+    generate_inserts(
+        db_config=db_config, db_engine=target_db_engine, tables=tables_list
+    )
 
 
 if __name__ == "__main__":

@@ -1,40 +1,24 @@
-import json
-
-import pandas as pd
-from transform_data import transform
-from utilities.generate_source_query import generate_select_string_from_mapping
-from utilities.helpers import get_mapping_file
+from utilities.basic_data_table import get_basic_data_table
 
 definition = {
-    "sheet_name": "persons (Deputy)",
     "source_table_name": "deputy",
     "source_table_additional_columns": ["Deputy No"],
     "destination_table_name": "persons",
 }
 
+mapping_file_name = "deputy_persons_mapping"
 
-def insert_persons_deputies(config, target_db):
 
-    with open(get_mapping_file(file_name="persons_deputy_mapping")) as mapping_json:
-        mapping_dict = json.load(mapping_json)
+def insert_persons_deputies(db_config, target_db):
 
-    source_data_query = generate_select_string_from_mapping(
-        mapping=mapping_dict,
-        source_table_name=definition["source_table_name"],
-        additional_columns=definition["source_table_additional_columns"],
-        db_schema=config.etl1_schema,
+    sirius_details, persons_df = get_basic_data_table(
+        db_config=db_config,
+        mapping_file_name=mapping_file_name,
+        table_definition=definition,
     )
 
-    source_data_df = pd.read_sql_query(
-        sql=source_data_query, con=config.connection_string
+    target_db.insert_data(
+        table_name=definition["destination_table_name"],
+        df=persons_df,
+        sirius_details=sirius_details,
     )
-
-    final_df = transform.perform_transformations(
-        mapping_dict,
-        definition,
-        source_data_df,
-        config.connection_string,
-        config.etl2_schema,
-    )
-
-    target_db.insert_data(table_name=definition["destination_table_name"], df=final_df)

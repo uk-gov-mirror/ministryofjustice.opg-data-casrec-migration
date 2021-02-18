@@ -183,7 +183,7 @@
             "alias": "",
             "requires_transformation": "",
             "lookup_table": "",
-            "default_value": "",
+            "default_value": false,
             "calculated": "",
             "additional_columns": ""
         }
@@ -204,7 +204,7 @@
             "alias": "",
             "requires_transformation": "",
             "lookup_table": "",
-            "default_value": "",
+            "default_value": false,
             "calculated": "",
             "additional_columns": ""
         }
@@ -224,7 +224,7 @@
             "casrec_column_name": "By Email",
             "alias": "By Email",
             "requires_transformation": "",
-            "lookup_table": "Corres_Indicator_lookup",
+            "lookup_table": "corres_indicator_lookup",
             "default_value": "",
             "calculated": "",
             "additional_columns": ""
@@ -503,6 +503,27 @@
             "additional_columns": ""
         }
     },
+    "correspondencebywelsh": {
+        "mapping_status": {
+            "is_complete": true
+        },
+        "sirius_details": {
+            "is_pk": "",
+            "fk_parents": "",
+            "data_type": "bool",
+            "table_name": "persons"
+        },
+        "transform_casrec": {
+            "casrec_table": "DEPUTY",
+            "casrec_column_name": "Welsh",
+            "alias": "Welsh",
+            "requires_transformation": "",
+            "lookup_table": "corres_indicator_lookup",
+            "default_value": "",
+            "calculated": "",
+            "additional_columns": ""
+        }
+    },
     "newsletter": {
         "mapping_status": {
             "is_complete": true
@@ -538,8 +559,8 @@
             "casrec_table": "DEPUTY",
             "casrec_column_name": "Special",
             "alias": "Special",
-            "requires_transformation": "conditional_lookup",
-            "lookup_table": "",
+            "requires_transformation": "",
+            "lookup_table": "specialcorrespondencerequirements_audiotape_lookup",
             "default_value": "",
             "calculated": "",
             "additional_columns": ""
@@ -559,8 +580,8 @@
             "casrec_table": "DEPUTY",
             "casrec_column_name": "Special",
             "alias": "Special 1",
-            "requires_transformation": "conditional_lookup",
-            "lookup_table": "",
+            "requires_transformation": "",
+            "lookup_table": "specialcorrespondencerequirements_largeprint_lookup",
             "default_value": "",
             "calculated": "",
             "additional_columns": ""
@@ -580,8 +601,8 @@
             "casrec_table": "DEPUTY",
             "casrec_column_name": "Special",
             "alias": "Special 2",
-            "requires_transformation": "conditional_lookup",
-            "lookup_table": "",
+            "requires_transformation": "",
+            "lookup_table": "specialcorrespondencerequirements_hearingimpaired_lookup",
             "default_value": "",
             "calculated": "",
             "additional_columns": ""
@@ -601,7 +622,7 @@
             "casrec_table": "DEPUTY",
             "casrec_column_name": "Special",
             "alias": "Special 3",
-            "requires_transformation": "conditional_lookup",
+            "requires_transformation": "",
             "lookup_table": "",
             "default_value": "",
             "calculated": "",

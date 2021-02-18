@@ -56,13 +56,11 @@ def test_all_fields(test_config, complete_status):
         (total_expected - total_errors) / total_expected * 100, 2
     )
 
-    log.log(
+    print(
         config.VERBOSE,
         f"Acceptable percentage of fields tests: "
         f"{config.MIN_PERCENTAGE_FIELDS_TESTED}%",
     )
-    log.log(
-        config.VERBOSE, f"Actual percentage of fields tested: {percentage_complete}%"
-    )
+    print(config.VERBOSE, f"Actual percentage of fields tested: {percentage_complete}%")
 
     assert percentage_complete >= config.MIN_PERCENTAGE_FIELDS_TESTED

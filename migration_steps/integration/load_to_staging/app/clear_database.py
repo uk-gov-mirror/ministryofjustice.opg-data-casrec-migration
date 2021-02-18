@@ -7,18 +7,14 @@ import psycopg2
 log = logging.getLogger("root")
 
 
-def empty_target_tables(db_config, db_engine):
-    path = f"{os.path.dirname(__file__)}/tables.json"
-    log.info(f"path: {path}")
+def empty_target_tables(db_config, db_engine, tables):
+    tables_to_clear = tables
 
-    with open(path) as tables_json:
-        tables_list = json.load(tables_json)
+    tables_to_clear.reverse()
 
-    tables_list.reverse()
+    tables_to_clear.append("assignees")
 
-    tables_list.append("assignees")
-
-    for i, table in enumerate(tables_list):
+    for i, table in enumerate(tables_to_clear):
         log.debug(f"Clearing data from {table} in {db_config['target_schema']}")
 
         statement = f"""

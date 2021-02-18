@@ -17,7 +17,7 @@ def conditional_lookup(
     final_col: str,
     lookup_col: str,
     data_col: str,
-    lookup_file_name: dict,
+    lookup_file_name: str,
     df: pd.DataFrame,
 ) -> pd.DataFrame:
     log.info("I AM DOING A CONDITIONAL LOOKUP")
