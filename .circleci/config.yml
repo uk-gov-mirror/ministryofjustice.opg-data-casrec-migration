@@ -1,6 +1,14 @@
 ---
 version: 2.1
 
+parameters:
+  run_master:
+    type: boolean
+    default: true
+  run_preprod:
+    type: boolean
+    default: false
+
 workflows:
   pull_request:
     jobs:
@@ -47,6 +55,7 @@ workflows:
           filters: {branches:{ignore:[master]}}
 
   master:
+    when: << pipeline.parameters.run_master >>
     jobs:
       - build:
           name: build and unit tests master
@@ -70,9 +79,51 @@ workflows:
           requires: [run the step function]
           filters: {branches:{only:[master]}}
       - run_behat_tests:
-          name: run behat tests
+          name: run behat tests master
           requires: [run elasticsearch reset]
           tf_workspace: development
+          filters: {branches:{only:[master]}}
+      - approve:
+          name: approve preprod kick off
+          type: approval
+          requires: [run behat tests master]
+          filters: {branches:{only:[master]}}
+      - kick_off_preprod:
+          name: kick off preprod
+          requires: [approve preprod kick off]
+          filters: {branches:{only:[master]}}
+
+  preprod:
+    when: << pipeline.parameters.run_preprod >>
+    jobs:
+      - manage_workflow:
+          name: manage workflow
+          filters: {branches:{only:[master]}}
+      - get_latest_image:
+          name: get latest tag
+          requires: [manage workflow]
+          filters: {branches:{only:[master]}}
+      - infrastructure:
+          name: plan infra preproduction
+          requires: [build and unit tests]
+          tf_workspace: preproduction
+          tf_command: plan
+          filters: {branches:{only:[master]}}
+      - infrastructure:
+          name: build infra preproduction
+          requires: [plan infra preproduction]
+          tf_workspace: preproduction
+          tf_command: apply
+          filters: {branches:{only:[master]}}
+      - run_step_function:
+          name: run the step function preproduction
+          requires: [build infra preproduction]
+          account: "492687888235"
+          filters: {branches:{only:[master]}}
+      - run_elasticsearch_reset:
+          name: run elasticsearch reset preproduction
+          tf_workspace: preproduction
+          requires: [run the step function preproduction]
           filters: {branches:{only:[master]}}
 
 orbs:
@@ -194,9 +245,30 @@ jobs:
       - checkout
       - migration/login_codeartifact
       - migration/cancel_redundant_builds
+  kick_off_preprod:
+    executor: migration/python
+    resource_class: small
+    steps:
+      - checkout
+      - run:
+          name: kick off preprod job
+          command: |
+            curl --request POST \
+            --url https://circleci.com/api/v2/project/github/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pipeline \
+            --header "Circle-Token: ${CIRCLE_BUILDS_TOKEN}" \
+            --header 'content-type: application/json' \
+            --data '{"branch":"master", "parameters":{"run_master":false, "run_preprod":true}}'
+
   run_step_function:
     executor: migration/python
     resource_class: small
+    parameters:
+      account:
+        description: account to run step function in
+        type: string
+        default: "288342028542"
+    environment:
+      SIRIUS_ACCOUNT: << parameters.account >>
     steps:
       - checkout
       - run:
@@ -205,8 +277,9 @@ jobs:
           working_directory: ~/project/docs/ci_scripts
       - run:
           name: run the function
-          command: python3 run_step_function.py --role sirius-ci
+          command: python3 run_step_function.py --role sirius-ci --account ${SIRIUS_ACCOUNT}
           working_directory: ~/project/docs/ci_scripts
+
   run_behat_tests:
     executor: terraform/terraform
     resource_class: small
@@ -371,3 +444,23 @@ jobs:
       - run:
           name: Output
           command: terraform output -json > terraform.output.json
+  get_latest_image:
+    executor: migration/python
+    resource_class: small
+    environment:
+      AWS_REGION: eu-west-1
+      AWS_CONFIG_FILE: ~/project/aws_config
+      AWS_REGISTRY: 311462405659.dkr.ecr.eu-west-1.amazonaws.com
+    steps:
+      - checkout
+      - run:
+          name: Install requirements
+          command: pip install boto3 click
+      - run:
+          name: Set latest version
+          command: python get_image.py --role sirius-ci >> ~/project/VERSION
+          working_directory: ~/project/docs/ci_scripts
+      - persist_to_workspace:
+          root: .
+          paths:
+            - VERSION

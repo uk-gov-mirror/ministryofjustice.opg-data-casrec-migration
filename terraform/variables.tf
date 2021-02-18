@@ -33,13 +33,15 @@ locals {
 variable "accounts" {
   type = map(
     object({
-      name             = string
-      account_id       = string
-      vpc_id           = string
-      is_production    = bool
-      db_subnet_prefix = string
-      s3_path          = string
-      sirius_env       = string
+      name                    = string
+      account_id              = string
+      vpc_id                  = string
+      is_production           = bool
+      db_subnet_prefix        = string
+      s3_path                 = string
+      sirius_env              = string
+      sirius-api-role-suffix  = string
+      sirius-exec_role-suffix = string
     })
   )
 }
