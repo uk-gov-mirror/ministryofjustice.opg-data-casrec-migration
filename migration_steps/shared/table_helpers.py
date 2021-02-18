@@ -25,6 +25,12 @@ def get_table_list(table_dict, type=None):
         return list(table_dict.keys())
 
 
+def get_fk_cols_single_table(table):
+    table_as_dict = json.loads(json.dumps(table))
+
+    return [v for y in table_as_dict["fks"] for k, v in y.items() if k == "column"]
+
+
 def get_sequences_list(table_dict):
     sequence_list = []
     for table, details in table_dict.items():

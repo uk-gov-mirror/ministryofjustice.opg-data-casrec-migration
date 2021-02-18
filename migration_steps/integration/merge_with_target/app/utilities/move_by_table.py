@@ -5,6 +5,8 @@ import psycopg2
 
 from decorators import timer
 
+from table_helpers import get_fk_cols_single_table
+
 log = logging.getLogger("root")
 
 
@@ -31,7 +33,8 @@ def generate_create_tables_query(db_config, table_list):
     for table, details in table_list.items():
         table_name = table
 
-        keys = [x for x in details["fks"] + [details["pk"]] if len(x) > 0]
+        fks = get_fk_cols_single_table(table=details)
+        keys = [x for x in fks + [details["pk"]] if len(x) > 0]
         select_key_cols = [f"{x} as transformation_schema_{x}" for x in keys]
 
         log.debug(

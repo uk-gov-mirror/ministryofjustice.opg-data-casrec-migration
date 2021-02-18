@@ -2,6 +2,7 @@ from migration_steps.shared.table_helpers import (
     get_table_list,
     get_sequences_list,
     get_uid_sequences_list,
+    get_fk_cols_single_table,
 )
 
 test_data = {
@@ -81,3 +82,17 @@ def test_get_uid_sequences_list():
             ],
         }
     ]
+
+
+def test_get_fk_cols():
+    test_table = {
+        "pk": "id",
+        "fks": [
+            {"column": "person_id", "parent_table": "persons", "parent_column": "id"}
+        ],
+        "table_type": "data",
+        "sequences": [{"name": "addresses_id_seq", "column": "id", "type": "pk"}],
+    }
+
+    result = get_fk_cols_single_table(table=test_table)
+    assert result == ["person_id"]
