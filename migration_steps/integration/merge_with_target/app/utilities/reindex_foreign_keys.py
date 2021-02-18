@@ -21,11 +21,11 @@ def generate_fk_update_statement(db_schema, table_details):
                 UPDATE {db_schema}.{table}
                 SET {key['column']} = {key['parent_table']}.{key['parent_column']}
                 FROM {db_schema}.{key['parent_table']}
-                WHERE {table}.transformation_schema_{key['column']} = {key['parent_table']}.transformation_schema_{key['parent_column']}
+                WHERE cast({table}.transformation_schema_{key['column']} as int)
+                    = cast({key['parent_table']}.transformation_schema_{key['parent_column']} as int)
                 AND {table}.method = 'INSERT';
             """
             update_query += query
-    # print(update_query)
     return update_query
 
 
@@ -34,7 +34,6 @@ def update_fks(db_config, table_details):
     query = generate_fk_update_statement(
         db_schema=db_config["target_schema"], table_details=table_details
     )
-    print(query)
 
     connection_string = db_config["db_connection_string"]
     conn = psycopg2.connect(connection_string)

@@ -92,8 +92,9 @@ def main(verbose, clear):
     log.info(f"Merge new data with existing data in Sirius")
     match_existing_data(db_config=db_config, table_details=table_details)
 
-    log.info(f"Reindex all fk and pks")
+    log.info(f"Reindex all primary keys")
     update_pks(db_config=db_config, table_details=table_details)
+    log.info(f"Reindex all foreign keys")
     update_fks(db_config=db_config, table_details=table_details)
 
 

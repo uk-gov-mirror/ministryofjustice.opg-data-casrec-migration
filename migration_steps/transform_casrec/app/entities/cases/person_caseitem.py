@@ -5,16 +5,18 @@ definition = {
 }
 
 
-def insert_person_caseitem(config, target_db):
+def insert_person_caseitem(db_config, target_db):
 
     persons_query = (
-        f'select "id", "caserecnumber" from etl2.persons '
+        f'select "id", "caserecnumber" from {db_config["target_schema"]}.persons '
         f"where \"type\" = 'actor_client';"
     )
-    persons_df = pd.read_sql_query(persons_query, config.connection_string)
+    persons_df = pd.read_sql_query(persons_query, db_config["db_connection_string"])
 
-    cases_query = f'select "id", "caserecnumber" from etl2.cases;'
-    cases_df = pd.read_sql_query(cases_query, config.connection_string)
+    cases_query = (
+        f'select "id", "caserecnumber" from {db_config["target_schema"]}.cases;'
+    )
+    cases_df = pd.read_sql_query(cases_query, db_config["db_connection_string"])
 
     person_caseitem_df = cases_df.merge(
         persons_df,
@@ -26,7 +28,7 @@ def insert_person_caseitem(config, target_db):
 
     person_caseitem_df = person_caseitem_df.drop(columns=["caserecnumber"])
     person_caseitem_df = person_caseitem_df.rename(
-        columns={"id_case": "case_id", "id_person": "person_id"}
+        columns={"id_case": "caseitem_id", "id_person": "person_id"}
     )
 
     target_db.insert_data(

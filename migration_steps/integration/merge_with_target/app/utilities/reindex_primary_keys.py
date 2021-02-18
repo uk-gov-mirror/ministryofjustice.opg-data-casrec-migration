@@ -10,17 +10,18 @@ def get_max_pk_from_existing_tables_query(db_schema, table_details):
 
     max_values_query = ""
     for i, (table, details) in enumerate(table_details.items()):
-        query = f"""
-            SELECT
-                '{table}' as table_name,
-                '{details['pk']}' as column_name,
-                (SELECT max({details['pk']}) from {db_schema}.{table}) as max_value
-        """
+        if len(details["pk"]) > 0:
+            query = f"""
+                SELECT
+                    '{table}' as table_name,
+                    '{details['pk']}' as column_name,
+                    (SELECT max({details['pk']}) from {db_schema}.{table}) as max_value
+            """
 
-        if i + 1 < len(table_details.items()):
-            query += " UNION ALL "
+            if i + 1 < len(table_details.items()):
+                query += " UNION ALL "
 
-        max_values_query += query
+            max_values_query += query
 
     return max_values_query
 
@@ -59,18 +60,19 @@ def update_pks(db_config, table_details):
 
     update_query = ""
     for table, details in table_details.items():
-        pk = details["pk"]
-        max_val = max_vals[table][pk]
-        log.debug(
-            f"Generating UPDATE PK '{pk}' for table '{table}' increasing by {max_val}"
-        )
+        if len(details["pk"]) > 0:
+            pk = details["pk"]
+            max_val = max_vals[table][pk]
+            log.debug(
+                f"Generating UPDATE PK '{pk}' for table '{table}' increasing by {max_val}"
+            )
 
-        query = f"""
-            UPDATE {db_config['target_schema']}.{table}
-            SET {pk} = {pk}+{max_val}
-            WHERE method = 'INSERT';
-        """
-        update_query += query
+            query = f"""
+                UPDATE {db_config['target_schema']}.{table}
+                SET {pk} = {pk}+{max_val}
+                WHERE method = 'INSERT';
+            """
+            update_query += query
 
     connection_string = db_config["db_connection_string"]
     conn = psycopg2.connect(connection_string)

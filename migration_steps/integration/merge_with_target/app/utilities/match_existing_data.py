@@ -13,6 +13,7 @@ def match_existing_data(db_config, table_details):
     The real matchy script will look WAY more complicated than this!
     """
     default_value = "INSERT"
+    log.info(f"(currently just setting every record to '{default_value}')")
     connection_string = db_config["db_connection_string"]
     conn = psycopg2.connect(connection_string)
     cursor = conn.cursor()

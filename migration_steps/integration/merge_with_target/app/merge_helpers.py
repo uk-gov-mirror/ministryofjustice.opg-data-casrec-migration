@@ -2,6 +2,7 @@ import logging
 
 import psycopg2
 
+# from utilities.generate_luhn_checksum import append_checksum
 from utilities.generate_luhn_checksum import append_checksum
 
 log = logging.getLogger("root")

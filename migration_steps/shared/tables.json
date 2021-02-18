@@ -1,6 +1,8 @@
 {
 	"persons": {
 		"table_type": "data",
+		"pk": "id",
+		"fks": [],
 		"sequences": [{
 			"name": "persons_id_seq",
 			"column": "id",
@@ -12,6 +14,13 @@
 		}]
 	},
 	"addresses": {
+		"pk": "id",
+		"fks": [
+			{
+				"column":"person_id",
+				"parent_table" : "persons",
+				"parent_column": "id"
+			}],
 		"table_type": "data",
 		"sequences": [{
 			"name": "addresses_id_seq",
@@ -21,6 +30,13 @@
 	},
 	"phonenumbers": {
 		"table_type": "data",
+		"pk": "id",
+		"fks": [
+			{
+				"column":"person_id",
+				"parent_table" : "persons",
+				"parent_column": "id"
+			}],
 		"sequences": [{
 			"name": "phonenumbers_id_seq",
 			"column": "id",
@@ -29,6 +45,8 @@
 	},
 	"cases": {
 		"table_type": "data",
+		"pk": "id",
+		"fks": [],
 		"sequences": [{
 			"name": "cases_id_seq",
 			"column": "id",
@@ -40,11 +58,29 @@
 		}]
 	},
 	"person_caseitem": {
+		"pk": "",
+		"fks": [
+			{
+				"column":"person_id",
+				"parent_table" : "persons",
+				"parent_column": "id"
+			},{
+				"column":"caseitem_id",
+				"parent_table" : "cases",
+				"parent_column": "id"
+			}],
 		"table_type": "join",
 		"sequences": []
 	},
 	"supervision_level_log": {
 		"table_type": "data",
+		"pk": "id",
+		"fks": [
+			{
+				"column":"order_id",
+				"parent_table" : "cases",
+				"parent_column": "id"
+			}],
 		"sequences": [{
 			"name": "supervision_level_log_id_seq",
 			"column": "id",
