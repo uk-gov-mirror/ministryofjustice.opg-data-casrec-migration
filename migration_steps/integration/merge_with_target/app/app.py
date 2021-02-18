@@ -5,6 +5,7 @@ from pathlib import Path
 
 from utilities.clear_database import clear_tables
 from utilities.db_insert import InsertData
+from utilities.match_existing_data import match_existing_data
 from utilities.move_by_table import move_all_tables
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -85,9 +86,10 @@ def main(verbose, clear):
 
     table_details = table_helpers.get_table_file()
 
-    move_all_tables(db_config=db_config, target_db=target_db, table_list=table_details)
+    move_all_tables(db_config=db_config, table_list=table_details)
 
     log.info(f"Merge new data with existing data in Sirius")
+    match_existing_data(db_config=db_config, table_details=table_details)
     # client.merge_source_data(db_config=db_config, target_db=target_db)
     # cases.merge_source_data(db_config=db_config, target_db=target_db)
     # supervision_level.merge_source_data(db_config=db_config, target_db=target_db)

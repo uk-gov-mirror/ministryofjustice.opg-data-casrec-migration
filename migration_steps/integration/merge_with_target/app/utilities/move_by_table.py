@@ -9,7 +9,7 @@ log = logging.getLogger("root")
 
 
 @timer
-def move_all_tables(db_config, target_db, table_list):
+def move_all_tables(db_config, table_list):
     query = generate_create_tables_query(db_config, table_list)
 
     connection_string = db_config["db_connection_string"]
@@ -42,6 +42,7 @@ def generate_create_tables_query(db_config, table_list):
             CREATE TABLE {db_config['target_schema']}.{table_name}
             AS
                 SELECT *,
+                    null as method,
                      {', '.join(select_key_cols)}
                 FROM {db_config['source_schema']}.{table_name};
         """
