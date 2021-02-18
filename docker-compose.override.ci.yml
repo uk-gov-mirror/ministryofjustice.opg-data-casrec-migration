@@ -10,3 +10,4 @@ services:
       AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY
       ENVIRONMENT: development
       CI: $CI
+      SIRIUS_ACCOUNT: 288342028542
