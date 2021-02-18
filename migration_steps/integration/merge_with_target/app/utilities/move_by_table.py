@@ -1,29 +1,51 @@
 from merge_helpers import generate_select_query, calculate_new_uid, reindex_new_data
 import pandas as pd
 import logging
+import psycopg2
+
+from decorators import timer
 
 log = logging.getLogger("root")
 
 
+@timer
 def move_all_tables(db_config, target_db, table_list):
+    query = generate_create_tables_query(db_config, table_list)
 
+    connection_string = db_config["db_connection_string"]
+    conn = psycopg2.connect(connection_string)
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(query)
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+        conn.commit()
+
+
+def generate_create_tables_query(db_config, table_list):
+
+    create_tables = ""
     for table, details in table_list.items():
         table_name = table
 
         keys = [x for x in details["fks"] + [details["pk"]] if len(x) > 0]
+        select_key_cols = [f"{x} as transformation_schema_{x}" for x in keys]
 
-        source_data_query = generate_select_query(
-            schema=db_config["source_schema"], table=table_name
-        )
-        log.debug(f"Getting source data using query {source_data_query}")
-        source_data_df = pd.read_sql_query(
-            con=db_config["db_connection_string"], sql=source_data_query
+        log.debug(
+            f"Generating CREATE TABLE for {table_name} with extra cols: {', '.join([f'transformation_schema_{x}' for x in keys])}"
         )
 
-        for key in keys:
-            new_key = f"transform_schema_{key}"
-            source_data_df[new_key] = source_data_df[key]
+        query = f"""
+            CREATE TABLE {db_config['target_schema']}.{table_name}
+            AS
+                SELECT *,
+                     {', '.join(select_key_cols)}
+                FROM {db_config['source_schema']}.{table_name};
+        """
 
-        log.info("Inserting new data")
+        create_tables += query
 
-        target_db.insert_data(table_name=table_name, df=source_data_df)
+    return create_tables

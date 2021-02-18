@@ -5,7 +5,7 @@ from pathlib import Path
 
 from utilities.clear_database import clear_tables
 from utilities.db_insert import InsertData
-from utilities.move_by_table import move_a_table, move_all_tables
+from utilities.move_by_table import move_all_tables
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, str(current_path) + "/../../../shared")
@@ -80,24 +80,20 @@ def main(verbose, clear):
         clear_tables(db_config)
 
     log.info(
-        f"Moving data from '{db_config['source_schema']}' schema to '{db_config['target_schema']}' schema and reindexing pks"
+        f"Moving data from '{db_config['source_schema']}' schema to '{db_config['target_schema']}' schema"
     )
-    # tables_list = table_helpers.get_table_list(
-    #     table_helpers.get_table_file()
-    # )
 
     table_details = table_helpers.get_table_file()
 
     move_all_tables(db_config=db_config, target_db=target_db, table_list=table_details)
 
-    # for table in tables_list:
-    #     move_a_table(db_config=db_config, target_db=target_db, table_name=table)
-
-    log.info(f"Joining entities together with fks")
+    log.info(f"Merge new data with existing data in Sirius")
     # client.merge_source_data(db_config=db_config, target_db=target_db)
     # cases.merge_source_data(db_config=db_config, target_db=target_db)
     # supervision_level.merge_source_data(db_config=db_config, target_db=target_db)
     # deputies.merge_source_data(db_config=db_config, target_db=target_db)
+
+    log.info(f"Reindex all fk and pks")
 
 
 if __name__ == "__main__":
