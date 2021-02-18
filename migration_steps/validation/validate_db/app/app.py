@@ -76,17 +76,20 @@ def get_mapping_report_df():
     )
 
 
-def get_validation_exceptions_df():
-    return df_from_sql_file(sql_path, "get_validation_results.sql", conn_target)
-
-
 def get_sirius_table(mapping):
     mapping_name_to_table = {
         "client_persons": "persons",
         "client_addresses": "addresses",
         "client_phonenumbers": "phonenumbers",
     }
-    return mapping_name_to_table.get(mapping, mapping)
+    return mapping_name_to_table.get(mapping)
+
+
+def get_casrec_from(mapping):
+    mapping_name_to_table = {
+        "client_persons": "pat"
+    }
+    return mapping_name_to_table.get(mapping)
 
 
 def get_exception_table(mapping):
@@ -161,61 +164,85 @@ def format_default_value(mapping):
     return default_value
 
 
-def format_casrec_col_sql(mapping, col):
-    if mapping["sirius_details"]["data_type"] in ["date"]:
-        col_sql = f"CAST(NULLIF(TRIM({col}), '') AS DATE)"
-    elif mapping["sirius_details"]["data_type"] in ["datetime"]:
-        if "current_date" == mapping["transform_casrec"]["calculated"]:
-            col_sql = f"CAST(NULLIF(TRIM({col}), '') AS DATE)"
-        else:
-            col_sql = f"CAST(NULLIF(TRIM({col}), '') AS TIMESTAMP(0))"
-    elif mapping["sirius_details"]["data_type"] in ["bool", "int"]:
-        col_sql = col
-    else:
-        col_sql = f"NULLIF(TRIM({col}), '')"
+def get_sirius_from(mapping):
+    return f"{target_schema}." + mapping["sirius_details"]["table_name"]
 
-    return col_sql
+
+def wrap_sirius_datatype_functions(mapping, col_name):
+    sql = col_name
+    if "current_date" == mapping["transform_casrec"]["calculated"]:
+        sql = f"CAST({col_name} AS DATE)"
+    return sql
+
+
+def get_sirius_col_name(mapping, col_name):
+    col_table = mapping["sirius_details"]["table_name"]
+    return f"{col_table}.{col_name}"
 
 
 def build_sirius_cols(map_dict):
     sirius_cols = []
     for k, v in map_dict.items():
-        if "current_date" == v["transform_casrec"]["calculated"]:
-            col_string = f"CAST({k} AS DATE) AS {k}"
-        else:
-            col_string = f"{k} AS {k}"
-
-        sirius_cols.append(f"{indent}{indent}{indent}{col_string}")
+        sirius_cols.append(f"{indent}{indent}{indent}{wrap_sirius_datatype_functions(v, get_sirius_col_name(v, k))} AS {k}")
 
     separator = ",\n"
     return separator.join(sirius_cols)
+
+
+def wrap_casrec_col_conversion_functions(mapping, col):
+    datatype = mapping["sirius_details"]["data_type"]
+    if datatype in ["date"]:
+        wrapped_col = f"CAST(NULLIF(TRIM({col}), '') AS DATE)"
+    elif datatype in ["datetime"]:
+        if "current_date" == mapping["transform_casrec"]["calculated"]:
+            wrapped_col = f"CAST(NULLIF(TRIM({col}), '') AS DATE)"
+        else:
+            wrapped_col = f"CAST(NULLIF(TRIM({col}), '') AS TIMESTAMP(0))"
+    elif datatype in ["bool", "int"]:
+        wrapped_col = col
+    else:
+        wrapped_col = f"NULLIF(TRIM({col}), '')"
+
+    return wrapped_col
+
+
+def get_casrec_col_value(mapping):
+    casrec_col_table = None
+    if mapping["transform_casrec"]["casrec_table"]:
+        casrec_col_table = mapping["transform_casrec"]["casrec_table"].lower()
+        col = get_fq_casrec_column_name(mapping)
+        if "" != mapping["transform_casrec"]["lookup_table"]:
+            db_lookup_func = mapping["transform_casrec"]["lookup_table"]
+            col = f"{source_schema}.{db_lookup_func}({col})"
+    elif "" != mapping["transform_casrec"]["default_value"]:
+        col = format_default_value(mapping)
+    elif "" != mapping["transform_casrec"]["calculated"]:
+        col = format_calculated_value(mapping)
+
+    return casrec_col_table, col
 
 
 def build_casrec_cols(map_dict):
     casrec_cols = []
     casrec_tables = []
     for k, v in map_dict.items():
-        if v["transform_casrec"]["casrec_table"]:
-            casrec_col_table = v["transform_casrec"]["casrec_table"].lower()
-            casrec_col_name = v["transform_casrec"]["casrec_column_name"]
-            casrec_tables.append(source_schema + "." + casrec_col_table)
-            col = f'{casrec_col_table}."{casrec_col_name}"'
-            if "" != v["transform_casrec"]["lookup_table"]:
-                db_lookup_func = v["transform_casrec"]["lookup_table"]
-                col = f"{source_schema}.{db_lookup_func}({col})"
-        elif "" != v["transform_casrec"]["default_value"]:
-            col = format_default_value(v)
-        elif "" != v["transform_casrec"]["calculated"]:
-            col = format_calculated_value(v)
+        col_table, col_value = get_casrec_col_value(v)
+        casrec_tables.append(f"{source_schema}.{col_table}")
         casrec_cols.append(
-            f"{indent}{indent}{indent}{format_casrec_col_sql(v, col)} AS {k}"
+            f"{indent}{indent}{indent}{wrap_casrec_col_conversion_functions(v, col_value)} AS {k}"
         )
-
     separator = ",\n"
     casrec_cols = separator.join(casrec_cols)
     separator = ","
     casrec_tables = separator.join(set(casrec_tables))
+    casrec_tables = separator.join(set(casrec_tables))
     return casrec_cols, casrec_tables
+
+
+def get_fq_casrec_column_name(mapping):
+    casrec_col_table = mapping["transform_casrec"]["casrec_table"].lower()
+    casrec_col_name = mapping["transform_casrec"]["casrec_column_name"]
+    return f'{casrec_col_table}."{casrec_col_name}"'
 
 
 def build_validation_statements(sql_lines):
@@ -234,7 +261,7 @@ def build_validation_statements(sql_lines):
         sql_lines.append(f"{indent}SELECT * FROM(\n")
         sql_lines.append(f"{indent}{indent}SELECT DISTINCT\n")
         sql_lines.append(f"{casrec_cols}\n")
-        sql_lines.append(f"{indent}{indent}FROM {casrec_tables}\n")
+        sql_lines.append(f"{indent}{indent}FROM {source_schema}.{get_casrec_from(mapping)}\n")
         sql_lines.append(f"{indent}{indent}ORDER BY caserecnumber ASC\n")
         sql_lines.append(f"{indent}) as csv_data\n")
         sql_lines.append(f"{indent}EXCEPT\n")
@@ -247,6 +274,59 @@ def build_validation_statements(sql_lines):
         sql_lines.append(f"{indent}{indent}ORDER BY caserecnumber ASC\n")
         sql_lines.append(f"{indent}) as sirius_data\n")
         sql_lines.append(");\n\n")
+
+
+def build_column_validation_statements(sql_lines):
+    for mapping in mappings_to_run:
+        map_dict = helpers.get_mapping_dict(
+            file_name=mapping + "_mapping", only_complete_fields=True, include_pk=False
+        )
+
+        exception_table = f"{source_schema}.{get_exception_table(mapping)}"
+
+        sql_lines.append(f"ALTER TABLE {exception_table} DROP COLUMN IF EXISTS vary_columns;\n")
+        sql_lines.append(f"ALTER TABLE {exception_table} ADD vary_columns varchar(255)[];\n\n")
+
+        if 'caserecnumber' in map_dict:
+            del map_dict['caserecnumber']
+
+        for k, v in map_dict.items():
+            col_table, col_value = get_casrec_col_value(v)
+
+            sql_lines.append(f"-- {k}\n")
+            sql_lines.append(f"UPDATE {exception_table}\n")
+            sql_lines.append(f"SET vary_columns = array_append(vary_columns, '{k}')\n")
+            sql_lines.append(f"WHERE caserecnumber IN (\n")
+            sql_lines.append(f"{indent}SELECT caserecnumber FROM (\n")
+
+            # casrec half
+            sql_lines.append(f"{indent}{indent}SELECT * FROM(\n")
+            sql_lines.append(f"{indent}{indent}{indent}SELECT \n")
+            sql_lines.append(f"{indent}{indent}{indent}{indent}exc_table.caserecnumber,\n")
+            sql_lines.append(f"{indent}{indent}{indent}{indent}{wrap_casrec_col_conversion_functions(v, col_value)} AS {k}\n")
+            sql_lines.append(f"{indent}{indent}{indent}FROM {source_schema}.pat\n")
+            sql_lines.append(f"{indent}{indent}{indent}LEFT JOIN {exception_table} exc_table\n")
+            sql_lines.append(f"{indent}{indent}{indent}{indent}ON exc_table.caserecnumber = pat.\"Case\"\n")
+            sql_lines.append(f"{indent}{indent}{indent}WHERE exc_table.caserecnumber IS NOT NULL\n")
+            sql_lines.append(f"{indent}{indent}{indent}ORDER BY exc_table.caserecnumber\n")
+            sql_lines.append(f"{indent}{indent}) as csv_data\n")
+
+            sql_lines.append(f"{indent}{indent}EXCEPT\n")
+
+            # sirius half
+            sql_lines.append(f"{indent}{indent}SELECT * FROM(\n")
+            sql_lines.append(f"{indent}{indent}{indent}SELECT\n")
+            sql_lines.append(f"{indent}{indent}{indent}{indent}exc_table.caserecnumber,\n")
+            sql_lines.append(f"{indent}{indent}{indent}{indent}{get_sirius_col_name(v, k)} AS {k}\n")
+            sql_lines.append(f"{indent}{indent}{indent}FROM {get_sirius_from(v)}\n")
+            sql_lines.append(f"{indent}{indent}{indent}LEFT JOIN {exception_table} exc_table\n")
+            sql_lines.append(f"{indent}{indent}{indent}{indent}ON exc_table.caserecnumber = persons.caserecnumber\n")
+            sql_lines.append(f"{indent}{indent}{indent}WHERE exc_table.caserecnumber IS NOT NULL\n")
+            sql_lines.append(f"{indent}{indent}{indent}ORDER BY exc_table.caserecnumber\n")
+            sql_lines.append(f"{indent}{indent}) as sirius_data\n")
+
+            sql_lines.append(f"{indent}) as vary\n")
+            sql_lines.append(");\n\n")
 
 
 def write_validation_sql(sql_lines):
@@ -262,8 +342,17 @@ def write_get_exceptions_sql():
     reported_mappings = []
     for mapping in mappings_to_run:
         exception_table_name = get_exception_table(mapping)
+        casrec_table_name = get_casrec_from(mapping)
         reported_mappings.append(
-            f"SELECT '{mapping}' AS mapping, (SELECT count(*) FROM {source_schema}.{exception_table_name})\n"
+            f"SELECT '{mapping}' AS mapping,"
+            f"(SELECT COUNT(*) FROM {source_schema}.{casrec_table_name}) as attempted,"
+            f"(SELECT COUNT(*) FROM {source_schema}.{exception_table_name}),"
+            f"(SELECT CONCAT( CAST( CAST( "
+            f"(SELECT COUNT(*) FROM {source_schema}.{exception_table_name}) / "
+            f"(SELECT COUNT(*) FROM {source_schema}.{casrec_table_name})::FLOAT AS numeric ) AS TEXT), '%')),"
+            f"(SELECT json_agg(vary) AS affected_columns FROM ("
+            f"SELECT DISTINCT unnest(vary_columns) as vary FROM {source_schema}.{exception_table_name}"
+            f") t1)\n"
         )
     separator = "UNION\n"
     sql = separator.join(reported_mappings)
@@ -275,14 +364,14 @@ def pre_validation():
     if is_staging is False:
         log.info(f"Validating with SIRIUS")
         log.info(f"Copying casrec csv source data to Sirius for comparison work")
-        copy_schema(
-            log=log,
-            sql_path=shared_sql_path,
-            from_config=config.db_config["migration"],
-            from_schema=config.schemas["pre_transform"],
-            to_config=config.db_config["target"],
-            to_schema=config.schemas["pre_transform"],
-        )
+        # copy_schema(
+            # log=log,
+            # sql_path=shared_sql_path,
+            # from_config=config.db_config["migration"],
+            # from_schema=config.schemas["pre_transform"],
+            # to_config=config.db_config["target"],
+            # to_schema=config.schemas["pre_transform"],
+        # )
     else:
         log.info(f"Validating with STAGING schema")
 
@@ -297,6 +386,10 @@ def pre_validation():
 
     log.info("- Validation SQL")
     build_validation_statements(sql_lines)
+
+    log.info("- Column insight")
+    build_column_validation_statements(sql_lines)
+
     write_validation_sql(sql_lines)
 
 
@@ -304,7 +397,7 @@ def post_validation():
     log.info("REPORT")
     mapping_df = get_mapping_report_df()
     write_get_exceptions_sql()
-    exceptions_df = get_validation_exceptions_df()
+    exceptions_df = df_from_sql_file(sql_path, "get_validation_results.sql", conn_target)
     report_df = mapping_df.merge(exceptions_df, on="mapping")
     headers = [
         "Casrec Mapping",
@@ -312,7 +405,10 @@ def post_validation():
         "Unmapped",
         "Mapped",
         "Complete (%)",
-        "Exceptions",
+        "Attempted",
+        "Failed",
+        "Fail rate",
+        "Mismatches in...",
     ]
     print(tabulate(report_df, headers, tablefmt="psql"))
 
