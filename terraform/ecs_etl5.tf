@@ -34,7 +34,11 @@ locals {
       {
         name      = "SIRIUS_DB_PASSWORD"
         valueFrom = data.aws_secretsmanager_secret.sirius_db.arn
-      }
+      },
+      {
+        name      = "API_TEST_PASSWORD"
+        valueFrom = data.aws_secretsmanager_secret.user_one_password.arn
+      },
     ],
     environment = [
       {
@@ -75,11 +79,11 @@ locals {
       },
       {
         name  = "RUN_API_TESTS",
-        value = "True"
+        value = local.account.run_api_tests
       },
       {
         name  = "SIRIUS_FRONT_URL",
-        value = "http://frontend.casmigrate.ecs"
+        value = "http://frontend.${local.account.sirius_env}.ecs"
       },
     ]
   })

@@ -42,6 +42,7 @@ variable "accounts" {
       sirius_env              = string
       sirius-api-role-suffix  = string
       sirius-exec_role-suffix = string
+      run_api_tests           = string
     })
   )
 }

@@ -6,15 +6,12 @@ import re
 import os
 
 
-def get_session(base_url):
+def get_session(base_url, user, password):
     response = requests.get(base_url)
     cookie = response.headers["Set-Cookie"]
     xsrf = response.headers["X-XSRF-TOKEN"]
     headers_dict = {"Cookie": cookie, "x-xsrf-token": xsrf}
-    data = {
-        "email": "case.manager@opgtest.com",
-        "password": "Password1",  # pragma: allowlist secret
-    }
+    data = {"email": user, "password": password}
     with requests.Session() as s:
         p = s.post(f"{base_url}/auth/login", data=data, headers=headers_dict)
         print(f"Login returns: {p.status_code}")
@@ -24,7 +21,9 @@ def get_session(base_url):
 @pytest.fixture(scope="session", autouse=True)
 def create_a_session():
     base_url = os.environ.get("SIRIUS_FRONT_URL")
-    sess, headers_dict, status_code = get_session(base_url)
+    user = "case.manager@opgtest.com"
+    password = os.environ.get("API_TEST_PASSWORD")
+    sess, headers_dict, status_code = get_session(base_url, user, password)
     session = {
         "sess": sess,
         "headers_dict": headers_dict,
