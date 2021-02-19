@@ -31,6 +31,7 @@ def remove_unecessary_columns(columns):
     unecessary_field_names = ["method", "sirius_id"]
 
     unecessary_field_names += [x for x in columns if x[:15] == "transformation_"]
+    unecessary_field_names += [x for x in columns if x[:2] == "c_"]
 
     return [column for column in columns if column not in unecessary_field_names]
 

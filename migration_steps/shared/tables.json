@@ -46,7 +46,11 @@
 	"cases": {
 		"table_type": "data",
 		"pk": "id",
-		"fks": [],
+		"fks": [{
+			"column": "client_id",
+			"parent_table": "persons",
+			"parent_column": "id"
+		}],
 		"sequences": [{
 			"name": "cases_id_seq",
 			"column": "id",

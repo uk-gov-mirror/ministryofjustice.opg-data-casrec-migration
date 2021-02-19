@@ -1,11 +1,24 @@
 import pandas as pd
 
+from helpers import get_mapping_dict
+
+
 definition = {
     "destination_table_name": "person_caseitem",
+    "source_table_name": "",
+    "source_table_additional_columns": [],
 }
+
+mapping_file_name = "person_caseitem_mapping"
 
 
 def insert_person_caseitem(db_config, target_db):
+
+    sirius_details = get_mapping_dict(
+        file_name=mapping_file_name,
+        stage_name="sirius_details",
+        only_complete_fields=False,
+    )
 
     persons_query = (
         f'select "id", "caserecnumber" from {db_config["target_schema"]}.persons '
@@ -32,5 +45,7 @@ def insert_person_caseitem(db_config, target_db):
     )
 
     target_db.insert_data(
-        table_name=definition["destination_table_name"], df=person_caseitem_df
+        table_name=definition["destination_table_name"],
+        df=person_caseitem_df,
+        sirius_details=sirius_details,
     )

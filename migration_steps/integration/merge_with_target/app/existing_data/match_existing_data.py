@@ -1,6 +1,11 @@
 import logging
 import psycopg2
+import os
+import sys
+from pathlib import Path
 
+current_path = Path(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, str(current_path) + "/../../../../shared")
 from decorators import timer
 
 log = logging.getLogger("root")

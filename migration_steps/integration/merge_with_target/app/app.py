@@ -2,17 +2,15 @@ import os
 import sys
 from pathlib import Path
 
-
+from existing_data.match_existing_data import match_existing_data
+from reindex.move_by_table import move_all_tables
+from reindex.reindex_foreign_keys import update_fks
+from reindex.reindex_primary_keys import update_pks
 from utilities.clear_database import clear_tables
-from utilities.db_insert import InsertData
-from utilities.match_existing_data import match_existing_data
-from utilities.move_by_table import move_all_tables
-from utilities.reindex_foreign_keys import update_fks
-from utilities.reindex_primary_keys import update_pks
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, str(current_path) + "/../../../shared")
-from entities import client, supervision_level, cases, deputies
+
 
 import logging
 import time
@@ -51,7 +49,6 @@ db_config = {
     "sirius_schema": config.schemas["public"],
 }
 target_db_engine = create_engine(db_config["db_connection_string"])
-target_db = InsertData(db_engine=target_db_engine, schema=db_config["target_schema"])
 
 
 @click.command()

@@ -1,11 +1,15 @@
-from merge_helpers import generate_select_query, calculate_new_uid, reindex_new_data
-import pandas as pd
 import logging
 import psycopg2
 
 from decorators import timer
 
 from table_helpers import get_fk_cols_single_table
+import os
+import sys
+from pathlib import Path
+
+current_path = Path(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, str(current_path) + "/../../../../../shared")
 
 log = logging.getLogger("root")
 
