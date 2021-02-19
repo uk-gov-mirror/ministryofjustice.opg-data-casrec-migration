@@ -34,6 +34,7 @@ def add_missing_columns_query(table, schema, columns):
 def generate_inserts(db_config, db_engine, tables):
 
     tables_list = tables
+    extra_cols_to_move_to_staging = ["method"]
 
     for i, table in enumerate(tables_list):
         log.info(f"Inserting {table} into {db_config['target_schema']}")
@@ -53,7 +54,15 @@ def generate_inserts(db_config, db_engine, tables):
         target_columns = [
             x[0] for x in db_engine.execute(get_target_cols_query).fetchall()
         ]
-        columns_missing_from_target = list(set(source_columns) - set(target_columns))
+
+        cols_to_move = list(
+            set(
+                [x for x in source_columns if x in target_columns]
+                + extra_cols_to_move_to_staging
+            )
+        )
+
+        columns_missing_from_target = extra_cols_to_move_to_staging
 
         if len(columns_missing_from_target) > 0:
             alter_target_query = add_missing_columns_query(
@@ -65,9 +74,10 @@ def generate_inserts(db_config, db_engine, tables):
             db_engine.execute(alter_target_query)
 
         query = f"""
-        INSERT INTO {db_config["target_schema"]}.{table} ({', '.join(source_columns)})
-        SELECT {', '.join(source_columns)} FROM {db_config["source_schema"]}.{table};
+        INSERT INTO {db_config["target_schema"]}.{table} ({', '.join(cols_to_move)})
+        SELECT {', '.join(cols_to_move)} FROM {db_config["source_schema"]}.{table};
         """
+        print(f"query: {query}")
 
         try:
             db_engine.execute(query)

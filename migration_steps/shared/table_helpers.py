@@ -1,5 +1,6 @@
 import json
 import os
+from collections import OrderedDict
 
 
 def get_current_directory():
@@ -12,13 +13,22 @@ def get_table_file(file_name="tables"):
     file_path = os.path.join(dirname, f"{file_name}.json")
 
     with open(file_path) as tables_json:
-        tables_dict = json.load(tables_json)
+        tables_dict = json.load(tables_json, object_pairs_hook=OrderedDict)
 
     return tables_dict
 
 
-def get_table_list(table_dict):
-    return list(table_dict.keys())
+def get_table_list(table_dict, type=None):
+    if type:
+        return [k for k, v in table_dict.items() if v["table_type"] == type]
+    else:
+        return list(table_dict.keys())
+
+
+def get_fk_cols_single_table(table):
+    table_as_dict = json.loads(json.dumps(table))
+
+    return [v for y in table_as_dict["fks"] for k, v in y.items() if k == "column"]
 
 
 def get_sequences_list(table_dict):
