@@ -72,7 +72,15 @@ locals {
       {
         name  = "ENVIRONMENT",
         value = terraform.workspace
-      }
+      },
+      {
+        name  = "RUN_API_TESTS",
+        value = "True"
+      },
+      {
+        name  = "SIRIUS_FRONT_URL",
+        value = "http://frontend.casmigrate.ecs"
+      },
     ]
   })
 }

@@ -161,3 +161,21 @@ resource "aws_security_group_rule" "etl_to_sirius_db_ingress" {
   security_group_id        = data.aws_security_group.sirius_db.id
   source_security_group_id = aws_security_group.etl.id
 }
+
+// Add access for our API test
+data "aws_security_group" "sirius_frontend" {
+  filter {
+    name   = "tag:Name"
+    values = ["frontend-ecs-${local.account.sirius_env}"]
+  }
+}
+
+resource "aws_security_group_rule" "etl_to_frontend_sirius_ingress" {
+  type                     = "ingress"
+  protocol                 = "tcp"
+  description              = "ETL direct access to frontend for API tests"
+  from_port                = 80
+  to_port                  = 80
+  security_group_id        = data.aws_security_group.sirius_frontend.id
+  source_security_group_id = aws_security_group.etl.id
+}
