@@ -52,7 +52,7 @@ locals {
       {
         name  = "ENVIRONMENT",
         value = terraform.workspace
-      }
+      },
     ]
   })
 }

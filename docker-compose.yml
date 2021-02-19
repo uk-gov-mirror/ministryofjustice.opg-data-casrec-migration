@@ -43,6 +43,7 @@ services:
       SIRIUS_DB_HOST: postgres-sirius
       SIRIUS_DB_PORT: 5432
       ENVIRONMENT: local
+      SIRIUS_ACCOUNT: NA
     depends_on: [casrec_db, postgres-sirius]
   load_casrec:
     build:
@@ -55,6 +56,7 @@ services:
       DB_PORT: 5432
       ENVIRONMENT: local
       S3_PATH: anon
+      SIRIUS_ACCOUNT: NA
     depends_on: [localstack, casrec_db]
   transform_casrec:
     build:

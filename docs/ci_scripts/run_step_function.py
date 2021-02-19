@@ -75,8 +75,8 @@ def get_execution_arn(client, step_function_arn):
 
 @click.command()
 @click.option("--role", default="operator")
-def main(role):
-    account = "288342028542"
+@click.option("--account", default="288342028542")
+def main(role, account):
     region = "eu-west-1"
     sf_name = "casrec-mig-state-machine"
     s3_session = assume_aws_session(account, role)
