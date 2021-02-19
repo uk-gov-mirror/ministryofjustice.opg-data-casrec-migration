@@ -1,0 +1,2357 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer"
+    },
+    "uId": {
+      "type": "string"
+    },
+    "normalizedUid": {
+      "type": "integer"
+    },
+    "errorMessages": {
+      "type": "array",
+      "items": {}
+    },
+    "caseRecNumber": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "dob": {
+      "type": "string"
+    },
+    "dateOfDeath": {
+      "type": "string"
+    },
+    "salutation": {
+      "type": "string"
+    },
+    "firstname": {
+      "type": "string"
+    },
+    "middlenames": {
+      "type": "string"
+    },
+    "surname": {
+      "type": "string"
+    },
+    "otherNames": {
+      "type": "null"
+    },
+    "addressLine1": {
+      "type": "string"
+    },
+    "addressLine2": {
+      "type": "string"
+    },
+    "addressLine3": {
+      "type": "string"
+    },
+    "town": {
+      "type": "string"
+    },
+    "county": {
+      "type": "string"
+    },
+    "postcode": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "isAirmailRequired": {
+      "type": "boolean"
+    },
+    "phoneNumber": {
+      "type": "string"
+    },
+    "parent": {
+      "type": "null"
+    },
+    "children": {
+      "type": "array",
+      "items": {}
+    },
+    "reference": {
+      "type": "array",
+      "items": {}
+    },
+    "correspondenceByPost": {
+      "type": "boolean"
+    },
+    "correspondenceByPhone": {
+      "type": "boolean"
+    },
+    "correspondenceByEmail": {
+      "type": "boolean"
+    },
+    "correspondenceByWelsh": {
+      "type": "boolean"
+    },
+    "occupation": {
+      "type": "null"
+    },
+    "createdDate": {
+      "type": "string"
+    },
+    "updatedDate": {
+      "type": "string"
+    },
+    "personType": {
+      "type": "string"
+    },
+    "cases": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "caseItemValidationErrors": {
+              "type": "null"
+            },
+            "supervisionLevelLogs": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "array",
+                  "items": {}
+                }
+              ]
+            },
+            "bonds": {
+              "type": "array",
+              "items": {}
+            },
+            "events": {
+              "type": "array",
+              "items": {}
+            }
+          },
+          "required": [
+            "caseItemValidationErrors",
+            "supervisionLevelLogs",
+            "bonds",
+            "events"
+          ]
+        }
+      ]
+    },
+    "notes": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "id"
+          ]
+        }
+      ]
+    },
+    "tasks": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "id"
+          ]
+        }
+      ]
+    },
+    "warnings": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "id"
+          ]
+        }
+      ]
+    },
+    "documents": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "id"
+          ]
+        }
+      ]
+    },
+    "incomingDocuments": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "id"
+          ]
+        }
+      ]
+    },
+    "outgoingDocuments": {
+      "type": "array",
+      "items": {}
+    },
+    "investigations": {
+      "type": "array",
+      "items": {}
+    },
+    "specialCorrespondenceRequirements": {
+      "type": "object",
+      "properties": {
+        "audioTape": {
+          "type": "boolean"
+        },
+        "largePrint": {
+          "type": "boolean"
+        },
+        "hearingImpaired": {
+          "type": "boolean"
+        },
+        "spellingOfNameRequiresCare": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "audioTape",
+        "largePrint",
+        "hearingImpaired",
+        "spellingOfNameRequiresCare"
+      ]
+    },
+    "interpreterRequired": {
+      "type": "string"
+    },
+    "previousNames": {
+      "type": "string"
+    },
+    "cannotSignForm": {
+      "type": "null"
+    },
+    "applyingForFeeRemission": {
+      "type": "null"
+    },
+    "receivingBenefits": {
+      "type": "null"
+    },
+    "receivedDamageAward": {
+      "type": "null"
+    },
+    "hasLowIncome": {
+      "type": "null"
+    },
+    "signatureDate": {
+      "type": "null"
+    },
+    "hasPreviousLpa": {
+      "type": "null"
+    },
+    "notesForPreviousLpa": {
+      "type": "null"
+    },
+    "companyName": {
+      "type": "null"
+    },
+    "latestAnnualReport": {
+      "type": "object",
+      "properties": {
+        "annualReportTypes": {
+          "type": "array",
+          "items": [
+            {
+              "type": "object",
+              "properties": {
+                "handle": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "deprecated": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "handle",
+                "label",
+                "deprecated"
+              ]
+            }
+          ]
+        },
+        "isMaxDueDateInTheFuture": {
+          "type": "boolean"
+        },
+        "reportDueReminderDate": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "dueDate": {
+          "type": "string"
+        },
+        "reportingPeriodEndDate": {
+          "type": "string"
+        },
+        "reportingPeriodStartDate": {
+          "type": "string"
+        },
+        "revisedDueDate": {
+          "type": "null"
+        },
+        "numberOfChaseLetters": {
+          "type": "integer"
+        },
+        "status": {
+          "type": "object",
+          "properties": {
+            "handle": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "deprecated": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "handle",
+            "label",
+            "deprecated"
+          ]
+        },
+        "reviewStatus": {
+          "type": "object",
+          "properties": {
+            "handle": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "deprecated": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "handle",
+            "label",
+            "deprecated"
+          ]
+        },
+        "reasonForReviewStatusChange": {
+          "type": "null"
+        },
+        "annualReportTypeAssignments": {
+          "type": "array",
+          "items": [
+            {
+              "type": "array",
+              "items": {}
+            }
+          ]
+        },
+        "abandonedDate": {
+          "type": "null"
+        },
+        "receivedDate": {
+          "type": "null"
+        },
+        "reasonForAbandonment": {
+          "type": "null"
+        },
+        "lodgingDetail": {
+          "type": "null"
+        },
+        "caseSupervisionLevel": {
+          "type": "object",
+          "properties": {
+            "handle": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "deprecated": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "handle",
+            "label",
+            "deprecated"
+          ]
+        },
+        "reviewDecision": {
+          "type": "null"
+        },
+        "reasonForFinalDecision": {
+          "type": "null"
+        },
+        "reviewDate": {
+          "type": "null"
+        },
+        "reviewedBy": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "annualReportTypes",
+        "isMaxDueDateInTheFuture",
+        "reportDueReminderDate",
+        "id",
+        "dueDate",
+        "reportingPeriodEndDate",
+        "reportingPeriodStartDate",
+        "revisedDueDate",
+        "numberOfChaseLetters",
+        "status",
+        "reviewStatus",
+        "reasonForReviewStatusChange",
+        "annualReportTypeAssignments",
+        "abandonedDate",
+        "receivedDate",
+        "reasonForAbandonment",
+        "lodgingDetail",
+        "caseSupervisionLevel",
+        "reviewDecision",
+        "reasonForFinalDecision",
+        "reviewDate",
+        "reviewedBy"
+      ]
+    },
+    "currentReportingPeriodDueDate": {
+      "type": "string"
+    },
+    "pendingReportingPeriod": {
+      "type": "object",
+      "properties": {
+        "annualReportTypes": {
+          "type": "array",
+          "items": [
+            {
+              "type": "object",
+              "properties": {
+                "handle": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "deprecated": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "handle",
+                "label",
+                "deprecated"
+              ]
+            }
+          ]
+        },
+        "isMaxDueDateInTheFuture": {
+          "type": "boolean"
+        },
+        "reportDueReminderDate": {
+          "type": "string"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "dueDate": {
+          "type": "string"
+        },
+        "reportingPeriodEndDate": {
+          "type": "string"
+        },
+        "reportingPeriodStartDate": {
+          "type": "string"
+        },
+        "revisedDueDate": {
+          "type": "null"
+        },
+        "numberOfChaseLetters": {
+          "type": "integer"
+        },
+        "status": {
+          "type": "object",
+          "properties": {
+            "handle": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "deprecated": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "handle",
+            "label",
+            "deprecated"
+          ]
+        },
+        "reviewStatus": {
+          "type": "object",
+          "properties": {
+            "handle": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "deprecated": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "handle",
+            "label",
+            "deprecated"
+          ]
+        },
+        "reasonForReviewStatusChange": {
+          "type": "null"
+        },
+        "annualReportTypeAssignments": {
+          "type": "array",
+          "items": [
+            {
+              "type": "array",
+              "items": {}
+            }
+          ]
+        },
+        "abandonedDate": {
+          "type": "null"
+        },
+        "receivedDate": {
+          "type": "null"
+        },
+        "reasonForAbandonment": {
+          "type": "null"
+        },
+        "lodgingDetail": {
+          "type": "null"
+        },
+        "caseSupervisionLevel": {
+          "type": "object",
+          "properties": {
+            "handle": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "deprecated": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "handle",
+            "label",
+            "deprecated"
+          ]
+        },
+        "reviewDecision": {
+          "type": "null"
+        },
+        "reasonForFinalDecision": {
+          "type": "null"
+        },
+        "reviewDate": {
+          "type": "null"
+        },
+        "reviewedBy": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "annualReportTypes",
+        "isMaxDueDateInTheFuture",
+        "reportDueReminderDate",
+        "id",
+        "dueDate",
+        "reportingPeriodEndDate",
+        "reportingPeriodStartDate",
+        "revisedDueDate",
+        "numberOfChaseLetters",
+        "status",
+        "reviewStatus",
+        "reasonForReviewStatusChange",
+        "annualReportTypeAssignments",
+        "abandonedDate",
+        "receivedDate",
+        "reasonForAbandonment",
+        "lodgingDetail",
+        "caseSupervisionLevel",
+        "reviewDecision",
+        "reasonForFinalDecision",
+        "reviewDate",
+        "reviewedBy"
+      ]
+    },
+    "statusDate": {
+      "type": "string"
+    },
+    "medicalCondition": {
+      "type": "string"
+    },
+    "clientStatus": {
+      "type": "object",
+      "properties": {
+        "handle": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "deprecated": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "handle",
+        "label",
+        "deprecated"
+      ]
+    },
+    "clientAccommodation": {
+      "type": "object",
+      "properties": {
+        "handle": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "deprecated": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "handle",
+        "label",
+        "deprecated"
+      ]
+    },
+    "feePayer": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "uId": {
+          "type": "string"
+        },
+        "normalizedUid": {
+          "type": "integer"
+        },
+        "errorMessages": {
+          "type": "array",
+          "items": {}
+        },
+        "caseRecNumber": {
+          "type": "null"
+        },
+        "email": {
+          "type": "string"
+        },
+        "dob": {
+          "type": "string"
+        },
+        "dateOfDeath": {
+          "type": "string"
+        },
+        "salutation": {
+          "type": "string"
+        },
+        "firstname": {
+          "type": "string"
+        },
+        "middlenames": {
+          "type": "null"
+        },
+        "surname": {
+          "type": "string"
+        },
+        "otherNames": {
+          "type": "string"
+        },
+        "addressLine1": {
+          "type": "string"
+        },
+        "addressLine2": {
+          "type": "string"
+        },
+        "addressLine3": {
+          "type": "string"
+        },
+        "town": {
+          "type": "string"
+        },
+        "county": {
+          "type": "string"
+        },
+        "postcode": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "isAirmailRequired": {
+          "type": "boolean"
+        },
+        "phoneNumber": {
+          "type": "string"
+        },
+        "parent": {
+          "type": "null"
+        },
+        "children": {
+          "type": "array",
+          "items": {}
+        },
+        "reference": {
+          "type": "array",
+          "items": {}
+        },
+        "correspondenceByPost": {
+          "type": "boolean"
+        },
+        "correspondenceByPhone": {
+          "type": "boolean"
+        },
+        "correspondenceByEmail": {
+          "type": "boolean"
+        },
+        "correspondenceByWelsh": {
+          "type": "boolean"
+        },
+        "occupation": {
+          "type": "null"
+        },
+        "createdDate": {
+          "type": "string"
+        },
+        "updatedDate": {
+          "type": "string"
+        },
+        "personType": {
+          "type": "string"
+        },
+        "cases": {
+          "type": "array",
+          "items": [
+            {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "uId": {
+                  "type": "string"
+                },
+                "normalizedUid": {
+                  "type": "integer"
+                },
+                "errorMessages": {
+                  "type": "array",
+                  "items": {}
+                },
+                "deputies": {
+                  "type": "array",
+                  "items": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "order": {
+                          "type": "null"
+                        },
+                        "deputy": {
+                          "type": "null"
+                        }
+                      },
+                      "required": [
+                        "order",
+                        "deputy"
+                      ]
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "uId",
+                "normalizedUid",
+                "errorMessages",
+                "deputies"
+              ]
+            }
+          ]
+        },
+        "notes": {
+          "type": "array",
+          "items": {}
+        },
+        "tasks": {
+          "type": "array",
+          "items": {}
+        },
+        "warnings": {
+          "type": "array",
+          "items": {}
+        },
+        "documents": {
+          "type": "array",
+          "items": {}
+        },
+        "incomingDocuments": {
+          "type": "array",
+          "items": {}
+        },
+        "outgoingDocuments": {
+          "type": "array",
+          "items": {}
+        },
+        "investigations": {
+          "type": "array",
+          "items": {}
+        },
+        "specialCorrespondenceRequirements": {
+          "type": "object",
+          "properties": {
+            "audioTape": {
+              "type": "boolean"
+            },
+            "largePrint": {
+              "type": "boolean"
+            },
+            "hearingImpaired": {
+              "type": "boolean"
+            },
+            "spellingOfNameRequiresCare": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "audioTape",
+            "largePrint",
+            "hearingImpaired",
+            "spellingOfNameRequiresCare"
+          ]
+        },
+        "interpreterRequired": {
+          "type": "null"
+        },
+        "deputyReferenceNumber": {
+          "type": "null"
+        },
+        "deputyOrderCount": {
+          "type": "null"
+        },
+        "deputyCompliance": {
+          "type": "null"
+        },
+        "relationshipToClient": {
+          "type": "null"
+        },
+        "statusDate": {
+          "type": "null"
+        },
+        "orders": {
+          "type": "array",
+          "items": [
+            {
+              "type": "object",
+              "properties": {
+                "order": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "uId": {
+                      "type": "string"
+                    },
+                    "normalizedUid": {
+                      "type": "integer"
+                    },
+                    "errorMessages": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "deputies": {
+                      "type": "array",
+                      "items": [
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "uId",
+                    "normalizedUid",
+                    "errorMessages",
+                    "deputies"
+                  ]
+                },
+                "deputy": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "order",
+                "deputy"
+              ]
+            }
+          ]
+        },
+        "previousNames": {
+          "type": "string"
+        },
+        "deputyType": {
+          "type": "object",
+          "properties": {
+            "handle": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "deprecated": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "handle",
+            "label",
+            "deprecated"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "uId",
+        "normalizedUid",
+        "errorMessages",
+        "caseRecNumber",
+        "email",
+        "dob",
+        "dateOfDeath",
+        "salutation",
+        "firstname",
+        "middlenames",
+        "surname",
+        "otherNames",
+        "addressLine1",
+        "addressLine2",
+        "addressLine3",
+        "town",
+        "county",
+        "postcode",
+        "country",
+        "isAirmailRequired",
+        "phoneNumber",
+        "parent",
+        "children",
+        "reference",
+        "correspondenceByPost",
+        "correspondenceByPhone",
+        "correspondenceByEmail",
+        "correspondenceByWelsh",
+        "occupation",
+        "createdDate",
+        "updatedDate",
+        "personType",
+        "cases",
+        "notes",
+        "tasks",
+        "warnings",
+        "documents",
+        "incomingDocuments",
+        "outgoingDocuments",
+        "investigations",
+        "specialCorrespondenceRequirements",
+        "interpreterRequired",
+        "deputyReferenceNumber",
+        "deputyOrderCount",
+        "deputyCompliance",
+        "relationshipToClient",
+        "statusDate",
+        "orders",
+        "previousNames",
+        "deputyType"
+      ]
+    },
+    "annualReportLogs": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "annualReportTypes": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "handle": {
+                      "type": "string"
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "deprecated": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "handle",
+                    "label",
+                    "deprecated"
+                  ]
+                }
+              ]
+            },
+            "isMaxDueDateInTheFuture": {
+              "type": "boolean"
+            },
+            "reportDueReminderDate": {
+              "type": "string"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "dueDate": {
+              "type": "string"
+            },
+            "reportingPeriodEndDate": {
+              "type": "string"
+            },
+            "reportingPeriodStartDate": {
+              "type": "string"
+            },
+            "revisedDueDate": {
+              "type": "null"
+            },
+            "numberOfChaseLetters": {
+              "type": "integer"
+            },
+            "status": {
+              "type": "object",
+              "properties": {
+                "handle": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "deprecated": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "handle",
+                "label",
+                "deprecated"
+              ]
+            },
+            "reviewStatus": {
+              "type": "object",
+              "properties": {
+                "handle": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "deprecated": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "handle",
+                "label",
+                "deprecated"
+              ]
+            },
+            "reasonForReviewStatusChange": {
+              "type": "null"
+            },
+            "annualReportTypeAssignments": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "array",
+                  "items": {}
+                }
+              ]
+            },
+            "abandonedDate": {
+              "type": "null"
+            },
+            "receivedDate": {
+              "type": "null"
+            },
+            "reasonForAbandonment": {
+              "type": "null"
+            },
+            "lodgingDetail": {
+              "type": "null"
+            },
+            "caseSupervisionLevel": {
+              "type": "object",
+              "properties": {
+                "handle": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "deprecated": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "handle",
+                "label",
+                "deprecated"
+              ]
+            },
+            "reviewDecision": {
+              "type": "null"
+            },
+            "reasonForFinalDecision": {
+              "type": "null"
+            },
+            "reviewDate": {
+              "type": "null"
+            },
+            "reviewedBy": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "annualReportTypes",
+            "isMaxDueDateInTheFuture",
+            "reportDueReminderDate",
+            "id",
+            "dueDate",
+            "reportingPeriodEndDate",
+            "reportingPeriodStartDate",
+            "revisedDueDate",
+            "numberOfChaseLetters",
+            "status",
+            "reviewStatus",
+            "reasonForReviewStatusChange",
+            "annualReportTypeAssignments",
+            "abandonedDate",
+            "receivedDate",
+            "reasonForAbandonment",
+            "lodgingDetail",
+            "caseSupervisionLevel",
+            "reviewDecision",
+            "reasonForFinalDecision",
+            "reviewDate",
+            "reviewedBy"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "annualReportTypes": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "handle": {
+                      "type": "string"
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "deprecated": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "handle",
+                    "label",
+                    "deprecated"
+                  ]
+                }
+              ]
+            },
+            "isMaxDueDateInTheFuture": {
+              "type": "boolean"
+            },
+            "reportDueReminderDate": {
+              "type": "string"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "dueDate": {
+              "type": "string"
+            },
+            "reportingPeriodEndDate": {
+              "type": "string"
+            },
+            "reportingPeriodStartDate": {
+              "type": "string"
+            },
+            "revisedDueDate": {
+              "type": "null"
+            },
+            "numberOfChaseLetters": {
+              "type": "integer"
+            },
+            "status": {
+              "type": "object",
+              "properties": {
+                "handle": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "deprecated": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "handle",
+                "label",
+                "deprecated"
+              ]
+            },
+            "reviewStatus": {
+              "type": "object",
+              "properties": {
+                "handle": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "deprecated": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "handle",
+                "label",
+                "deprecated"
+              ]
+            },
+            "reasonForReviewStatusChange": {
+              "type": "null"
+            },
+            "annualReportTypeAssignments": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "array",
+                  "items": {}
+                }
+              ]
+            },
+            "abandonedDate": {
+              "type": "null"
+            },
+            "receivedDate": {
+              "type": "null"
+            },
+            "reasonForAbandonment": {
+              "type": "null"
+            },
+            "lodgingDetail": {
+              "type": "null"
+            },
+            "caseSupervisionLevel": {
+              "type": "null"
+            },
+            "reviewDecision": {
+              "type": "null"
+            },
+            "reasonForFinalDecision": {
+              "type": "null"
+            },
+            "reviewDate": {
+              "type": "null"
+            },
+            "reviewedBy": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "annualReportTypes",
+            "isMaxDueDateInTheFuture",
+            "reportDueReminderDate",
+            "id",
+            "dueDate",
+            "reportingPeriodEndDate",
+            "reportingPeriodStartDate",
+            "revisedDueDate",
+            "numberOfChaseLetters",
+            "status",
+            "reviewStatus",
+            "reasonForReviewStatusChange",
+            "annualReportTypeAssignments",
+            "abandonedDate",
+            "receivedDate",
+            "reasonForAbandonment",
+            "lodgingDetail",
+            "caseSupervisionLevel",
+            "reviewDecision",
+            "reasonForFinalDecision",
+            "reviewDate",
+            "reviewedBy"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "annualReportTypes": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "handle": {
+                      "type": "string"
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "deprecated": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "handle",
+                    "label",
+                    "deprecated"
+                  ]
+                }
+              ]
+            },
+            "isMaxDueDateInTheFuture": {
+              "type": "boolean"
+            },
+            "reportDueReminderDate": {
+              "type": "string"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "dueDate": {
+              "type": "string"
+            },
+            "reportingPeriodEndDate": {
+              "type": "string"
+            },
+            "reportingPeriodStartDate": {
+              "type": "string"
+            },
+            "revisedDueDate": {
+              "type": "null"
+            },
+            "numberOfChaseLetters": {
+              "type": "integer"
+            },
+            "status": {
+              "type": "object",
+              "properties": {
+                "handle": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "deprecated": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "handle",
+                "label",
+                "deprecated"
+              ]
+            },
+            "reviewStatus": {
+              "type": "object",
+              "properties": {
+                "handle": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "deprecated": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "handle",
+                "label",
+                "deprecated"
+              ]
+            },
+            "reasonForReviewStatusChange": {
+              "type": "null"
+            },
+            "annualReportTypeAssignments": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "array",
+                  "items": {}
+                }
+              ]
+            },
+            "abandonedDate": {
+              "type": "null"
+            },
+            "receivedDate": {
+              "type": "null"
+            },
+            "reasonForAbandonment": {
+              "type": "null"
+            },
+            "lodgingDetail": {
+              "type": "null"
+            },
+            "caseSupervisionLevel": {
+              "type": "null"
+            },
+            "reviewDecision": {
+              "type": "null"
+            },
+            "reasonForFinalDecision": {
+              "type": "null"
+            },
+            "reviewDate": {
+              "type": "null"
+            },
+            "reviewedBy": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "annualReportTypes",
+            "isMaxDueDateInTheFuture",
+            "reportDueReminderDate",
+            "id",
+            "dueDate",
+            "reportingPeriodEndDate",
+            "reportingPeriodStartDate",
+            "revisedDueDate",
+            "numberOfChaseLetters",
+            "status",
+            "reviewStatus",
+            "reasonForReviewStatusChange",
+            "annualReportTypeAssignments",
+            "abandonedDate",
+            "receivedDate",
+            "reasonForAbandonment",
+            "lodgingDetail",
+            "caseSupervisionLevel",
+            "reviewDecision",
+            "reasonForFinalDecision",
+            "reviewDate",
+            "reviewedBy"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "annualReportTypes": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "handle": {
+                      "type": "string"
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "deprecated": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "handle",
+                    "label",
+                    "deprecated"
+                  ]
+                }
+              ]
+            },
+            "isMaxDueDateInTheFuture": {
+              "type": "boolean"
+            },
+            "reportDueReminderDate": {
+              "type": "string"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "dueDate": {
+              "type": "string"
+            },
+            "reportingPeriodEndDate": {
+              "type": "string"
+            },
+            "reportingPeriodStartDate": {
+              "type": "string"
+            },
+            "revisedDueDate": {
+              "type": "null"
+            },
+            "numberOfChaseLetters": {
+              "type": "integer"
+            },
+            "status": {
+              "type": "object",
+              "properties": {
+                "handle": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "deprecated": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "handle",
+                "label",
+                "deprecated"
+              ]
+            },
+            "reviewStatus": {
+              "type": "object",
+              "properties": {
+                "handle": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "deprecated": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "handle",
+                "label",
+                "deprecated"
+              ]
+            },
+            "reasonForReviewStatusChange": {
+              "type": "null"
+            },
+            "annualReportTypeAssignments": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "array",
+                  "items": {}
+                }
+              ]
+            },
+            "abandonedDate": {
+              "type": "null"
+            },
+            "receivedDate": {
+              "type": "null"
+            },
+            "reasonForAbandonment": {
+              "type": "null"
+            },
+            "lodgingDetail": {
+              "type": "null"
+            },
+            "caseSupervisionLevel": {
+              "type": "null"
+            },
+            "reviewDecision": {
+              "type": "null"
+            },
+            "reasonForFinalDecision": {
+              "type": "null"
+            },
+            "reviewDate": {
+              "type": "null"
+            },
+            "reviewedBy": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "annualReportTypes",
+            "isMaxDueDateInTheFuture",
+            "reportDueReminderDate",
+            "id",
+            "dueDate",
+            "reportingPeriodEndDate",
+            "reportingPeriodStartDate",
+            "revisedDueDate",
+            "numberOfChaseLetters",
+            "status",
+            "reviewStatus",
+            "reasonForReviewStatusChange",
+            "annualReportTypeAssignments",
+            "abandonedDate",
+            "receivedDate",
+            "reasonForAbandonment",
+            "lodgingDetail",
+            "caseSupervisionLevel",
+            "reviewDecision",
+            "reasonForFinalDecision",
+            "reviewDate",
+            "reviewedBy"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "annualReportTypes": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "handle": {
+                      "type": "string"
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "deprecated": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "handle",
+                    "label",
+                    "deprecated"
+                  ]
+                }
+              ]
+            },
+            "isMaxDueDateInTheFuture": {
+              "type": "boolean"
+            },
+            "reportDueReminderDate": {
+              "type": "string"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "dueDate": {
+              "type": "string"
+            },
+            "reportingPeriodEndDate": {
+              "type": "string"
+            },
+            "reportingPeriodStartDate": {
+              "type": "string"
+            },
+            "revisedDueDate": {
+              "type": "null"
+            },
+            "numberOfChaseLetters": {
+              "type": "integer"
+            },
+            "status": {
+              "type": "object",
+              "properties": {
+                "handle": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "deprecated": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "handle",
+                "label",
+                "deprecated"
+              ]
+            },
+            "reviewStatus": {
+              "type": "object",
+              "properties": {
+                "handle": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "deprecated": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "handle",
+                "label",
+                "deprecated"
+              ]
+            },
+            "reasonForReviewStatusChange": {
+              "type": "null"
+            },
+            "annualReportTypeAssignments": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "array",
+                  "items": {}
+                }
+              ]
+            },
+            "abandonedDate": {
+              "type": "null"
+            },
+            "receivedDate": {
+              "type": "null"
+            },
+            "reasonForAbandonment": {
+              "type": "null"
+            },
+            "lodgingDetail": {
+              "type": "null"
+            },
+            "caseSupervisionLevel": {
+              "type": "null"
+            },
+            "reviewDecision": {
+              "type": "null"
+            },
+            "reasonForFinalDecision": {
+              "type": "null"
+            },
+            "reviewDate": {
+              "type": "null"
+            },
+            "reviewedBy": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "annualReportTypes",
+            "isMaxDueDateInTheFuture",
+            "reportDueReminderDate",
+            "id",
+            "dueDate",
+            "reportingPeriodEndDate",
+            "reportingPeriodStartDate",
+            "revisedDueDate",
+            "numberOfChaseLetters",
+            "status",
+            "reviewStatus",
+            "reasonForReviewStatusChange",
+            "annualReportTypeAssignments",
+            "abandonedDate",
+            "receivedDate",
+            "reasonForAbandonment",
+            "lodgingDetail",
+            "caseSupervisionLevel",
+            "reviewDecision",
+            "reasonForFinalDecision",
+            "reviewDate",
+            "reviewedBy"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "annualReportTypes": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "handle": {
+                      "type": "string"
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "deprecated": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "handle",
+                    "label",
+                    "deprecated"
+                  ]
+                }
+              ]
+            },
+            "isMaxDueDateInTheFuture": {
+              "type": "boolean"
+            },
+            "reportDueReminderDate": {
+              "type": "string"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "dueDate": {
+              "type": "string"
+            },
+            "reportingPeriodEndDate": {
+              "type": "string"
+            },
+            "reportingPeriodStartDate": {
+              "type": "string"
+            },
+            "revisedDueDate": {
+              "type": "null"
+            },
+            "numberOfChaseLetters": {
+              "type": "integer"
+            },
+            "status": {
+              "type": "object",
+              "properties": {
+                "handle": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "deprecated": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "handle",
+                "label",
+                "deprecated"
+              ]
+            },
+            "reviewStatus": {
+              "type": "object",
+              "properties": {
+                "handle": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "deprecated": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "handle",
+                "label",
+                "deprecated"
+              ]
+            },
+            "reasonForReviewStatusChange": {
+              "type": "null"
+            },
+            "annualReportTypeAssignments": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "array",
+                  "items": {}
+                }
+              ]
+            },
+            "abandonedDate": {
+              "type": "null"
+            },
+            "receivedDate": {
+              "type": "null"
+            },
+            "reasonForAbandonment": {
+              "type": "null"
+            },
+            "lodgingDetail": {
+              "type": "null"
+            },
+            "caseSupervisionLevel": {
+              "type": "null"
+            },
+            "reviewDecision": {
+              "type": "null"
+            },
+            "reasonForFinalDecision": {
+              "type": "null"
+            },
+            "reviewDate": {
+              "type": "null"
+            },
+            "reviewedBy": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "annualReportTypes",
+            "isMaxDueDateInTheFuture",
+            "reportDueReminderDate",
+            "id",
+            "dueDate",
+            "reportingPeriodEndDate",
+            "reportingPeriodStartDate",
+            "revisedDueDate",
+            "numberOfChaseLetters",
+            "status",
+            "reviewStatus",
+            "reasonForReviewStatusChange",
+            "annualReportTypeAssignments",
+            "abandonedDate",
+            "receivedDate",
+            "reasonForAbandonment",
+            "lodgingDetail",
+            "caseSupervisionLevel",
+            "reviewDecision",
+            "reasonForFinalDecision",
+            "reviewDate",
+            "reviewedBy"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "annualReportTypes": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "handle": {
+                      "type": "string"
+                    },
+                    "label": {
+                      "type": "string"
+                    },
+                    "deprecated": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "handle",
+                    "label",
+                    "deprecated"
+                  ]
+                }
+              ]
+            },
+            "isMaxDueDateInTheFuture": {
+              "type": "boolean"
+            },
+            "reportDueReminderDate": {
+              "type": "string"
+            },
+            "id": {
+              "type": "integer"
+            },
+            "dueDate": {
+              "type": "string"
+            },
+            "reportingPeriodEndDate": {
+              "type": "string"
+            },
+            "reportingPeriodStartDate": {
+              "type": "string"
+            },
+            "revisedDueDate": {
+              "type": "null"
+            },
+            "numberOfChaseLetters": {
+              "type": "integer"
+            },
+            "status": {
+              "type": "object",
+              "properties": {
+                "handle": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "deprecated": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "handle",
+                "label",
+                "deprecated"
+              ]
+            },
+            "reviewStatus": {
+              "type": "object",
+              "properties": {
+                "handle": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "deprecated": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "handle",
+                "label",
+                "deprecated"
+              ]
+            },
+            "reasonForReviewStatusChange": {
+              "type": "null"
+            },
+            "annualReportTypeAssignments": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "array",
+                  "items": {}
+                }
+              ]
+            },
+            "abandonedDate": {
+              "type": "null"
+            },
+            "receivedDate": {
+              "type": "null"
+            },
+            "reasonForAbandonment": {
+              "type": "null"
+            },
+            "lodgingDetail": {
+              "type": "null"
+            },
+            "caseSupervisionLevel": {
+              "type": "null"
+            },
+            "reviewDecision": {
+              "type": "null"
+            },
+            "reasonForFinalDecision": {
+              "type": "null"
+            },
+            "reviewDate": {
+              "type": "null"
+            },
+            "reviewedBy": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "annualReportTypes",
+            "isMaxDueDateInTheFuture",
+            "reportDueReminderDate",
+            "id",
+            "dueDate",
+            "reportingPeriodEndDate",
+            "reportingPeriodStartDate",
+            "revisedDueDate",
+            "numberOfChaseLetters",
+            "status",
+            "reviewStatus",
+            "reasonForReviewStatusChange",
+            "annualReportTypeAssignments",
+            "abandonedDate",
+            "receivedDate",
+            "reasonForAbandonment",
+            "lodgingDetail",
+            "caseSupervisionLevel",
+            "reviewDecision",
+            "reasonForFinalDecision",
+            "reviewDate",
+            "reviewedBy"
+          ]
+        }
+      ]
+    },
+    "casesManagedAsHybrid": {
+      "type": "boolean"
+    },
+    "supervisionCaseOwner": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "phoneNumber": {
+          "type": "string"
+        },
+        "teams": {
+          "type": "array",
+          "items": {}
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "deleted": {
+          "type": "boolean"
+        },
+        "email": {
+          "type": "string"
+        },
+        "members": {
+          "type": "array",
+          "items": [
+            {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "phoneNumber": {
+                  "type": "string"
+                },
+                "teams": {
+                  "type": "array",
+                  "items": [
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "displayName": {
+                  "type": "string"
+                },
+                "deleted": {
+                  "type": "boolean"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "firstname": {
+                  "type": "string"
+                },
+                "surname": {
+                  "type": "string"
+                },
+                "roles": {
+                  "type": "array",
+                  "items": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "locked": {
+                  "type": "boolean"
+                },
+                "suspended": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "phoneNumber",
+                "teams",
+                "displayName",
+                "deleted",
+                "email",
+                "firstname",
+                "surname",
+                "roles",
+                "locked",
+                "suspended"
+              ]
+            }
+          ]
+        },
+        "groupName": {
+          "type": "null"
+        },
+        "parent": {
+          "type": "null"
+        },
+        "children": {
+          "type": "array",
+          "items": {}
+        },
+        "teamType": {
+          "type": "object",
+          "properties": {
+            "handle": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "deprecated": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "handle",
+            "label",
+            "deprecated"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "phoneNumber",
+        "teams",
+        "displayName",
+        "deleted",
+        "email",
+        "members",
+        "groupName",
+        "parent",
+        "children",
+        "teamType"
+      ]
+    },
+    "memorablePhrase": {
+      "type": "string"
+    },
+    "riskScore": {
+      "type": "null"
+    },
+    "caseActorGroup": {
+      "type": "null"
+    },
+    "executor": {
+      "type": "null"
+    },
+    "maritalStatus": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "uId",
+    "normalizedUid",
+    "errorMessages",
+    "caseRecNumber",
+    "email",
+    "dob",
+    "dateOfDeath",
+    "salutation",
+    "firstname",
+    "middlenames",
+    "surname",
+    "otherNames",
+    "addressLine1",
+    "addressLine2",
+    "addressLine3",
+    "town",
+    "county",
+    "postcode",
+    "country",
+    "isAirmailRequired",
+    "phoneNumber",
+    "parent",
+    "children",
+    "reference",
+    "correspondenceByPost",
+    "correspondenceByPhone",
+    "correspondenceByEmail",
+    "correspondenceByWelsh",
+    "occupation",
+    "createdDate",
+    "updatedDate",
+    "personType",
+    "cases",
+    "notes",
+    "tasks",
+    "warnings",
+    "documents",
+    "incomingDocuments",
+    "outgoingDocuments",
+    "investigations",
+    "specialCorrespondenceRequirements",
+    "interpreterRequired",
+    "previousNames",
+    "cannotSignForm",
+    "applyingForFeeRemission",
+    "receivingBenefits",
+    "receivedDamageAward",
+    "hasLowIncome",
+    "signatureDate",
+    "hasPreviousLpa",
+    "notesForPreviousLpa",
+    "companyName",
+    "latestAnnualReport",
+    "currentReportingPeriodDueDate",
+    "pendingReportingPeriod",
+    "statusDate",
+    "medicalCondition",
+    "clientStatus",
+    "clientAccommodation",
+    "feePayer",
+    "annualReportLogs",
+    "casesManagedAsHybrid",
+    "supervisionCaseOwner",
+    "memorablePhrase",
+    "riskScore",
+    "caseActorGroup",
+    "executor",
+    "maritalStatus"
+  ]
+}
