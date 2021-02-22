@@ -1,3 +1,4 @@
+import pytest
 from pytest_cases import parametrize_with_cases
 
 from data_tests.conftest import (
@@ -24,6 +25,7 @@ log = logging.getLogger("root")
     cases=list_of_test_cases,
     has_tag="one_to_one_joins",
 )
+@pytest.mark.skip(reason="moving to its own test")
 def test_one_to_one_joins(
     test_config,
     join_columns,

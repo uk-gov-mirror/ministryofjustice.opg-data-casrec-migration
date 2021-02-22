@@ -1,22 +1,22 @@
-from pytest_cases import case
+from datetime import datetime
 
-module_name = "client_addresses_mapping"
-source_table = "pat"
-destination_table = "addresses"
-destination_condition = f"WHERE casrec_mapping_file_name = '{module_name}'"
+from pytest_cases import case
+import pandas as pd
+
+module_name = "deputy_evening_phonenumbers_mapping"
+source_table = "deputy"
+destination_table = "phonenumbers"
 
 
 @case(tags="simple")
-def case_clients_1(test_config):
+def case_deputies_phonenos_evening_1(test_config):
     simple_matches = {
-        "Adrs3": ["town"],
-        "Adrs4": ["county"],
-        "Postcode": ["postcode"],
-        "Adrs5": ["country"],
+        "Contact Tele2": ["phone_number"],
     }
-    merge_columns = {"source": "Case", "transformed": "caserecnumber"}
+    merge_columns = {"source": "Email", "transformed": "c_email"}
 
     config = test_config
+
     source_columns = [f'"{x}"' for x in simple_matches.keys()]
     transformed_columns = [f'"{y}"' for x in simple_matches.values() for y in x]
 
@@ -32,18 +32,18 @@ def case_clients_1(test_config):
             {merge_columns['transformed']},
             {', '.join(transformed_columns)}
         FROM {config.schemas['post_transform']}.{destination_table}
-        {destination_condition}
+        WHERE casrec_mapping_file_name = '{module_name}'
     """
 
     return (simple_matches, merge_columns, source_query, transformed_query, module_name)
 
 
-#
-#
 @case(tags="default")
-def case_clients_2(test_config):
+def case_deputies_phonenos_evening_2(test_config):
     defaults = {
-        "type": "Primary",
+        "type": "Home",
+        "is_default": False,
+        # "updateddate": "Todays Date",
     }
 
     config = test_config
@@ -53,84 +53,35 @@ def case_clients_2(test_config):
         SELECT
             {', '.join(source_columns)}
         FROM {config.schemas['post_transform']}.{destination_table}
-        {destination_condition}
+        WHERE casrec_mapping_file_name = '{module_name}'
     """
 
     return (defaults, source_query, module_name)
 
 
-@case(tags="convert_to_bool")
-def case_clients_3(test_config):
-    convert_to_bool_fields = {
-        "Foreign": ["isairmailrequired"],
+@case(tags="calculated")
+def case_deputies_phonenos_evening_3(test_config):
+    today = pd.Timestamp.today()
+
+    calculated_fields = {
+        "updateddate": today,
     }
 
     config = test_config
-    merge_columns = {"source": "Case", "transformed": "c_case"}
-    source_columns = [f'"{x}"' for x in convert_to_bool_fields.keys()]
-    transformed_columns = [f'"{y}"' for x in convert_to_bool_fields.values() for y in x]
+    source_columns = [f'"{x}"' for x in calculated_fields.keys()]
 
     source_query = f"""
         SELECT
-            "{merge_columns['source']}",
             {', '.join(source_columns)}
-        FROM {config.schemas['pre_transform']}.{source_table}
-    """
-
-    transformed_query = f"""
-        SELECT
-            {merge_columns['transformed']},
-            {', '.join(transformed_columns)}
         FROM {config.schemas['post_transform']}.{destination_table}
-        {destination_condition}
+        WHERE casrec_mapping_file_name = '{module_name}'
     """
 
-    return (
-        convert_to_bool_fields,
-        source_query,
-        transformed_query,
-        merge_columns,
-        module_name,
-    )
+    return (calculated_fields, source_query, module_name)
 
 
-@case(tags="squash_columns")
-def case_clients_4(test_config):
-    squash_columns_fields = {
-        "address_lines": ["Adrs1", "Adrs2"],
-    }
-
-    config = test_config
-    merge_columns = {"source": "Case", "transformed": "c_case"}
-    source_columns = [f'"{y}"' for x in squash_columns_fields.values() for y in x]
-    transformed_columns = [f'"{x}"' for x in squash_columns_fields.keys()]
-
-    source_query = f"""
-        SELECT
-            "{merge_columns['source']}",
-            {', '.join(source_columns)}
-        FROM {config.schemas['pre_transform']}.{source_table}
-    """
-
-    transformed_query = f"""
-        SELECT
-            {merge_columns['transformed']},
-            {', '.join(transformed_columns)}
-        FROM {config.schemas['post_transform']}.{destination_table}
-        {destination_condition}
-    """
-
-    return (
-        squash_columns_fields,
-        source_query,
-        transformed_query,
-        merge_columns,
-        module_name,
-    )
-
-
-@case(tags="one_to_one_joins")
-def case_clients_5(test_config):
+# @case(tags="one_to_one_joins")
+def case_deputies_phonenos_evening_joins(test_config):
     join_columns = {
         "person_id": {"persons": "id"},
     }
@@ -156,14 +107,13 @@ def case_clients_5(test_config):
                 "{merge_columns['fk_parent']}",
                 {', '.join(fk_parent_col)}
             FROM {config.schemas['post_transform']}.{parent_table[0]}
-            {destination_condition}
         """
 
     return (join_columns, merge_columns, fk_child_query, fk_parent_query, module_name)
 
 
 @case(tags="row_count")
-def case_addresses_count(test_config):
+def case_phonenumbers_evening_count(test_config):
 
     config = test_config
     source_query = f"""
@@ -176,7 +126,7 @@ def case_addresses_count(test_config):
         SELECT
             *
         FROM {config.schemas['post_transform']}.{destination_table}
-        {destination_condition}
+        WHERE casrec_mapping_file_name = '{module_name}'
     """
 
     return (source_query, transformed_query, module_name)

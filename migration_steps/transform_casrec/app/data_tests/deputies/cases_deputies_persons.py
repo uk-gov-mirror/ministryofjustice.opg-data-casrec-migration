@@ -3,10 +3,9 @@ import pytest
 from pytest_cases import case
 
 
-module_name = "client_persons"
+module_name = "deputy_persons_mapping"
 source_table = "deputy"
 destination_table = "persons"
-destination_condition = "WHERE type = 'actor_deputy'"
 
 
 @case(tags="simple")
@@ -37,7 +36,7 @@ def case_deputies_1(test_config):
             {merge_columns['transformed']},
             {', '.join(transformed_columns)}
         FROM {config.schemas['post_transform']}.{destination_table}
-        {destination_condition}
+        WHERE casrec_mapping_file_name = '{module_name}'
     """
 
     return (simple_matches, merge_columns, source_query, transformed_query, module_name)
@@ -66,21 +65,21 @@ def case_deputies_2(test_config):
         SELECT
             {', '.join(source_columns)}
         FROM {config.schemas['post_transform']}.{destination_table}
-        {destination_condition}
+        WHERE casrec_mapping_file_name = '{module_name}'
     """
 
     return (defaults, source_query, module_name)
 
 
-@case(tags="lookups")
+# @case(tags="lookups")
 # title is commented out because the anon data is wrong so it will never pass
 def case_deputies_3(test_config):
 
     lookup_fields = {
         # "salutation": {"Title": "title_codes_lookup"},
-        "correspondencebyemail": {
-            "By Email": "Corres_Indicator_lookup"
-        },  # lookup needs null value
+        # "correspondencebyemail": {
+        #     "By Email": "Corres_Indicator_lookup"
+        # },  # lookup needs null value
         # "correspondencebywelsh": {"Welsh": "Welsh_indicator_lookup"} # lookup currently doesn't exist
     }
     merge_columns = {"source": "Email", "transformed": "email"}
@@ -102,7 +101,7 @@ def case_deputies_3(test_config):
             {merge_columns['transformed']},
             {', '.join(transformed_columns)}
         FROM {config.schemas['post_transform']}.{destination_table}
-        {destination_condition}
+        WHERE casrec_mapping_file_name = '{module_name}'
     """
 
     return (lookup_fields, merge_columns, source_query, transformed_query, module_name)
@@ -125,7 +124,7 @@ def case_deputies_4(test_config):
         SELECT
             {', '.join(source_columns)}
         FROM {config.schemas['post_transform']}.persons
-        {destination_condition}
+        WHERE casrec_mapping_file_name = '{module_name}'
     """
 
     return (calculated_fields, source_query, module_name)
@@ -145,7 +144,7 @@ def case_deputies_count(test_config):
         SELECT
             *
         FROM {config.schemas['post_transform']}.{destination_table}
-        {destination_condition}
+        WHERE casrec_mapping_file_name = '{module_name}'
     """
 
     return (source_query, transformed_query, module_name)
