@@ -28,11 +28,7 @@ def get_columns_query(table, schema):
 
 
 def remove_unecessary_columns(columns):
-    unecessary_field_names = ["method", "sirius_id"]
-    # i think we only need to remove method now
-
-    unecessary_field_names += [x for x in columns if x[:15] == "transformation_"]
-    unecessary_field_names += [x for x in columns if x[:2] == "c_"]
+    unecessary_field_names = ["method"]
 
     return [column for column in columns if column not in unecessary_field_names]
 
