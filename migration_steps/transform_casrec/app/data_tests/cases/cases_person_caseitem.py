@@ -11,6 +11,7 @@ destination_tables = {
     "child": "cases",
     "join_table": "person_caseitem",
 }
+json_files = {"parent": "client_persons_mapping", "child": "cases_mapping"}
 
 
 @case(tags="many_to_one_join")
@@ -40,9 +41,10 @@ def case_person_caseitem(test_config):
             on cast({destination_tables['join_table']}.person_id as int)
                 = cast({destination_tables['parent']}.id as int)
         LEFT OUTER JOIN {config.schemas['post_transform']}.{destination_tables['child']}
-            on cast({destination_tables['join_table']}.case_id as int)
+            on cast({destination_tables['join_table']}.caseitem_id as int)
                 = cast({destination_tables['child']}.id as int)
-        WHERE {destination_tables['parent']}."type" = 'actor_client'
+            AND {destination_tables['child']}.casrec_mapping_file_name = '{json_files['child']}'
+        WHERE {destination_tables['parent']}.casrec_mapping_file_name = '{json_files['parent']}'
         GROUP BY {destination_tables['parent']}_id, {destination_tables['parent']}.{merge_columns['transformed']}
     """
 
@@ -51,27 +53,6 @@ def case_person_caseitem(test_config):
     }
 
     return module_name, source_query, transformed_query, merge_columns, match_columns
-
-
-# @case(tags="row_count")
-# def case_person_count(test_config):
-#     # not every person is linked to a case, commented out because xfail
-#     doesn't work with pytest_cases
-#
-#     config = test_config
-#     source_query = f"""
-#         SELECT
-#             *
-#         FROM {config.schemas['post_transform']}.{destination_tables['parent']}
-#     """
-#
-#     transformed_query = f"""
-#         SELECT
-#             distinct person_id
-#         FROM {config.schemas['post_transform']}.{destination_tables['join_table']}
-#     """
-#
-#     return (source_query, transformed_query, module_name)
 
 
 @case(tags="row_count")
@@ -86,7 +67,7 @@ def case_cases_count(test_config):
 
     transformed_query = f"""
         SELECT
-            distinct case_id
+            distinct caseitem_id
         FROM {config.schemas['post_transform']}.{destination_tables['join_table']}
     """
 

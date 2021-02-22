@@ -80,18 +80,19 @@ def case_deputies_phonenos_daytime_3(test_config):
     return (calculated_fields, source_query, module_name)
 
 
-# @case(tags="one_to_one_joins")
+@case(tags="one_to_one_joins")
 def case_deputies_phonenos_daytime_joins(test_config):
     join_columns = {
         "person_id": {"persons": "id"},
     }
-    merge_columns = {"fk_child": "c_case", "fk_parent": "email"}
+    merge_columns = {"fk_child": "c_email", "fk_parent": "email"}
 
     config = test_config
 
     fk_child_col = [f'"{k}"' for k in join_columns.keys()]
 
     parent_table = [y for x in join_columns.values() for y in x]
+    parent_module_name = "deputy_persons_mapping"
 
     fk_parent_col = [f'"{y}"' for x in join_columns.values() for y in x.values()]
 
@@ -100,6 +101,8 @@ def case_deputies_phonenos_daytime_joins(test_config):
             "{merge_columns['fk_child']}",
             {', '.join(fk_child_col)}
         FROM {config.schemas['post_transform']}.{destination_table}
+        WHERE casrec_mapping_file_name = '{module_name}'
+
     """
 
     fk_parent_query = f"""
@@ -107,6 +110,7 @@ def case_deputies_phonenos_daytime_joins(test_config):
                 "{merge_columns['fk_parent']}",
                 {', '.join(fk_parent_col)}
             FROM {config.schemas['post_transform']}.{parent_table[0]}
+            WHERE casrec_mapping_file_name = '{parent_module_name}'
         """
 
     return (join_columns, merge_columns, fk_child_query, fk_parent_query, module_name)

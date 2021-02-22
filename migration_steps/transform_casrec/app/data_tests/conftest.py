@@ -34,7 +34,7 @@ list_of_test_cases = [
     cases_clients_addresses,
     cases_clients_phonenumbers,
     cases_cases,
-    # cases_person_caseitem,
+    cases_person_caseitem,
     cases_supervision_level_log,
     cases_deputies_persons,
     cases_deputy_phonenumbers_daytime,

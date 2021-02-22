@@ -141,6 +141,7 @@ def case_clients_5(test_config):
     fk_child_col = [f'"{k}"' for k in join_columns.keys()]
 
     parent_table = [y for x in join_columns.values() for y in x]
+    parent_module_name = "client_persons_mapping"
 
     fk_parent_col = [f'"{y}"' for x in join_columns.values() for y in x.values()]
 
@@ -156,7 +157,7 @@ def case_clients_5(test_config):
                 "{merge_columns['fk_parent']}",
                 {', '.join(fk_parent_col)}
             FROM {config.schemas['post_transform']}.{parent_table[0]}
-            {destination_condition}
+            WHERE casrec_mapping_file_name = '{parent_module_name}'
         """
 
     return (join_columns, merge_columns, fk_child_query, fk_parent_query, module_name)
