@@ -1,8 +1,9 @@
 from pytest_cases import case
 
-module_name = "client_addresses"
+module_name = "client_addresses_mapping"
 source_table = "pat"
 destination_table = "addresses"
+destination_condition = f"WHERE casrec_mapping_file_name = '{module_name}'"
 
 
 @case(tags="simple")
@@ -31,6 +32,7 @@ def case_clients_1(test_config):
             {merge_columns['transformed']},
             {', '.join(transformed_columns)}
         FROM {config.schemas['post_transform']}.{destination_table}
+        {destination_condition}
     """
 
     return (simple_matches, merge_columns, source_query, transformed_query, module_name)
@@ -51,6 +53,7 @@ def case_clients_2(test_config):
         SELECT
             {', '.join(source_columns)}
         FROM {config.schemas['post_transform']}.{destination_table}
+        {destination_condition}
     """
 
     return (defaults, source_query, module_name)
@@ -79,6 +82,7 @@ def case_clients_3(test_config):
             {merge_columns['transformed']},
             {', '.join(transformed_columns)}
         FROM {config.schemas['post_transform']}.{destination_table}
+        {destination_condition}
     """
 
     return (
@@ -113,6 +117,7 @@ def case_clients_4(test_config):
             {merge_columns['transformed']},
             {', '.join(transformed_columns)}
         FROM {config.schemas['post_transform']}.{destination_table}
+        {destination_condition}
     """
 
     return (
@@ -136,6 +141,7 @@ def case_clients_5(test_config):
     fk_child_col = [f'"{k}"' for k in join_columns.keys()]
 
     parent_table = [y for x in join_columns.values() for y in x]
+    parent_module_name = "client_persons_mapping"
 
     fk_parent_col = [f'"{y}"' for x in join_columns.values() for y in x.values()]
 
@@ -151,6 +157,7 @@ def case_clients_5(test_config):
                 "{merge_columns['fk_parent']}",
                 {', '.join(fk_parent_col)}
             FROM {config.schemas['post_transform']}.{parent_table[0]}
+            WHERE casrec_mapping_file_name = '{parent_module_name}'
         """
 
     return (join_columns, merge_columns, fk_child_query, fk_parent_query, module_name)
@@ -170,6 +177,7 @@ def case_addresses_count(test_config):
         SELECT
             *
         FROM {config.schemas['post_transform']}.{destination_table}
+        {destination_condition}
     """
 
     return (source_query, transformed_query, module_name)

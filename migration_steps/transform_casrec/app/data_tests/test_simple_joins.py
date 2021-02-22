@@ -1,3 +1,4 @@
+import pytest
 from pytest_cases import parametrize_with_cases
 
 from data_tests.conftest import (
@@ -24,6 +25,7 @@ log = logging.getLogger("root")
     cases=list_of_test_cases,
     has_tag="one_to_one_joins",
 )
+# @pytest.mark.skip(reason="moving to its own test")
 def test_one_to_one_joins(
     test_config,
     join_columns,
@@ -56,6 +58,7 @@ def test_one_to_one_joins(
         sort_col=merge_columns["fk_parent"],
         sample=False,
     )
+    print(fk_parent_query)
     fk_parent_sample_df = fk_parent_df[
         fk_parent_df[merge_columns["fk_parent"]].isin(sample_caserefs)
     ]
@@ -68,11 +71,11 @@ def test_one_to_one_joins(
     ].tolist()
     fk_parent_id_list = [int(x) for x in fk_parent_id_list]
 
-    log.debug(
+    print(
         f"Checking {fk_parent_df.shape[0]} rows of data ({config.SAMPLE_PERCENTAGE}%) from table: {module_name} "
     )
     success = set(fk_child_id_list) == set(fk_parent_id_list)
-    log.log(
+    print(
         config.VERBOSE,
         f"checking {[k for k in join_columns][0]} == "
         f"{[y for x in join_columns.values() for y in x.values()][0]}.... "

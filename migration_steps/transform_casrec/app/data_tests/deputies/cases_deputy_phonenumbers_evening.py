@@ -1,20 +1,19 @@
 from datetime import datetime
 
-import pytest
 from pytest_cases import case
 import pandas as pd
 
-module_name = "client_phonenumbers_mapping"
-source_table = "pat"
+module_name = "deputy_evening_phonenumbers_mapping"
+source_table = "deputy"
 destination_table = "phonenumbers"
 
 
 @case(tags="simple")
-def case_clients_phonenos_1(test_config):
+def case_deputies_phonenos_evening_1(test_config):
     simple_matches = {
-        "Client Phone": ["phone_number"],
+        "Contact Tele2": ["phone_number"],
     }
-    merge_columns = {"source": "Case", "transformed": "caserecnumber"}
+    merge_columns = {"source": "Email", "transformed": "c_email"}
 
     config = test_config
 
@@ -40,10 +39,11 @@ def case_clients_phonenos_1(test_config):
 
 
 @case(tags="default")
-def case_clients_phonenos_2(test_config):
+def case_deputies_phonenos_evening_2(test_config):
     defaults = {
         "type": "Home",
         "is_default": False,
+        # "updateddate": "Todays Date",
     }
 
     config = test_config
@@ -55,11 +55,12 @@ def case_clients_phonenos_2(test_config):
         FROM {config.schemas['post_transform']}.{destination_table}
         WHERE casrec_mapping_file_name = '{module_name}'
     """
+
     return (defaults, source_query, module_name)
 
 
 @case(tags="calculated")
-def case_clients_phonenos_3(test_config):
+def case_deputies_phonenos_evening_3(test_config):
     today = pd.Timestamp.today()
 
     calculated_fields = {
@@ -80,18 +81,18 @@ def case_clients_phonenos_3(test_config):
 
 
 @case(tags="one_to_one_joins")
-def case_clients_phonenos_joins(test_config):
+def case_deputies_phonenos_evening_joins(test_config):
     join_columns = {
         "person_id": {"persons": "id"},
     }
-    merge_columns = {"fk_child": "c_case", "fk_parent": "caserecnumber"}
+    merge_columns = {"fk_child": "c_email", "fk_parent": "email"}
 
     config = test_config
 
     fk_child_col = [f'"{k}"' for k in join_columns.keys()]
 
     parent_table = [y for x in join_columns.values() for y in x]
-    parent_module_name = "client_persons_mapping"
+    parent_module_name = "deputy_persons_mapping"
 
     fk_parent_col = [f'"{y}"' for x in join_columns.values() for y in x.values()]
 
@@ -101,7 +102,6 @@ def case_clients_phonenos_joins(test_config):
             {', '.join(fk_child_col)}
         FROM {config.schemas['post_transform']}.{destination_table}
         WHERE casrec_mapping_file_name = '{module_name}'
-
     """
 
     fk_parent_query = f"""
@@ -116,7 +116,7 @@ def case_clients_phonenos_joins(test_config):
 
 
 @case(tags="row_count")
-def case_phonenumbers_count(test_config):
+def case_phonenumbers_evening_count(test_config):
 
     config = test_config
     source_query = f"""

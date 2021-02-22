@@ -3,10 +3,10 @@ import pytest
 from pytest_cases import case
 
 
-module_name = "client_persons"
+module_name = "client_persons_mapping"
 source_table = "pat"
 destination_table = "persons"
-destination_condition = "WHERE type = 'actor_client'"
+destination_condition = f"WHERE casrec_mapping_file_name = '{module_name}'"
 
 
 @case(tags="simple")
