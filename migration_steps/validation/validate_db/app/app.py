@@ -364,14 +364,14 @@ def pre_validation():
     if is_staging is False:
         log.info(f"Validating with SIRIUS")
         log.info(f"Copying casrec csv source data to Sirius for comparison work")
-        # copy_schema(
-            # log=log,
-            # sql_path=shared_sql_path,
-            # from_config=config.db_config["migration"],
-            # from_schema=config.schemas["pre_transform"],
-            # to_config=config.db_config["target"],
-            # to_schema=config.schemas["pre_transform"],
-        # )
+        copy_schema(
+            log=log,
+            sql_path=shared_sql_path,
+            from_config=config.db_config["migration"],
+            from_schema=config.schemas["pre_transform"],
+            to_config=config.db_config["target"],
+            to_schema=config.schemas["pre_transform"],
+        )
     else:
         log.info(f"Validating with STAGING schema")
 
