@@ -440,48 +440,6 @@
             "additional_columns": ""
         }
     },
-    "clientstatus": {
-        "mapping_status": {
-            "is_complete": true
-        },
-        "sirius_details": {
-            "is_pk": "",
-            "fk_parents": "",
-            "data_type": "str",
-            "table_name": "persons"
-        },
-        "transform_casrec": {
-            "casrec_table": "",
-            "casrec_column_name": "",
-            "alias": "",
-            "requires_transformation": "",
-            "lookup_table": "",
-            "default_value": "Active",
-            "calculated": "",
-            "additional_columns": ""
-        }
-    },
-    "statusdate": {
-        "mapping_status": {
-            "is_complete": true
-        },
-        "sirius_details": {
-            "is_pk": "",
-            "fk_parents": "",
-            "data_type": "date",
-            "table_name": "persons"
-        },
-        "transform_casrec": {
-            "casrec_table": "",
-            "casrec_column_name": "",
-            "alias": "",
-            "requires_transformation": "",
-            "lookup_table": "",
-            "default_value": "",
-            "calculated": "current_date",
-            "additional_columns": ""
-        }
-    },
     "countryofresidence": {
         "mapping_status": {
             "is_complete": false
@@ -498,27 +456,6 @@
             "alias": "",
             "requires_transformation": "",
             "lookup_table": "",
-            "default_value": "",
-            "calculated": "",
-            "additional_columns": ""
-        }
-    },
-    "correspondencebywelsh": {
-        "mapping_status": {
-            "is_complete": true
-        },
-        "sirius_details": {
-            "is_pk": "",
-            "fk_parents": "",
-            "data_type": "bool",
-            "table_name": "persons"
-        },
-        "transform_casrec": {
-            "casrec_table": "DEPUTY",
-            "casrec_column_name": "Welsh",
-            "alias": "Welsh",
-            "requires_transformation": "",
-            "lookup_table": "corres_indicator_lookup",
             "default_value": "",
             "calculated": "",
             "additional_columns": ""
@@ -560,7 +497,7 @@
             "casrec_column_name": "Special",
             "alias": "Special",
             "requires_transformation": "",
-            "lookup_table": "specialcorrespondencerequirements_audiotape_lookup",
+            "lookup_table": "audio_special_req_lookup",
             "default_value": "",
             "calculated": "",
             "additional_columns": ""
@@ -581,7 +518,7 @@
             "casrec_column_name": "Special",
             "alias": "Special 1",
             "requires_transformation": "",
-            "lookup_table": "specialcorrespondencerequirements_largeprint_lookup",
+            "lookup_table": "large_print_special_req_lookup",
             "default_value": "",
             "calculated": "",
             "additional_columns": ""
@@ -602,7 +539,7 @@
             "casrec_column_name": "Special",
             "alias": "Special 2",
             "requires_transformation": "",
-            "lookup_table": "specialcorrespondencerequirements_hearingimpaired_lookup",
+            "lookup_table": "hearing_imp_special_req_lookup",
             "default_value": "",
             "calculated": "",
             "additional_columns": ""
@@ -619,9 +556,9 @@
             "table_name": "persons"
         },
         "transform_casrec": {
-            "casrec_table": "DEPUTY",
-            "casrec_column_name": "Special",
-            "alias": "Special 3",
+            "casrec_table": "",
+            "casrec_column_name": "",
+            "alias": "",
             "requires_transformation": "",
             "lookup_table": "",
             "default_value": "",
@@ -729,7 +666,7 @@
             "alias": "",
             "requires_transformation": "",
             "lookup_table": "",
-            "default_value": "Casrec",
+            "default_value": "CASRECMIGRATION",
             "calculated": "",
             "additional_columns": ""
         }
