@@ -77,7 +77,6 @@ def generate_inserts(db_config, db_engine, tables):
         INSERT INTO {db_config["target_schema"]}.{table} ({', '.join(cols_to_move)})
         SELECT {', '.join(cols_to_move)} FROM {db_config["source_schema"]}.{table};
         """
-        print(f"query: {query}")
 
         try:
             db_engine.execute(query)
