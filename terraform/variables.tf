@@ -43,6 +43,8 @@ variable "accounts" {
       sirius-api-role-suffix  = string
       sirius-exec_role-suffix = string
       run_api_tests           = string
+      min_db_capacity         = number
+      max_db_capacity         = number
     })
   )
 }

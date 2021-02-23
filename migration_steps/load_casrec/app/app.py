@@ -9,16 +9,21 @@ import pandas as pd
 import io
 import re
 import time
-import argparse
 from sqlalchemy import create_engine
 import boto3
 import random as rnd
+import custom_logger
 from dotenv import load_dotenv
-from helpers import get_config
-
+from helpers import get_config, log_title
+import logging
+import click
 
 environment = os.environ.get("ENVIRONMENT")
 config = get_config(environment)
+config.custom_log_level()
+verbosity_levels = config.verbosity_levels
+log = logging.getLogger("root")
+log.addHandler(custom_logger.MyHandler())
 
 
 def get_list_of_files(bucket_name, s3, path, tables):
@@ -28,28 +33,41 @@ def get_list_of_files(bucket_name, s3, path, tables):
 
     for obj in resp["Contents"]:
         file_folder = obj["Key"]
-        print(obj["Key"])
+        log.info(file_folder)
         folder = file_folder.split("/")[0]
         file = file_folder.split("/")[1]
         if folder == path and len(file) > 1:
-            print(f"file is: {file}")
-            ignore_list = ["remark", "sletter", "risk_assessment", "repvis", "account"]
+            ignore_list = []
             if any(word in file for word in ignore_list):
-                print(f"ignoring {file} files for now...")
+                log.info(f"ignoring {file} files for now...")
             else:
                 files_in_bucket.append(file)
 
     if tables[0].lower() == "all":
-        print("Will process all files")
+        log.info("Will process all files")
         files_to_process.extend(files_in_bucket)
     else:
-        print("Bring back specific entities")
+        log.info("Bring back specific entities")
         for bucket_file in files_in_bucket:
             if bucket_file.split(".")[0].lower() in tables:
                 files_to_process.append(bucket_file)
 
-    print(f"Total files returned: {len(files_in_bucket)}")
+    log.info(f"Total files returned: {len(files_in_bucket)}")
     return files_to_process
+
+
+def setup_logging(log, verbose, log_title, bucket_name):
+    try:
+        log.setLevel(verbosity_levels[verbose])
+        log.info(f"{verbosity_levels[verbose]} logging enabled")
+    except KeyError:
+        log.setLevel("INFO")
+        log.info(f"{verbose} is not a valid verbosity level")
+        log.info(f"INFO logging enabled")
+
+    log.info(log_title(message="Load CasRec: CSV to DB transfer"))
+    log.info(log_title(message=f"s3 bucket: {bucket_name}"))
+    log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
 
 
 def get_remaining_files(table_name, schema_name, engine, status, processor_id=None):
@@ -71,7 +89,6 @@ def get_remaining_files(table_name, schema_name, engine, status, processor_id=No
     files = engine.execute(remaining_files)
     file_list = []
     for r in files:
-        print(r.values)
         file_list.append(r.values()[0])
         return file_list
     return file_list
@@ -81,9 +98,8 @@ def update_progress(
     table_name, schema_name, engine, file, status="IN_PROGRESS", processor_id=None
 ):
     file_left = file.split(".")[0]
-    print(file_left)
     if status == "READY_TO_PROCESS" and file_left[-1].isdigit():
-        regex = re.compile("[^a-zA-Z]")
+        regex = re.compile("[^a-zA-Z_]")
         file_left = regex.sub("", file_left)
         row_update = f"""
             UPDATE \"{schema_name}\".\"{table_name}\"
@@ -105,7 +121,7 @@ def update_progress(
 
     response = engine.execute(row_update)
     if response.rowcount > 0:
-        print(f"Updated {file} to {status}")
+        log.info(f"Updated {file} to {status}")
 
 
 def check_table_exists(table_name, schema_name, engine):
@@ -158,7 +174,7 @@ def add_lookup_table_row(table_name, table_lookup, schema_name, engine):
 
 
 def truncate_table(table_name, schema, engine):
-    print(f"Truncating table {schema}.{table_name}")
+    log.info(f"Truncating table {schema}.{table_name}")
     truncate_statement = f'TRUNCATE TABLE "{schema}"."{table_name}"'
     engine.execute(truncate_statement)
 
@@ -228,19 +244,19 @@ def create_schema(schema, engine):
         exists = r.values()[0]
 
     if not exists:
-        print(f"Creating schema {schema}...")
+        log.info(f"Creating schema {schema}...")
         create_schema_sql = f"CREATE SCHEMA {schema} AUTHORIZATION casrec;"
         engine.execute(create_schema_sql)
-        print(f"Schema {schema} created\n\n")
+        log.info(f"Schema {schema} created\n\n")
     else:
-        print(f"Schema {schema} already exists\n\n")
+        log.info(f"Schema {schema} already exists\n\n")
 
 
 def sirius_session(account):
 
     client = boto3.client("sts")
     account_id = client.get_caller_identity()["Account"]
-    print(f"Current users account: {account_id}")
+    log.info(f"Current users account: {account_id}")
 
     role_to_assume = f"arn:aws:iam::{account}:role/sirius-ci"
     response = client.assume_role(
@@ -256,29 +272,21 @@ def sirius_session(account):
     return session
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Load into casrec.")
-    parser.add_argument(
-        "--entities", default="all", help="list of entities to load",
-    )
-    parser.add_argument(
-        "--chunk", default="50000", help="chunk size",
-    )
-    args = parser.parse_args()
-
-    table_list = args.entities.split(",")
-    chunk_size = int(args.chunk)
-
-    current_path = Path(os.path.dirname(os.path.realpath(__file__)))
+@click.command()
+@click.option("-e", "--entities", default="all", help="list of entities to load")
+@click.option("-c", "--chunk", default="10000", help="chunk size")
+@click.option("-v", "--verbose", count=True)
+def main(entities, chunk, verbose):
+    table_list = entities.split(",")
+    chunk_size = int(chunk)
+    bucket_name = f"casrec-migration-{environment.lower()}"
+    setup_logging(log, verbose, log_title, bucket_name)
     env_path = current_path / "../../.env"
     load_dotenv(dotenv_path=env_path)
+    host = os.environ.get("DB_HOST")
 
     account = os.environ["SIRIUS_ACCOUNT"]
-    password = os.environ["DB_PASSWORD"]
-    db_host = os.environ["DB_HOST"]
-    port = os.environ["DB_PORT"]
-    name = os.environ["DB_NAME"]
-    environment = os.environ["ENVIRONMENT"]
+
     path = os.environ["S3_PATH"]
     progress_table = "migration_progress"
     progress_table_cols = [
@@ -293,33 +301,15 @@ def main():
 
     processor_id = rnd.randint(0, 99999)
 
-    databases = {
-        "casrecmigration": {
-            "NAME": name,
-            "USER": "casrec",
-            "PASSWORD": password,
-            "HOST": db_host,
-            "PORT": port,
-        },
-    }
+    db_conn_string = config.get_db_connection_string("migration")
+    print(db_conn_string)
 
-    # choose the database to use
-    db = databases["casrecmigration"]
-
-    # construct an engine connection string
-    engine_string = "postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}".format(  # pragma: allowlist secret
-        user=db["USER"],
-        password=db["PASSWORD"],
-        host=db["HOST"],
-        port=db["PORT"],
-        database=db["NAME"],
-    )
-
-    engine = create_engine(engine_string)
+    engine = create_engine(db_conn_string)
 
     s3_session = boto3.session.Session()
     if environment == "local":
-        if db_host == "localhost":
+
+        if host == "localhost":
             stack_host = "localhost"
         else:
             stack_host = "localstack"
@@ -335,27 +325,26 @@ def main():
     else:
         s3 = s3_session.client("s3")
 
-    bucket_name = f"casrec-migration-{environment}"
     schema = config.schemas["pre_transform"]
 
-    print(f"Using bucket {bucket_name}")
+    log.info(f"Using bucket {bucket_name}")
 
-    print(f"Creating schema {schema}")
+    log.info(f"Creating schema {schema}")
     create_schema(schema, engine)
 
     if not check_table_exists(progress_table, schema, engine):
-        print(f"Creating progress table")
+        log.info(f"Creating progress table")
         engine.execute(
             create_table_statement(progress_table, schema, progress_table_cols)
         )
     else:
-        print("Progress table exists")
+        log.info("Progress table exists")
 
     if not check_table_exists(table_lookup, schema, engine):
-        print(f"Creating table_lookup table")
+        log.info(f"Creating table_lookup table")
         engine.execute(create_table_statement(table_lookup, schema, table_lookup_cols))
     else:
-        print("table_lookup table exists")
+        log.info("table_lookup table exists")
 
     list_of_files = get_list_of_files(bucket_name, s3, path, table_list)
 
@@ -414,17 +403,17 @@ def main():
             processor_id=processor_id,
         )[0]
         update_progress(progress_table, schema, engine, file, status="IN_PROGRESS")
-        print(f"Processor {processor_id} has picked up {file}")
+        log.info(f"Processor {processor_id} has picked up {file}")
 
         file_key = f"{path}/{file}"
-        print(f'Retrieving "{file_key}" from bucket')
+        log.info(f'Retrieving "{file_key}" from bucket')
         obj = s3.get_object(Bucket=bucket_name, Key=file_key)
         if file.split(".")[1] == "csv":
             df = pd.read_csv(io.BytesIO(obj["Body"].read()))
         elif file.split(".")[1] == "xlsx":
             df = pd.read_excel(io.BytesIO(obj["Body"].read()), index_col=0)
         else:
-            print("Unknown file format")
+            log.info("Unknown file format")
             exit(1)
 
         table_name = file.split(".")[0].lower()
@@ -435,18 +424,18 @@ def main():
 
         # find the last digits
         if table_name[-1].isdigit():
-            regex = re.compile("[^a-zA-Z]")
+            regex = re.compile("[^a-zA-Z_]")
             table_name = regex.sub("", table_name)
 
         if table_exists_already(table_name, table_lookup, schema, engine):
-            print("Multipart file table detected")
+            log.info("Multipart file table detected")
         else:
-            print(f"Table {schema}.{table_name} doesn't exist. Creating table...")
+            log.info(f"Table {schema}.{table_name} doesn't exist. Creating table...")
             engine.execute(create_table_statement(table_name, schema, columns))
-            print(f"Table {schema}.{table_name} created")
+            log.info(f"Table {schema}.{table_name} created")
             add_lookup_table_row(table_name, table_lookup, schema, engine)
 
-        print(f'Inserting records into "{schema}"."{table_name}"')
+        log.info(f'Inserting records into "{schema}"."{table_name}"')
         if len(df_renamed.index) > 0:
             try:
                 n = chunk_size  # chunk row size
@@ -458,21 +447,25 @@ def main():
                     engine.execute(
                         create_insert_statement(table_name, schema, columns, df_chunked)
                     )
-                    print(
+                    log.info(
                         f'Rows inserted into "{schema}"."{table_name}": {get_row_count(table_name, schema, engine)}'
                     )
+                update_progress(
+                    progress_table, schema, engine, file, "COMPLETE", processor_id
+                )
+                log.info(f"Processed {file}\n\n")
             except Exception:
                 update_progress(
                     progress_table, schema, engine, file, "FAILED", processor_id
                 )
-                print(f"Failed to process {file}\n\n")
+                log.info(f"Failed to process {file}\n\n")
         else:
-            print(f"No rows to insert for table {table_name}")
+            log.info(f"No rows to insert for table {table_name}")
+            update_progress(
+                progress_table, schema, engine, file, "COMPLETE", processor_id
+            )
 
-        update_progress(progress_table, schema, engine, file, "COMPLETE", processor_id)
-        print(f"Processed {file}\n\n")
-
-    print(f"Processor {processor_id} has finished processing")
+    log.info(f"Processor {processor_id} has finished processing")
 
 
 if __name__ == "__main__":

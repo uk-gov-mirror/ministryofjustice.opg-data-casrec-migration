@@ -37,16 +37,18 @@ def step_function_arn(client, step_function_name):
             sys.exit(1)
 
 
-def step_function_running_wait_for(client, step_function_arn, wait_time=0):
+def step_function_running_wait_for(client, step_function_arn, wait_for, wait_time=0):
     secs = 10
     executions = client.list_executions(
         stateMachineArn=step_function_arn, statusFilter="RUNNING"
     )
-    if len(executions["executions"]) > 0 and wait_time < 1800:
+    if len(executions["executions"]) > 0 and wait_time < wait_for:
         time.sleep(secs)
         wait_time += secs
         print(f"Waited for {wait_time} seconds")
-        step_function_running_wait_for(client, step_function_arn, wait_time=wait_time)
+        step_function_running_wait_for(
+            client, step_function_arn, wait_for, wait_time=wait_time
+        )
     elif wait_time > 1800:
         print("Timeout.. something is wrong. Check the step function")
         sys.exit()
@@ -76,7 +78,8 @@ def get_execution_arn(client, step_function_arn):
 @click.command()
 @click.option("--role", default="operator")
 @click.option("--account", default="288342028542")
-def main(role, account):
+@click.option("--wait_for", default="1800")
+def main(role, account, wait_for):
     region = "eu-west-1"
     sf_name = "casrec-mig-state-machine"
     s3_session = assume_aws_session(account, role)
@@ -84,7 +87,7 @@ def main(role, account):
 
     arn = step_function_arn(client, sf_name)
 
-    step_function_running_wait_for(client, arn)
+    step_function_running_wait_for(client, arn, int(wait_for))
 
     response = run_step_function(client, arn)
 
@@ -96,7 +99,7 @@ def main(role, account):
     time.sleep(5)
 
     execution_arn = get_execution_arn(client, arn)
-    step_function_running_wait_for(client, arn)
+    step_function_running_wait_for(client, arn, int(wait_for))
 
     if last_step_function_status_response(client, execution_arn) == "SUCCEEDED":
         print("Last step successful")
