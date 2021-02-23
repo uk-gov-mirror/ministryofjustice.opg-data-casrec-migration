@@ -361,6 +361,23 @@ def write_results_sql():
     sql_file.close()
 
 
+def write_get_exception_count_sql():
+    sql_file = open(shared_sql_path / total_exceptions_sqlfile, "w")
+    sql_lines = f"SELECT SUM(exceptions) FROM (\n"
+
+    ex_tables_sql = []
+    for mapping in mappings_to_run:
+        exception_table_name = get_exception_table(mapping)
+        ex_tables_sql.append(f"{indent}SELECT COUNT(*) as exceptions, 'client_persons' "
+                             f"FROM {source_schema}.{exception_table_name}\n")
+
+    separator = f"{indent}UNION\n"
+    sql_lines += separator.join(ex_tables_sql)
+    sql_lines += ") all_exceptions;"
+    sql_file.writelines(sql_lines)
+    sql_file.close()
+
+
 def pre_validation():
     if is_staging is False:
         log.info(f"Validating with SIRIUS")
@@ -421,6 +438,11 @@ def set_validation_target():
     target_schema = "staging" if is_staging else "public"
 
 
+def get_exception_count():
+    write_get_exception_count_sql()
+    return result_from_sql_file(shared_sql_path, total_exceptions_sqlfile, conn_target)
+
+
 @click.command()
 @click.option("-v", "--verbose", count=True)
 @click.option("--staging", is_flag=True, default=False)
@@ -441,6 +463,11 @@ def main(verbose, staging):
     log.info("- ok\n")
 
     post_validation()
+
+    if get_exception_count() > 0:
+        exit(1)
+
+    log.info("No exceptions found: continue...\n")
 
 
 if __name__ == "__main__":
