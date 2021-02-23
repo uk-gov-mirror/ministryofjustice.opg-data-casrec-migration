@@ -9,6 +9,7 @@ from checks.address_lines import check_address_line_format
 from checks.continuous_ids import check_continuous
 from checks.sequences import check_sequences
 from checks.uid_sequence import check_uid_sequences
+from checks.unique_uids import get_duplicate_uids
 from utilities import format_report
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -76,14 +77,19 @@ def main(verbose):
 
     tests = []
     sequences = check_sequences(sequences=sequence_list, db_config=db_config)
-    tests.append({"name": "Sequences", "result": sequences})
+    tests.append({"name": "Sequences Reset", "result": sequences})
     uid_sequences = check_uid_sequences(
         sequences=uid_sequence_list, db_config=db_config
     )
-    tests.append({"name": "UID Sequences", "result": uid_sequences})
+    tests.append({"name": "UID Sequences Reset", "result": uid_sequences})
 
     continuous_ids = check_continuous(table_list=table_list, db_config=db_config)
     tests.append({"name": "Continuous IDs", "result": continuous_ids})
+
+    duplicate_uids = get_duplicate_uids(
+        uid_sequence_list=uid_sequence_list, db_config=db_config
+    )
+    tests.append({"name": "Unique UIDs", "result": duplicate_uids})
 
     # This should be in data validation - once it's added in there remove here pls
     address_line_format = check_address_line_format(db_config=db_config)

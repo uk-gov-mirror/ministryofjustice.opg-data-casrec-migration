@@ -20,6 +20,7 @@ def get_table_file(file_name="tables"):
 
 def get_table_list(table_dict, type=None):
     if type:
+
         return [k for k, v in table_dict.items() if v["table_type"] == type]
     else:
         return list(table_dict.keys())
@@ -31,11 +32,11 @@ def get_fk_cols_single_table(table):
     return [v for y in table_as_dict["fks"] for k, v in y.items() if k == "column"]
 
 
-def get_sequences_list(table_dict):
+def get_sequences_list(table_dict, type="pk"):
     sequence_list = []
     for table, details in table_dict.items():
         for seq in details["sequences"]:
-            if seq["type"] == "pk":
+            if seq["type"] == type:
                 table_seq = {
                     "sequence_name": seq["name"],
                     "table": table,
