@@ -23,7 +23,6 @@ import pprint
 
 pp = pprint.PrettyPrinter(indent=4)
 
-sql_path = current_path / "sql"
 env_path = current_path / "../../../../.env"
 mapping_path = current_path / "../../../shared/mapping_definitions"
 shared_sql_path = current_path / "../../../shared/sql"
@@ -52,6 +51,9 @@ mappings_to_run = [
 ]
 
 indent = "    "
+results_sqlfile = "get_validation_results.sql"
+validation_sqlfile = "validation.sql"
+total_exceptions_sqlfile = "get_exceptions_total.sql"
 
 
 def set_logging_level(verbose):
@@ -93,7 +95,7 @@ def get_casrec_from(mapping):
 
 
 def get_exception_table(mapping):
-    return f"casrec_migration_exceptions_{mapping}"
+    return f"exceptions_{mapping}"
 
 
 def build_exception_tables(sql_lines):
@@ -210,7 +212,7 @@ def get_casrec_col_value(mapping):
     casrec_col_table = None
     if mapping["transform_casrec"]["casrec_table"]:
         casrec_col_table = mapping["transform_casrec"]["casrec_table"].lower()
-        col = get_fq_casrec_column_name(mapping)
+        col = get_full_casrec_column_name(mapping)
         if "" != mapping["transform_casrec"]["lookup_table"]:
             db_lookup_func = mapping["transform_casrec"]["lookup_table"]
             col = f"{source_schema}.{db_lookup_func}({col})"
@@ -239,7 +241,7 @@ def build_casrec_cols(map_dict):
     return casrec_cols, casrec_tables
 
 
-def get_fq_casrec_column_name(mapping):
+def get_full_casrec_column_name(mapping):
     casrec_col_table = mapping["transform_casrec"]["casrec_table"].lower()
     casrec_col_name = mapping["transform_casrec"]["casrec_column_name"]
     return f'{casrec_col_table}."{casrec_col_name}"'
@@ -330,20 +332,20 @@ def build_column_validation_statements(sql_lines):
 
 
 def write_validation_sql(sql_lines):
-    validation_sql_path = shared_sql_path / "validation.sql"
+    validation_sql_path = shared_sql_path / validation_sqlfile
     validation_sql_file = open(validation_sql_path, "w")
     validation_sql_file.writelines(sql_lines)
     validation_sql_file.close()
     log.debug(f"Saved to file: {validation_sql_path}")
 
 
-def write_get_exceptions_sql():
-    sql_file = open(sql_path / "get_validation_results.sql", "w")
-    reported_mappings = []
+def write_results_sql():
+    sql_file = open(shared_sql_path / results_sqlfile, "w")
+    results_rows = []
     for mapping in mappings_to_run:
         exception_table_name = get_exception_table(mapping)
         casrec_table_name = get_casrec_from(mapping)
-        reported_mappings.append(
+        results_rows.append(
             f"SELECT '{mapping}' AS mapping,"
             f"(SELECT COUNT(*) FROM {source_schema}.{casrec_table_name}) as attempted,"
             f"(SELECT COUNT(*) FROM {source_schema}.{exception_table_name}),"
@@ -355,8 +357,7 @@ def write_get_exceptions_sql():
             f") t1)\n"
         )
     separator = "UNION\n"
-    sql = separator.join(reported_mappings)
-    sql_file.writelines(sql)
+    sql_file.writelines(separator.join(results_rows))
     sql_file.close()
 
 
@@ -396,8 +397,8 @@ def pre_validation():
 def post_validation():
     log.info("REPORT")
     mapping_df = get_mapping_report_df()
-    write_get_exceptions_sql()
-    exceptions_df = df_from_sql_file(sql_path, "get_validation_results.sql", conn_target)
+    write_results_sql()
+    exceptions_df = df_from_sql_file(shared_sql_path, results_sqlfile, conn_target)
     report_df = mapping_df.merge(exceptions_df, on="mapping")
     headers = [
         "Casrec Mapping",
@@ -435,7 +436,7 @@ def main(verbose, staging):
 
     log.info("RUN VALIDATION")
     execute_sql_file(
-        shared_sql_path, "validation.sql", conn_target, config.schemas["public"]
+        shared_sql_path, validation_sqlfile, conn_target, config.schemas["public"]
     )
     log.info("- ok\n")
 
