@@ -71,17 +71,14 @@ def case_deputies_2(test_config):
 
 
 @case(tags="lookups")
-# title is commented out because the anon data is wrong so it will never pass
 def case_deputies_3(test_config):
 
     lookup_fields = {
         "salutation": {"Title": "title_codes_lookup"},
-        "correspondencebyemail": {
-            "By Email": "corres_indicator_lookup"
-        },  # lookup needs null value
-        "correspondencebywelsh": {
-            "Welsh": "corres_indicator_lookup"
-        },  # lookup currently doesn't exist
+        # "correspondencebyemail": {
+        #     "By Email": "corres_indicator_lookup"
+        # },  # test data is wrong, fix incoming
+        "correspondencebywelsh": {"Welsh": "corres_indicator_lookup"},
     }
     merge_columns = {"source": "Email", "transformed": "email"}
 
