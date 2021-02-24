@@ -72,7 +72,7 @@ if __name__ == "__main__":
     log.setLevel(1)
     log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
 
-    if environment in ("local", "development"):
+    if environment in ("local", "development", "preproduction"):
         main()
     else:
         log.warning("Skipping step not designed to run on environment %s", environment)
