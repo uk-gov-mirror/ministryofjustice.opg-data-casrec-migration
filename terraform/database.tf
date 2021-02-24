@@ -28,8 +28,8 @@ resource "aws_rds_cluster" "cluster_serverless" {
 
   scaling_configuration {
     auto_pause               = true
-    max_capacity             = 16
-    min_capacity             = 2
+    max_capacity             = local.account.max_db_capacity
+    min_capacity             = local.account.min_db_capacity
     seconds_until_auto_pause = 600
     timeout_action           = "RollbackCapacityChange"
   }

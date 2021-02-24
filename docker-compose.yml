@@ -9,7 +9,6 @@ services:
       POSTGRES_PASSWORD: casrec # pragma: allowlist secret
       POSTGRES_DB: casrecmigration
       PGPASSWORD: casrec # pragma: allowlist secret
-
   localstack:
     image: localstack/localstack:0.10.9
     ports:
@@ -50,6 +49,7 @@ services:
       context: ./migration_steps
       dockerfile: load_casrec-dockerfile
     environment:
+      DB_USER: casrec
       DB_PASSWORD: casrec # pragma: allowlist secret
       DB_NAME: casrecmigration
       DB_HOST: casrec_db

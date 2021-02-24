@@ -32,17 +32,17 @@ workflows:
           filters: {branches:{ignore:[master]}}
       - infrastructure:
           name: build infra development
-          requires: [plan infra development, reset the sirius fixtures development]
+          requires: [plan infra development]
           tf_workspace: development
           tf_command: apply
           filters: {branches:{ignore:[master]}}
       - run_step_function:
-          name: run the step function
-          requires: [build infra development]
+          name: run the step function development
+          requires: [build infra development, reset the sirius fixtures development]
           filters: {branches:{ignore:[master]}}
       - run_elasticsearch_reset:
           name: run elasticsearch reset
-          requires: [run the step function]
+          requires: [run the step function development]
           filters: {branches:{ignore:[master]}}
       - run_behat_tests:
           name: run behat tests
@@ -119,6 +119,7 @@ workflows:
           name: run the step function preproduction
           requires: [build infra preproduction]
           account: "492687888235"
+          wait_for: "3600"
           filters: {branches:{only:[master]}}
       - run_elasticsearch_reset:
           name: run elasticsearch reset preproduction
@@ -267,8 +268,13 @@ jobs:
         description: account to run step function in
         type: string
         default: "288342028542"
+      wait_for:
+        description: how long to wait for step function to finish
+        type: string
+        default: "1800"
     environment:
       SIRIUS_ACCOUNT: << parameters.account >>
+      WAIT_FOR: << parameters.wait_for >>
     steps:
       - checkout
       - run:
@@ -277,7 +283,7 @@ jobs:
           working_directory: ~/project/docs/ci_scripts
       - run:
           name: run the function
-          command: python3 run_step_function.py --role sirius-ci --account ${SIRIUS_ACCOUNT}
+          command: python3 run_step_function.py --role sirius-ci --account ${SIRIUS_ACCOUNT} --wait_for ${WAIT_FOR}
           working_directory: ~/project/docs/ci_scripts
 
   run_behat_tests:
