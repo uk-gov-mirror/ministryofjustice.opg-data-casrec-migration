@@ -150,6 +150,7 @@ def case_clients_5(test_config):
             "{merge_columns['fk_child']}",
             {', '.join(fk_child_col)}
         FROM {config.schemas['post_transform']}.{destination_table}
+        WHERE casrec_mapping_file_name = '{module_name}'
     """
 
     fk_parent_query = f"""
