@@ -15,7 +15,7 @@ log = logging.getLogger("root")
     cases=list_of_test_cases,
     has_tag="calculated",
 )
-def test_default_values(test_config, calculated_fields, source_query, module_name):
+def test_calculated_values(test_config, calculated_fields, source_query, module_name):
     log.debug(f"module_name: {module_name}")
     print(f"module_name: {module_name}")
 

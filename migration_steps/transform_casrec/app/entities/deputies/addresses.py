@@ -1,72 +1,85 @@
-import json
-
+from utilities.basic_data_table import get_basic_data_table
 import pandas as pd
-from transform_data import transform
-from utilities.generate_source_query import generate_select_string_from_mapping
-from utilities.helpers import get_mapping_file
+from transform_data import unique_id as process_unique_id
 
 definition = {
-    "sheet_name": "addresses (Deputy)",
     "source_table_name": "deputy_address",
     "source_table_additional_columns": ["Dep Addr No"],
     "destination_table_name": "addresses",
 }
 
+mapping_file_name = "deputy_addresses_mapping"
 
-def insert_addresses_deputies(config, target_db):
 
-    with open(get_mapping_file(file_name="addresses_deputy_mapping")) as mapping_json:
-        mapping_dict = json.load(mapping_json)
+def insert_addresses_deputies(db_config, target_db):
 
-    source_data_query = generate_select_string_from_mapping(
-        mapping=mapping_dict,
-        source_table_name=definition["source_table_name"],
-        additional_columns=definition["source_table_additional_columns"],
-        db_schema=config.etl1_schema,
-    )
-
-    source_data_df = pd.read_sql_query(
-        sql=source_data_query, con=config.connection_string
-    )
-
-    addresses_df = transform.perform_transformations(
-        mapping_dict,
-        definition,
-        source_data_df,
-        config.connection_string,
-        config.etl2_schema,
+    sirius_details, addresses_df = get_basic_data_table(
+        db_config=db_config,
+        mapping_file_name=mapping_file_name,
+        table_definition=definition,
     )
 
     deputyship_query = f"""
         select "Dep Addr No", "Deputy No"
-        from {config.etl1_schema}.deputyship
+        from {db_config['source_schema']}.deputyship
     """
 
-    deputyship_df = pd.read_sql_query(deputyship_query, config.connection_string)
-    deputyship_df = deputyship_df.drop_duplicates(["Dep Addr No", "Deputy No"])
-
-    persons_query = (
-        f'select "id", "c_deputy_no" from etl2.persons '
-        f"where \"type\" = 'actor_deputy';"
-    )
-    persons_df = pd.read_sql_query(persons_query, config.connection_string)
-
-    addresses_with_deputyno_df = addresses_df.merge(
-        deputyship_df, how="inner", left_on="c_dep_addr_no", right_on="Dep Addr No"
+    deputyship_df = pd.read_sql_query(
+        deputyship_query, db_config["db_connection_string"]
     )
 
-    address_depno_persons_df = addresses_with_deputyno_df.merge(
-        persons_df,
-        how="inner",
-        left_on="Deputy No",
-        right_on="c_deputy_no",
-        suffixes=["_address", "_person"],
+    # there are multiple entries for different CoP_Case
+    # but the address details are the same
+    deputyship_df = deputyship_df.drop_duplicates()
+
+    address_deputyship_joined_df = addresses_df.merge(
+        deputyship_df, how="left", left_on="c_dep_addr_no", right_on="Dep Addr No"
     )
 
-    address_depno_persons_df = address_depno_persons_df.rename(
-        columns={"id_address": "id", "id_person": "person_id"}
+    deputy_persons_query = f"""
+        select c_deputy_no, id as person_id
+        from {db_config['target_schema']}.persons
+        where casrec_mapping_file_name = 'deputy_persons_mapping'
+    """
+
+    deputy_persons_df = pd.read_sql_query(
+        deputy_persons_query, db_config["db_connection_string"]
     )
+
+    address_persons_joined_df = address_deputyship_joined_df.merge(
+        deputy_persons_df, how="left", left_on="Deputy No", right_on="c_deputy_no"
+    )
+
+    address_persons_joined_df = address_persons_joined_df.drop(
+        columns=["Dep Addr No", "Deputy No"]
+    )
+
+    address_persons_joined_df["person_id"] = (
+        address_persons_joined_df["person_id"]
+        .fillna(0)
+        .astype(int)
+        .astype(object)
+        .where(address_persons_joined_df["person_id"].notnull())
+    )
+
+    address_persons_joined_df = address_persons_joined_df.drop_duplicates()
+
+    address_persons_joined_df = address_persons_joined_df.drop(columns=["id"])
+
+    address_persons_joined_df = process_unique_id.add_unique_id(
+        db_conn_string=db_config["db_connection_string"],
+        db_schema=db_config["target_schema"],
+        table_definition=definition,
+        source_data_df=address_persons_joined_df,
+    )
+
+    # some addresses don't seem to match up with people...
+    address_persons_joined_df = address_persons_joined_df[
+        address_persons_joined_df["person_id"].notna()
+    ]
 
     target_db.insert_data(
-        table_name=definition["destination_table_name"], df=address_depno_persons_df
+        table_name=definition["destination_table_name"],
+        df=address_persons_joined_df,
+        sirius_details=sirius_details,
     )

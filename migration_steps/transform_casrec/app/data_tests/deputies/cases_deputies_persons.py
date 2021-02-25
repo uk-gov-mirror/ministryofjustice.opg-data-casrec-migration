@@ -49,13 +49,12 @@ def case_deputies_2(test_config):
         "systemstatus": True,
         "isreplacementattorney": False,
         "istrustcorporation": False,
-        "clientstatus": "Active",
         "newsletter": False,
         "digital": False,
         "isorganisation": False,
         "casesmanagedashybrid": False,
         "supervisioncaseowner_id": 10,
-        "clientsource": "Casrec",
+        "clientsource": "CASRECMIGRATION",
     }
 
     config = test_config
@@ -71,16 +70,15 @@ def case_deputies_2(test_config):
     return (defaults, source_query, module_name)
 
 
-# @case(tags="lookups")
-# title is commented out because the anon data is wrong so it will never pass
+@case(tags="lookups")
 def case_deputies_3(test_config):
 
     lookup_fields = {
-        # "salutation": {"Title": "title_codes_lookup"},
+        "salutation": {"Title": "title_codes_lookup"},
         # "correspondencebyemail": {
-        #     "By Email": "Corres_Indicator_lookup"
-        # },  # lookup needs null value
-        # "correspondencebywelsh": {"Welsh": "Welsh_indicator_lookup"} # lookup currently doesn't exist
+        #     "By Email": "corres_indicator_lookup"
+        # },  # test data is wrong, fix incoming
+        "correspondencebywelsh": {"Welsh": "corres_indicator_lookup"},
     }
     merge_columns = {"source": "Email", "transformed": "email"}
 
@@ -113,7 +111,7 @@ def case_deputies_4(test_config):
     today = pd.Timestamp.today()
 
     calculated_fields = {
-        "statusdate": today,
+        # "statusdate": today,
         "updateddate": today,
     }
     config = test_config
