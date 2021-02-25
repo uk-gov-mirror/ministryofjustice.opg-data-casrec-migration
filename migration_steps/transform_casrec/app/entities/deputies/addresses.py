@@ -1,5 +1,6 @@
 from utilities.basic_data_table import get_basic_data_table
 import pandas as pd
+from transform_data import unique_id as process_unique_id
 
 definition = {
     "source_table_name": "deputy_address",
@@ -26,6 +27,10 @@ def insert_addresses_deputies(db_config, target_db):
     deputyship_df = pd.read_sql_query(
         deputyship_query, db_config["db_connection_string"]
     )
+
+    # there are multiple entries for different CoP_Case
+    # but the address details are the same
+    deputyship_df = deputyship_df.drop_duplicates()
 
     address_deputyship_joined_df = addresses_df.merge(
         deputyship_df, how="left", left_on="c_dep_addr_no", right_on="Dep Addr No"
@@ -58,6 +63,20 @@ def insert_addresses_deputies(db_config, target_db):
     )
 
     address_persons_joined_df = address_persons_joined_df.drop_duplicates()
+
+    address_persons_joined_df = address_persons_joined_df.drop(columns=["id"])
+
+    address_persons_joined_df = process_unique_id.add_unique_id(
+        db_conn_string=db_config["db_connection_string"],
+        db_schema=db_config["target_schema"],
+        table_definition=definition,
+        source_data_df=address_persons_joined_df,
+    )
+
+    # some addresses don't seem to match up with people...
+    address_persons_joined_df = address_persons_joined_df[
+        address_persons_joined_df["person_id"].notna()
+    ]
 
     target_db.insert_data(
         table_name=definition["destination_table_name"],
