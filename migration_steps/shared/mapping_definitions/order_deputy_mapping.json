@@ -115,7 +115,7 @@
             "table_name": "order_deputy"
         },
         "transform_casrec": {
-            "casrec_table": "",
+            "casrec_table": "deputy",
             "casrec_column_name": "Dep Type",
             "alias": "Dep Type",
             "requires_transformation": "",
