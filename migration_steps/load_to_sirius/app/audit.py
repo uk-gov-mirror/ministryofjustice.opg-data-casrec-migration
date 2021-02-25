@@ -8,24 +8,35 @@ import pandas as pd
 import time
 import sqlalchemy
 from db_helpers import create_schema
+from table_helpers import get_pk
 
 
-def copy_table(engine_from, engine_to, schema_from, schema_to, table_from, table_to):
-    select_table_statement = f"""
-    SELECT *
-    FROM {schema_from}.{table_from};
-    """
+def copy_table(
+    engine_from, engine_to, schema_from, schema_to, table_from, table_to, pk
+):
+    chunk_size = 10000
+    offset = 0
+    while True:
+        select_table_statement = f"""
+                SELECT *
+                FROM {schema_from}.{table_from}
+                ORDER BY {pk}
+                LIMIT {chunk_size} OFFSET {offset}
+                """
 
-    df = pd.read_sql(select_table_statement, engine_from)
-    df.to_sql(
-        name=table_to,
-        schema=schema_to,
-        con=engine_to,
-        if_exists="replace",
-        index=False,
-        dtype={col_name: sqlalchemy.types.TEXT for col_name in df},
-        chunksize=10000,
-    )
+        df = pd.read_sql(select_table_statement, engine_from)
+        df.to_sql(
+            name=table_to,
+            schema=schema_to,
+            con=engine_to,
+            if_exists="replace",
+            index=False,
+            dtype={col_name: sqlalchemy.types.TEXT for col_name in df},
+        )
+
+        offset += chunk_size
+        if len(df) < chunk_size:
+            break
 
 
 def get_update_rows_statement(audit_value, schema, table, pk, log):
@@ -94,7 +105,7 @@ def diff_old_new(engine, schema, table, pk, log):
         get_update_rows_statement("current", schema, table, pk, log)
     )
     if response.rowcount > 0:
-        log.info(f"Audit- Updated {table} statuses for new rows")
+        log.info(f"Audit - Updated {table} statuses for new rows")
 
 
 def clear_up(engine, schema, table, log):
@@ -105,24 +116,6 @@ def clear_up(engine, schema, table, log):
             log.debug(f"Dropped {schema}.{table}_{direction}")
 
 
-def get_pk(engine, schema, table):
-    get_pk_statement = f"""
-        SELECT col.Column_Name from
-        INFORMATION_SCHEMA.TABLE_CONSTRAINTS tab,
-        INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE col
-        WHERE
-        col.Constraint_Name = tab.Constraint_Name
-        AND col.Table_Name = tab.Table_Name
-        AND Constraint_Type = 'PRIMARY KEY'
-        AND tab.table_schema = '{schema}'
-        AND col.Table_Name = '{table}'
-        """
-    response = engine.execute(get_pk_statement)
-    for r in response:
-        primary_key = r.values()[0]
-        return primary_key
-
-
 def run_audit(sirius_engine, casrec_engine, command, log, tables_list):
     casrec_schema = "audit"
     sirius_schema = "public"
@@ -130,6 +123,7 @@ def run_audit(sirius_engine, casrec_engine, command, log, tables_list):
 
     if command == "before":
         for table in tables_list:
+            pk = get_pk(sirius_engine, sirius_schema, table)
             copy_table(
                 sirius_engine,
                 casrec_engine,
@@ -137,6 +131,7 @@ def run_audit(sirius_engine, casrec_engine, command, log, tables_list):
                 casrec_schema,
                 table,
                 f"{table}_before",
+                pk,
             )
             log.info(f"Audit - Copied {table} before update to {table}_before")
     elif command == "after":
@@ -149,6 +144,7 @@ def run_audit(sirius_engine, casrec_engine, command, log, tables_list):
                 casrec_schema,
                 table,
                 f"{table}_after",
+                pk,
             )
             log.info(f"Audit - Copied {table} after update to {table}_after")
             diff_old_new(casrec_engine, casrec_schema, table, pk, log)

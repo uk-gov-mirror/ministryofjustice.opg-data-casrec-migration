@@ -20,6 +20,7 @@ from tabulate import tabulate
 import json
 from datetime import datetime
 import pprint
+import boto3
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -54,6 +55,36 @@ indent = "    "
 results_sqlfile = "get_validation_results.sql"
 validation_sqlfile = "validation.sql"
 total_exceptions_sqlfile = "get_exceptions_total.sql"
+host = os.environ.get("DB_HOST")
+ci = os.getenv("CI")
+bucket_name = f"casrec-migration-{environment.lower()}"
+account = os.environ["SIRIUS_ACCOUNT"]
+
+
+def upload_file(bucket, file_name, s3, object_name=None):
+    """Upload a file to an S3 bucket
+
+    :param file_name: File to upload
+    :param bucket: Bucket to upload to
+    :param object_name: S3 object name. If not specified then file_name is used
+    :return: True if file was uploaded, else False
+    """
+
+    # If S3 object_name was not specified, use file_name
+    if object_name is None:
+        object_name = file_name
+
+    # Upload the file
+    s3.put_object(
+        Body=open(file_name, "rb"),
+        Bucket=bucket,
+        Key=object_name,
+        ServerSideEncryption="AES256",
+        StorageClass="STANDARD",
+    )
+
+    log.info(f"Uploaded {file_name.split('/')[-1]}")
+    return True
 
 
 def set_logging_level(verbose):
@@ -88,9 +119,7 @@ def get_sirius_table(mapping):
 
 
 def get_casrec_from(mapping):
-    mapping_name_to_table = {
-        "client_persons": "pat"
-    }
+    mapping_name_to_table = {"client_persons": "pat"}
     return mapping_name_to_table.get(mapping)
 
 
@@ -185,7 +214,9 @@ def get_sirius_col_name(mapping, col_name):
 def build_sirius_cols(map_dict):
     sirius_cols = []
     for k, v in map_dict.items():
-        sirius_cols.append(f"{indent}{indent}{indent}{wrap_sirius_datatype_functions(v, get_sirius_col_name(v, k))} AS {k}")
+        sirius_cols.append(
+            f"{indent}{indent}{indent}{wrap_sirius_datatype_functions(v, get_sirius_col_name(v, k))} AS {k}"
+        )
 
     separator = ",\n"
     return separator.join(sirius_cols)
@@ -194,12 +225,14 @@ def build_sirius_cols(map_dict):
 def wrap_casrec_col_conversion_functions(mapping, col):
     datatype = mapping["sirius_details"]["data_type"]
     if datatype in ["date"]:
-        wrapped_col = f"CAST(NULLIF(TRIM({col}), '') AS DATE)"
+        wrapped_col = f"CAST(NULLIF(NULLIF(TRIM({col}), 'NaT'), '') AS DATE)"
     elif datatype in ["datetime"]:
         if "current_date" == mapping["transform_casrec"]["calculated"]:
             wrapped_col = f"CAST(NULLIF(TRIM({col}), '') AS DATE)"
         else:
-            wrapped_col = f"CAST(NULLIF(TRIM({col}), '') AS TIMESTAMP(0))"
+            wrapped_col = (
+                f"CAST(NULLIF(NULLIF(TRIM({col}), 'NaT'), '') AS TIMESTAMP(0))"
+            )
     elif datatype in ["bool", "int"]:
         wrapped_col = col
     else:
@@ -263,7 +296,9 @@ def build_validation_statements(sql_lines):
         sql_lines.append(f"{indent}SELECT * FROM(\n")
         sql_lines.append(f"{indent}{indent}SELECT DISTINCT\n")
         sql_lines.append(f"{casrec_cols}\n")
-        sql_lines.append(f"{indent}{indent}FROM {source_schema}.{get_casrec_from(mapping)}\n")
+        sql_lines.append(
+            f"{indent}{indent}FROM {source_schema}.{get_casrec_from(mapping)}\n"
+        )
         sql_lines.append(f"{indent}{indent}ORDER BY caserecnumber ASC\n")
         sql_lines.append(f"{indent}) as csv_data\n")
         sql_lines.append(f"{indent}EXCEPT\n")
@@ -286,11 +321,15 @@ def build_column_validation_statements(sql_lines):
 
         exception_table = f"{source_schema}.{get_exception_table(mapping)}"
 
-        sql_lines.append(f"ALTER TABLE {exception_table} DROP COLUMN IF EXISTS vary_columns;\n")
-        sql_lines.append(f"ALTER TABLE {exception_table} ADD vary_columns varchar(255)[];\n\n")
+        sql_lines.append(
+            f"ALTER TABLE {exception_table} DROP COLUMN IF EXISTS vary_columns;\n"
+        )
+        sql_lines.append(
+            f"ALTER TABLE {exception_table} ADD vary_columns varchar(255)[];\n\n"
+        )
 
-        if 'caserecnumber' in map_dict:
-            del map_dict['caserecnumber']
+        if "caserecnumber" in map_dict:
+            del map_dict["caserecnumber"]
 
         for k, v in map_dict.items():
             col_table, col_value = get_casrec_col_value(v)
@@ -304,13 +343,25 @@ def build_column_validation_statements(sql_lines):
             # casrec half
             sql_lines.append(f"{indent}{indent}SELECT * FROM(\n")
             sql_lines.append(f"{indent}{indent}{indent}SELECT \n")
-            sql_lines.append(f"{indent}{indent}{indent}{indent}exc_table.caserecnumber,\n")
-            sql_lines.append(f"{indent}{indent}{indent}{indent}{wrap_casrec_col_conversion_functions(v, col_value)} AS {k}\n")
+            sql_lines.append(
+                f"{indent}{indent}{indent}{indent}exc_table.caserecnumber,\n"
+            )
+            sql_lines.append(
+                f"{indent}{indent}{indent}{indent}{wrap_casrec_col_conversion_functions(v, col_value)} AS {k}\n"
+            )
             sql_lines.append(f"{indent}{indent}{indent}FROM {source_schema}.pat\n")
-            sql_lines.append(f"{indent}{indent}{indent}LEFT JOIN {exception_table} exc_table\n")
-            sql_lines.append(f"{indent}{indent}{indent}{indent}ON exc_table.caserecnumber = pat.\"Case\"\n")
-            sql_lines.append(f"{indent}{indent}{indent}WHERE exc_table.caserecnumber IS NOT NULL\n")
-            sql_lines.append(f"{indent}{indent}{indent}ORDER BY exc_table.caserecnumber\n")
+            sql_lines.append(
+                f"{indent}{indent}{indent}LEFT JOIN {exception_table} exc_table\n"
+            )
+            sql_lines.append(
+                f'{indent}{indent}{indent}{indent}ON exc_table.caserecnumber = pat."Case"\n'
+            )
+            sql_lines.append(
+                f"{indent}{indent}{indent}WHERE exc_table.caserecnumber IS NOT NULL\n"
+            )
+            sql_lines.append(
+                f"{indent}{indent}{indent}ORDER BY exc_table.caserecnumber\n"
+            )
             sql_lines.append(f"{indent}{indent}) as csv_data\n")
 
             sql_lines.append(f"{indent}{indent}EXCEPT\n")
@@ -318,13 +369,25 @@ def build_column_validation_statements(sql_lines):
             # sirius half
             sql_lines.append(f"{indent}{indent}SELECT * FROM(\n")
             sql_lines.append(f"{indent}{indent}{indent}SELECT\n")
-            sql_lines.append(f"{indent}{indent}{indent}{indent}exc_table.caserecnumber,\n")
-            sql_lines.append(f"{indent}{indent}{indent}{indent}{get_sirius_col_name(v, k)} AS {k}\n")
+            sql_lines.append(
+                f"{indent}{indent}{indent}{indent}exc_table.caserecnumber,\n"
+            )
+            sql_lines.append(
+                f"{indent}{indent}{indent}{indent}{get_sirius_col_name(v, k)} AS {k}\n"
+            )
             sql_lines.append(f"{indent}{indent}{indent}FROM {get_sirius_from(v)}\n")
-            sql_lines.append(f"{indent}{indent}{indent}LEFT JOIN {exception_table} exc_table\n")
-            sql_lines.append(f"{indent}{indent}{indent}{indent}ON exc_table.caserecnumber = persons.caserecnumber\n")
-            sql_lines.append(f"{indent}{indent}{indent}WHERE exc_table.caserecnumber IS NOT NULL\n")
-            sql_lines.append(f"{indent}{indent}{indent}ORDER BY exc_table.caserecnumber\n")
+            sql_lines.append(
+                f"{indent}{indent}{indent}LEFT JOIN {exception_table} exc_table\n"
+            )
+            sql_lines.append(
+                f"{indent}{indent}{indent}{indent}ON exc_table.caserecnumber = persons.caserecnumber\n"
+            )
+            sql_lines.append(
+                f"{indent}{indent}{indent}WHERE exc_table.caserecnumber IS NOT NULL\n"
+            )
+            sql_lines.append(
+                f"{indent}{indent}{indent}ORDER BY exc_table.caserecnumber\n"
+            )
             sql_lines.append(f"{indent}{indent}) as sirius_data\n")
 
             sql_lines.append(f"{indent}) as vary\n")
@@ -332,6 +395,7 @@ def build_column_validation_statements(sql_lines):
 
 
 def write_validation_sql(sql_lines):
+    log.debug(f"Writing to file")
     validation_sql_path = shared_sql_path / validation_sqlfile
     validation_sql_file = open(validation_sql_path, "w")
     validation_sql_file.writelines(sql_lines)
@@ -368,8 +432,10 @@ def write_get_exception_count_sql():
     ex_tables_sql = []
     for mapping in mappings_to_run:
         exception_table_name = get_exception_table(mapping)
-        ex_tables_sql.append(f"{indent}SELECT COUNT(*) as exceptions, 'client_persons' "
-                             f"FROM {source_schema}.{exception_table_name}\n")
+        ex_tables_sql.append(
+            f"{indent}SELECT COUNT(*) as exceptions, 'client_persons' "
+            f"FROM {source_schema}.{exception_table_name}\n"
+        )
 
     separator = f"{indent}UNION\n"
     sql_lines += separator.join(ex_tables_sql)
@@ -408,6 +474,8 @@ def pre_validation():
     log.info("- Column insight")
     build_column_validation_statements(sql_lines)
 
+    log.info(f"Printing Lines:")
+
     write_validation_sql(sql_lines)
 
 
@@ -436,11 +504,34 @@ def set_validation_target():
     db_config = "migration" if is_staging else "target"
     conn_target = psycopg2.connect(config.get_db_connection_string(db_config))
     target_schema = "staging" if is_staging else "public"
+    log.info("TARGET:")
+    log.info(config.get_db_connection_string(db_config))
 
 
 def get_exception_count():
     write_get_exception_count_sql()
     return result_from_sql_file(shared_sql_path, total_exceptions_sqlfile, conn_target)
+
+
+def get_s3_session():
+    s3_session = boto3.session.Session()
+
+    if environment == "local":
+
+        if host == "localhost":
+            stack_host = "localhost"
+        else:
+            stack_host = "localstack"
+        s3 = s3_session.client(
+            "s3",
+            endpoint_url=f"http://{stack_host}:4572",
+            aws_access_key_id="fake",
+            aws_secret_access_key="fake",
+        )
+    else:
+        s3 = s3_session.client("s3")
+
+    return s3
 
 
 @click.command()
@@ -457,6 +548,7 @@ def main(verbose, staging):
     pre_validation()
 
     log.info("RUN VALIDATION")
+
     execute_sql_file(
         shared_sql_path, validation_sqlfile, conn_target, config.schemas["public"]
     )
@@ -468,6 +560,14 @@ def main(verbose, staging):
         exit(1)
 
     log.info("No exceptions found: continue...\n")
+    log.info("Adding sql files to bucket...\n")
+    s3 = get_s3_session()
+    if ci != "true":
+        for file in os.listdir(shared_sql_path):
+            file_path = f"{shared_sql_path}/{file}"
+            s3_file_path = f"validation/sql/{file}"
+            if file.endswith(".sql"):
+                upload_file(bucket_name, file_path, s3, s3_file_path)
 
 
 if __name__ == "__main__":

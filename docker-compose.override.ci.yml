@@ -11,3 +11,7 @@ services:
       ENVIRONMENT: development
       CI: $CI
       SIRIUS_ACCOUNT: 288342028542
+
+  validation:
+    environment:
+      CI: $CI

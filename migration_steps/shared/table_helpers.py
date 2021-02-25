@@ -67,3 +67,21 @@ def get_uid_sequences_list(table_dict):
                     }
                     sequence_list.append(table_seq)
     return sequence_list
+
+
+def get_pk(engine, schema, table):
+    get_pk_statement = f"""
+        SELECT col.Column_Name from
+        INFORMATION_SCHEMA.TABLE_CONSTRAINTS tab,
+        INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE col
+        WHERE
+        col.Constraint_Name = tab.Constraint_Name
+        AND col.Table_Name = tab.Table_Name
+        AND Constraint_Type = 'PRIMARY KEY'
+        AND tab.table_schema = '{schema}'
+        AND col.Table_Name = '{table}'
+        """
+    response = engine.execute(get_pk_statement)
+    for r in response:
+        primary_key = r.values()[0]
+        return primary_key

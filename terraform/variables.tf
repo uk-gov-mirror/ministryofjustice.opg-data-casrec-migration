@@ -45,6 +45,7 @@ variable "accounts" {
       run_api_tests           = string
       min_db_capacity         = number
       max_db_capacity         = number
+      run_audit               = string
     })
   )
 }
