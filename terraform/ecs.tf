@@ -83,7 +83,9 @@ data "aws_iam_policy_document" "ecs_task_s3" {
       "s3:ListBucketVersions",
       "s3:GetObjectTagging",
       "s3:ListObjects",
-      "s3:ListBucket"
+      "s3:ListBucket",
+      "s3:PutObject",
+      "s3:PutObjectAcl"
     ]
   }
 }

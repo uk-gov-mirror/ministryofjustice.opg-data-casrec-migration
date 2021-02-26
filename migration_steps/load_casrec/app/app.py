@@ -275,8 +275,11 @@ def sirius_session(account):
 @click.command()
 @click.option("-e", "--entities", default="all", help="list of entities to load")
 @click.option("-c", "--chunk", default="10000", help="chunk size")
+@click.option("-d", "--delay", default="0", help="delay in seconds for process")
 @click.option("-v", "--verbose", count=True)
-def main(entities, chunk, verbose):
+def main(entities, chunk, delay, verbose):
+    # We add this delay to let the first process get to create table first
+    time.sleep(int(delay))
     table_list = entities.split(",")
     chunk_size = int(chunk)
     bucket_name = f"casrec-migration-{environment.lower()}"

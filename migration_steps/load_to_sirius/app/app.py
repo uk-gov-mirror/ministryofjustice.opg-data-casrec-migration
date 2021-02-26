@@ -72,7 +72,7 @@ def main(verbose, audit):
 
     tables_list = table_helpers.get_table_list(table_helpers.get_table_file())
 
-    if audit:
+    if audit == "True":
         log.info(f"Running Pre-Audit - Table Copies")
         run_audit(target_db_engine, source_db_engine, "before", log, tables_list)
         log.info(f"Finished Pre-Audit - Table Copies")
@@ -80,14 +80,15 @@ def main(verbose, audit):
     for i, table in enumerate(tables_list):
         log.debug(f"This is table number {i + 1} of {len(tables_list)}")
 
+        pk = table_helpers.get_pk(target_db_engine, db_config["target_schema"], table)
         insert_data_into_target(
-            db_config=db_config, source_db_engine=source_db_engine, table=table
+            db_config=db_config, source_db_engine=source_db_engine, table=table, pk=pk
         )
         update_data_in_target(
-            db_config=db_config, source_db_engine=source_db_engine, table=table
+            db_config=db_config, source_db_engine=source_db_engine, table=table, pk=pk
         )
 
-    if audit:
+    if audit == "True":
         log.info(f"Running Post-Audit - Table Copies and Comparisons")
         run_audit(target_db_engine, source_db_engine, "after", log, tables_list)
         log.info(f"Finished Post-Audit - Table Copies and Comparisons")

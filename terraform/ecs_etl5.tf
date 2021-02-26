@@ -85,6 +85,10 @@ locals {
         name  = "SIRIUS_FRONT_URL",
         value = "http://frontend.${local.account.sirius_env}.ecs"
       },
+      {
+        name  = "SIRIUS_ACCOUNT",
+        value = local.account.account_id
+      },
     ]
   })
 }
