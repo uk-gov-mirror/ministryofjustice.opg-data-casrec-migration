@@ -504,8 +504,6 @@ def set_validation_target():
     db_config = "migration" if is_staging else "target"
     conn_target = psycopg2.connect(config.get_db_connection_string(db_config))
     target_schema = "staging" if is_staging else "public"
-    log.info("TARGET:")
-    log.info(config.get_db_connection_string(db_config))
 
 
 def get_exception_count():

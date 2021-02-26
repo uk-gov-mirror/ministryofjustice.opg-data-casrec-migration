@@ -132,7 +132,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                                 "Overrides": {
                                     "ContainerOverrides": [{
                                         "Name": "etl1",
-                                        "Command": ["python3", "app.py"]
+                                        "Command": ["python3", "app.py", "--delay=0"]
                                     }]
                                 }
                             },
@@ -160,7 +160,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                                 "Overrides": {
                                     "ContainerOverrides": [{
                                         "Name": "etl1",
-                                        "Command": ["python3", "app.py"]
+                                        "Command": ["python3", "app.py", "--delay=2"]
                                     }]
                                 }
                             },
@@ -188,7 +188,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                                 "Overrides": {
                                     "ContainerOverrides": [{
                                         "Name": "etl1",
-                                        "Command": ["python3", "app.py"]
+                                        "Command": ["python3", "app.py", "--delay=3"]
                                     }]
                                 }
                             },
@@ -216,7 +216,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                                 "Overrides": {
                                     "ContainerOverrides": [{
                                         "Name": "etl1",
-                                        "Command": ["python3", "app.py"]
+                                        "Command": ["python3", "app.py", "--delay=4"]
                                     }]
                                 }
                             },

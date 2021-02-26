@@ -19,16 +19,16 @@ docker rm casrec_load_1 &>/dev/null || echo "casrec_load_1 does not exist. This 
 docker rm casrec_load_2 &>/dev/null || echo "casrec_load_2 does not exist. This is OK"
 docker rm casrec_load_3 &>/dev/null || echo "casrec_load_3 does not exist. This is OK"
 docker rm casrec_load_4 &>/dev/null || echo "casrec_load_4 does not exist. This is OK"
-docker-compose run --rm --name casrec_load_1 load_casrec python3 app.py >> docker_load.log &
+docker-compose run --rm --name casrec_load_1 load_casrec python3 app.py --delay=0 >> docker_load.log &
 P1=$!
 sleep 1
-docker-compose run --rm --name casrec_load_2 load_casrec python3 app.py >> docker_load.log &
+docker-compose run --rm --name casrec_load_2 load_casrec python3 app.py --delay=2 >> docker_load.log &
 P2=$!
 sleep 1
-docker-compose run --rm --name casrec_load_3 load_casrec python3 app.py >> docker_load.log &
+docker-compose run --rm --name casrec_load_3 load_casrec python3 app.py --delay=3 >> docker_load.log &
 P3=$!
 sleep 1
-docker-compose run --rm --name casrec_load_4 load_casrec python3 app.py >> docker_load.log &
+docker-compose run --rm --name casrec_load_4 load_casrec python3 app.py --delay=4 >> docker_load.log &
 P4=$!
 wait $P1 $P2 $P3 $P4
 cat docker_load.log
