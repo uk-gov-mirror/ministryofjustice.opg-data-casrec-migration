@@ -34,6 +34,14 @@ def insert_phonenumbers_deputies_daytime(db_config, target_db):
     phonenos_joined_df = phonenos_joined_df.drop(columns=["id_y", "email"])
     phonenos_joined_df = phonenos_joined_df.rename(columns={"id_x": "id"})
 
+    phonenos_joined_df["person_id"] = (
+        phonenos_joined_df["person_id"]
+        .fillna(0)
+        .astype(int)
+        .astype(object)
+        .where(phonenos_joined_df["person_id"].notnull())
+    )
+
     target_db.insert_data(
         table_name=definition["destination_table_name"],
         df=phonenos_joined_df,
