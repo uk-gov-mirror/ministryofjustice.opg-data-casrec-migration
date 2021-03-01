@@ -22,7 +22,7 @@ def insert_addresses_deputies(db_config, target_db):
         mapping_file_name=mapping_file_name,
         table_definition=definition,
     )
-    log.info(f"deputy_addresses selected: {len(addresses_df)}")
+    log.info(f"1. deputy_addresses selected: {len(addresses_df)}")
 
     deputyship_query = f"""
         select "Dep Addr No", "Deputy No"
@@ -33,12 +33,18 @@ def insert_addresses_deputies(db_config, target_db):
         deputyship_query, db_config["db_connection_string"]
     )
 
+    log.info(f"2. deputyship_df selected: {len(deputyship_df)}")
+
     # there are multiple entries for different CoP_Case
     # but the address details are the same
     deputyship_df = deputyship_df.drop_duplicates()
 
     address_deputyship_joined_df = addresses_df.merge(
         deputyship_df, how="left", left_on="c_dep_addr_no", right_on="Dep Addr No"
+    )
+
+    log.info(
+        f"3. address_deputyship_joined_df selected: {len(address_deputyship_joined_df)}"
     )
 
     deputy_persons_query = f"""
@@ -51,6 +57,8 @@ def insert_addresses_deputies(db_config, target_db):
         deputy_persons_query, db_config["db_connection_string"]
     )
 
+    log.info(f"4. deputy_persons_df selected: {len(deputy_persons_df)}")
+
     address_persons_joined_df = address_deputyship_joined_df.merge(
         deputy_persons_df, how="left", left_on="Deputy No", right_on="c_deputy_no"
     )
@@ -58,6 +66,8 @@ def insert_addresses_deputies(db_config, target_db):
     address_persons_joined_df = address_persons_joined_df.drop(
         columns=["Dep Addr No", "Deputy No"]
     )
+
+    log.info(f"5. address_persons_joined_df selected: {len(address_persons_joined_df)}")
 
     address_persons_joined_df["person_id"] = (
         address_persons_joined_df["person_id"]
@@ -69,7 +79,11 @@ def insert_addresses_deputies(db_config, target_db):
 
     address_persons_joined_df = address_persons_joined_df.drop_duplicates()
 
+    log.info(f"6. address_persons_joined_df selected: {len(address_persons_joined_df)}")
+
     address_persons_joined_df = address_persons_joined_df.drop(columns=["id"])
+
+    log.info(f"7. address_persons_joined_df selected: {len(address_persons_joined_df)}")
 
     address_persons_joined_df = process_unique_id.add_unique_id(
         db_conn_string=db_config["db_connection_string"],
@@ -78,12 +92,16 @@ def insert_addresses_deputies(db_config, target_db):
         source_data_df=address_persons_joined_df,
     )
 
+    log.info(f"8. address_persons_joined_df selected: {len(address_persons_joined_df)}")
+
     # some addresses don't seem to match up with people...
     address_persons_joined_df = address_persons_joined_df[
         address_persons_joined_df["person_id"].notna()
     ]
 
-    log.info(f"deputy_addresses about to be inserted: {len(address_persons_joined_df)}")
+    log.info(
+        f"9. deputy_addresses about to be inserted: {len(address_persons_joined_df)}"
+    )
 
     target_db.insert_data(
         table_name=definition["destination_table_name"],
