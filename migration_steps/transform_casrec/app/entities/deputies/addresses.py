@@ -68,9 +68,9 @@ def insert_addresses_deputies(db_config, target_db):
         deputy_persons_df, how="left", left_on="Deputy No", right_on="c_deputy_no"
     )
 
-    address_persons_joined_df = address_persons_joined_df.drop(
-        columns=["Dep Addr No", "Deputy No"]
-    )
+    # address_persons_joined_df = address_persons_joined_df.drop(
+    #     columns=["Dep Addr No", "Deputy No"]
+    # )
 
     log.info(f"5. address_persons_joined_df selected: {len(address_persons_joined_df)}")
     log.info(f"\n{address_persons_joined_df.sample(10).to_markdown()}")
