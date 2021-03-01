@@ -4,7 +4,7 @@ import pandas as pd
 
 definition = {
     "source_table_name": "deputy",
-    "source_table_additional_columns": ["Deputy No"],
+    "source_table_additional_columns": ["Deputy No", "Stat"],
     "destination_table_name": "order_deputy",
 }
 
@@ -13,11 +13,14 @@ mapping_file_name = "order_deputy_mapping"
 
 def insert_order_deputies(db_config, target_db):
 
-    sirius_details, person_df = get_basic_data_table(
+    sirius_details, orig_person_df = get_basic_data_table(
         db_config=db_config,
         mapping_file_name=mapping_file_name,
         table_definition=definition,
     )
+
+    person_query = f"""select * from {db_config['target_schema']}.persons where type='actor_deputy'"""
+    person_df = pd.read_sql_query(person_query, db_config["db_connection_string"])
 
     deputyship_query = f"""select "Deputy No", "CoP Case" from {db_config["source_schema"]}.deputyship;"""
     deputyship_df = pd.read_sql_query(
