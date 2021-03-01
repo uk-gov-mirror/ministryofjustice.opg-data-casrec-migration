@@ -9,6 +9,10 @@ definition = {
 }
 
 mapping_file_name = "deputy_addresses_mapping"
+import logging
+
+
+log = logging.getLogger("root")
 
 
 def insert_addresses_deputies(db_config, target_db):
@@ -18,6 +22,7 @@ def insert_addresses_deputies(db_config, target_db):
         mapping_file_name=mapping_file_name,
         table_definition=definition,
     )
+    log.info(f"deputy_addresses selected: {len(addresses_df)}")
 
     deputyship_query = f"""
         select "Dep Addr No", "Deputy No"
@@ -77,6 +82,8 @@ def insert_addresses_deputies(db_config, target_db):
     address_persons_joined_df = address_persons_joined_df[
         address_persons_joined_df["person_id"].notna()
     ]
+
+    log.info(f"deputy_addresses about to be inserted: {len(address_persons_joined_df)}")
 
     target_db.insert_data(
         table_name=definition["destination_table_name"],
