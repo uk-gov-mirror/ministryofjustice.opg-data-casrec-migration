@@ -170,7 +170,6 @@ def build_lookup_functions(sql_lines):
             try:
                 sirius_value = v["sirius_mapping"].replace("'", "''")
             except AttributeError:
-                log.info(f"Unable to replace quotes in {k}")
                 sirius_value = v["sirius_mapping"]
             sql_lines.append(
                 f"{indent}{indent}WHEN ($1 = '{k}') THEN '{sirius_value}'\n"

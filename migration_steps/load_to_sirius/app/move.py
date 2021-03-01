@@ -77,7 +77,7 @@ def insert_data_into_target(db_config, source_db_engine, table, pk):
         )
 
         offset += chunk_size
-        print(f"doing offset {offset} for table {table}")
+        log.debug(f"doing offset {offset} for table {table}")
         if len(data_to_insert) < chunk_size:
             break
 
@@ -127,6 +127,6 @@ def update_data_in_target(db_config, source_db_engine, table, pk):
         )
 
         offset += chunk_size
-        print(f"doing offset for update: {offset} for table {table}")
+        log.debug(f"doing offset for update: {offset} for table {table}")
         if len(data_to_update) < chunk_size:
             break
