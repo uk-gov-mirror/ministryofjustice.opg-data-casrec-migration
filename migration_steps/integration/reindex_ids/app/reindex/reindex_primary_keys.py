@@ -9,7 +9,8 @@ log = logging.getLogger("root")
 def get_max_pk_from_existing_tables_query(db_schema, table_details):
 
     max_values_query = ""
-    for i, (table, details) in enumerate(table_details.items()):
+    tables_with_pks = {k: v for k, v in table_details.items() if len(v["pk"]) > 0}
+    for i, (table, details) in enumerate(tables_with_pks.items()):
         if len(details["pk"]) > 0:
             query = f"""
                 SELECT
@@ -17,12 +18,10 @@ def get_max_pk_from_existing_tables_query(db_schema, table_details):
                     '{details['pk']}' as column_name,
                     (SELECT max({details['pk']}) from {db_schema}.{table}) as max_value
             """
-
-            if i + 1 < len(table_details.items()):
+            if i + 1 < len(tables_with_pks):
                 query += " UNION ALL "
 
             max_values_query += query
-
     return max_values_query
 
 
