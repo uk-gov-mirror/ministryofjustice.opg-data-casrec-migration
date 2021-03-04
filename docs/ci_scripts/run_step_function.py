@@ -57,6 +57,7 @@ def step_function_running_wait_for(client, step_function_arn, wait_for, wait_tim
 
 
 def run_step_function(client, step_function_arn):
+    input_json = {"input": '{"commands" : ["python3", "app.py", "--skip_load=true"]}'}
     response = client.start_execution(stateMachineArn=step_function_arn)
     return response
 

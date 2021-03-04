@@ -103,7 +103,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                 "Overrides": {
                     "ContainerOverrides": [{
                         "Name": "etl0",
-                        "Command": ["prepare/prepare.sh"]
+                        "Command": ["prepare/prepare.sh", "-i=\"\""]
                     }]
                 }
             }
@@ -132,7 +132,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                                 "Overrides": {
                                     "ContainerOverrides": [{
                                         "Name": "etl1",
-                                        "Command": ["python3", "app.py", "--delay=0"]
+                                        "Command.$": "$.commands"
                                     }]
                                 }
                             },
@@ -160,7 +160,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                                 "Overrides": {
                                     "ContainerOverrides": [{
                                         "Name": "etl1",
-                                        "Command": ["python3", "app.py", "--delay=2"]
+                                        "Command.$": "$.commands"
                                     }]
                                 }
                             },
@@ -188,7 +188,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                                 "Overrides": {
                                     "ContainerOverrides": [{
                                         "Name": "etl1",
-                                        "Command": ["python3", "app.py", "--delay=3"]
+                                        "Command.$": "$.commands"
                                     }]
                                 }
                             },
@@ -216,7 +216,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                                 "Overrides": {
                                     "ContainerOverrides": [{
                                         "Name": "etl1",
-                                        "Command": ["python3", "app.py", "--delay=4"]
+                                        "Command.$": "$.commands"
                                     }]
                                 }
                             },
