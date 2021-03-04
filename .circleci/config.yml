@@ -38,7 +38,7 @@ workflows:
           filters: {branches:{ignore:[master]}}
       - run_step_function:
           name: run the step function development
-          requires: [build infra development]
+          requires: [build infra development, reset the sirius fixtures development]
           filters: {branches:{ignore:[master]}}
       - run_elasticsearch_reset:
           name: run elasticsearch reset
