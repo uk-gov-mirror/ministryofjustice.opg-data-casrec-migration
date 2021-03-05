@@ -281,7 +281,7 @@ jobs:
           name: check log message
           command: |
             git log -1 --oneline
-            if [ `git log -1 --oneline | grep -noreload | wc -l` -gt 0 ]
+            if [ `git log -1 --oneline | grep ~nr | wc -l` -gt 0 ]
             then
               echo "Detected noreload flag, not running reload steps"
               echo "export NO_RELOAD=true" >> $BASH_ENV

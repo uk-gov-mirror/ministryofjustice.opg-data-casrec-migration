@@ -74,3 +74,12 @@ def capitalise(original_col: str, result_col: str, df: pd.DataFrame) -> pd.DataF
     df = df.drop(columns=[original_col])
 
     return df
+
+
+def round_column(
+    original_col: str, result_col: str, df: pd.DataFrame, dp=2
+) -> pd.DataFrame:
+
+    df[result_col] = df[original_col].apply(lambda x: round(float(x), dp))
+    df = df.drop(columns=[original_col])
+    return df
