@@ -47,7 +47,7 @@ def set_logging_level(verbose):
 @click.option("-v", "--verbose", count=True)
 def main(verbose):
     set_logging_level(verbose)
-    log.info(log_title(message="Prepare Target"))
+    log.info(log_title(message="API CSV Upload"))
 
     log.info("Perform Upload to S3 for API files")
     log.info("Adding csv and response files to bucket...\n")

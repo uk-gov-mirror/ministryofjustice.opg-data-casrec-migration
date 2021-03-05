@@ -87,6 +87,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
         "Prepare For Migration": {
             "Type": "Task",
             "Next": "Parrallel Load Casrec",
+            "OutputPath": "$$.Execution.Input",
             "Resource": "arn:aws:states:::ecs:runTask.sync",
             "Parameters": {
                 "LaunchType": "FARGATE",
@@ -103,7 +104,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                 "Overrides": {
                     "ContainerOverrides": [{
                         "Name": "etl0",
-                        "Command": ["prepare/prepare.sh"]
+                        "Command.$": "$.prep"
                     }]
                 }
             }
@@ -132,7 +133,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                                 "Overrides": {
                                     "ContainerOverrides": [{
                                         "Name": "etl1",
-                                        "Command": ["python3", "app.py", "--delay=0"]
+                                        "Command.$": "$.load1"
                                     }]
                                 }
                             },
@@ -160,7 +161,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                                 "Overrides": {
                                     "ContainerOverrides": [{
                                         "Name": "etl1",
-                                        "Command": ["python3", "app.py", "--delay=2"]
+                                        "Command.$": "$.load2"
                                     }]
                                 }
                             },
@@ -188,7 +189,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                                 "Overrides": {
                                     "ContainerOverrides": [{
                                         "Name": "etl1",
-                                        "Command": ["python3", "app.py", "--delay=3"]
+                                        "Command.$": "$.load3"
                                     }]
                                 }
                             },
@@ -216,7 +217,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                                 "Overrides": {
                                     "ContainerOverrides": [{
                                         "Name": "etl1",
-                                        "Command": ["python3", "app.py", "--delay=4"]
+                                        "Command.$": "$.load4"
                                     }]
                                 }
                             },
