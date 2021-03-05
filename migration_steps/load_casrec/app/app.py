@@ -312,7 +312,6 @@ def main(entities, chunk, delay, verbose, skip_load):
         processor_id = rnd.randint(0, 99999)
 
         db_conn_string = config.get_db_connection_string("migration")
-        print(db_conn_string)
 
         engine = create_engine(db_conn_string)
 
