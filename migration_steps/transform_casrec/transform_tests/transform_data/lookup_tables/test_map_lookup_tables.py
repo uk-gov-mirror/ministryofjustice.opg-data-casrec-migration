@@ -101,7 +101,7 @@ def test_map_lookup_tables_with_default_value(mock_get_lookup_dict):
             "alias": "Title",
             "requires_transformation": "",
             "lookup_table": "fake_titles_lookup",
-            "default_value": "",
+            "default_value": "Captain",
             "calculated": "",
         },
     }
