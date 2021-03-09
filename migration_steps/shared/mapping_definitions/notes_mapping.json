@@ -82,7 +82,7 @@
             "alias": "Log Type",
             "requires_transformation": "",
             "lookup_table": "note_type_lookup",
-            "default_value": "",
+            "default_value": "placeholder",
             "calculated": "",
             "additional_columns": ""
         }
