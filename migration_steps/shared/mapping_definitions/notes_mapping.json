@@ -165,7 +165,7 @@
             "entity": ""
         },
         "transform_casrec": {
-            "casrec_table": "REMARKS",
+            "casrec_table": "",
             "casrec_column_name": "Keydate",
             "alias": "Keydate",
             "requires_transformation": "",
