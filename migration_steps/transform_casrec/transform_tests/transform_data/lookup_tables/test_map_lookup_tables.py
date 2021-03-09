@@ -106,8 +106,6 @@ def test_map_lookup_tables_with_default_value(mock_get_lookup_dict):
         },
     }
 
-    test_default_value = "Captain"
-
     test_source_data_dict = {
         "name": ["Buffy", "Willow", "Xander", "Giles", "Oz", "Dawn", "Kendra"],
         "salutation": ["1", "2", "3", "4", "3", "1000", None],
@@ -126,8 +124,6 @@ def test_map_lookup_tables_with_default_value(mock_get_lookup_dict):
         expected_result_data_dict, columns=[x for x in expected_result_data_dict]
     )
 
-    transformed_df = map_lookup_tables(
-        test_simple_mapping_dict, test_source_data_df, default_value=test_default_value
-    )
+    transformed_df = map_lookup_tables(test_simple_mapping_dict, test_source_data_df)
 
     assert transformed_df.equals(expected_result_data_df)
