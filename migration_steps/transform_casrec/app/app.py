@@ -60,6 +60,7 @@ db_config = {
     "db_connection_string": config.get_db_connection_string("migration"),
     "source_schema": config.schemas["pre_transform"],
     "target_schema": config.schemas["post_transform"],
+    "chunk_size": 10000,
 }
 target_db_engine = create_engine(db_config["db_connection_string"])
 target_db = InsertData(db_engine=target_db_engine, schema=db_config["target_schema"])
