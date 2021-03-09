@@ -15,7 +15,7 @@ mapping_file_name = "caseitem_note_mapping"
 
 def insert_caseitem_note(db_config, target_db):
 
-    chunk_size = db_config["chunk_size"]
+    chunk_size = db_config["chunk_size"] / 2
     offset = 0
     chunk_no = 1
 
