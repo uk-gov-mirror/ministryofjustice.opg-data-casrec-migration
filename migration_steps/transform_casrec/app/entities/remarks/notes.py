@@ -2,7 +2,7 @@ from utilities.basic_data_table import get_basic_data_table
 
 definition = {
     "source_table_name": "remarks",
-    "source_table_additional_columns": [],
+    "source_table_additional_columns": ["Case"],
     "destination_table_name": "notes",
 }
 

@@ -165,9 +165,9 @@
             "entity": ""
         },
         "transform_casrec": {
-            "casrec_table": "",
-            "casrec_column_name": "Keydate",
-            "alias": "Keydate",
+            "casrec_table": "remarks",
+            "casrec_column_name": "Logdate",
+            "alias": "Logdate",
             "requires_transformation": "",
             "lookup_table": "",
             "default_value": "",
