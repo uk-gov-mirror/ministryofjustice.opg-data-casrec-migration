@@ -22,7 +22,7 @@ def get_source_table(mapping_dict):
 
 
 def get_basic_data_table(
-    mapping_file_name, table_definition, db_config, condition=None
+    mapping_file_name, table_definition, db_config, condition=None, chunk_details=None
 ):
 
     mapping_dict = get_mapping_dict(
@@ -42,6 +42,7 @@ def get_basic_data_table(
         source_table_name=source_table,
         additional_columns=table_definition["source_table_additional_columns"],
         db_schema=db_config["source_schema"],
+        chunk_details=chunk_details,
     )
 
     source_data_df = pd.read_sql_query(

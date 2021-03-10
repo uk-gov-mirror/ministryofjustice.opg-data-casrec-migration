@@ -8,7 +8,7 @@ from helpers import log_title
 log = logging.getLogger("root")
 
 
-def runner(config, target_db, db_config):
+def runner(target_db, db_config):
     """
     | Name      | Running Order | Requires |
     | --------- | ------------- | -------- |

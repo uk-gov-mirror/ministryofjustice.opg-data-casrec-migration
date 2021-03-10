@@ -11,6 +11,7 @@ parameters:
 
 workflows:
   pull_request:
+    when: << pipeline.parameters.run_master >>
     jobs:
       - manage_workflow:
           name: manage workflow

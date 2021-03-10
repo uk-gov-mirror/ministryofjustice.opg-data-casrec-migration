@@ -5,23 +5,23 @@ from pathlib import Path
 
 import pytest
 
-from data_tests.bonds import cases_bonds
-from data_tests.cases import (
+from data_tests.entities.bonds import cases_bonds
+from data_tests.entities.cases import (
     cases_cases,
     cases_person_caseitem,
 )
-from data_tests.clients import (
+from data_tests.entities.clients import (
     cases_clients_persons,
     cases_clients_addresses,
     cases_clients_phonenumbers,
 )
-from data_tests.deputies import (
+from data_tests.entities.deputies import (
     cases_deputies_persons,
     cases_deputy_phonenumbers_daytime,
     cases_deputy_phonenumbers_evening,
     cases_order_deputy,
 )
-from data_tests.supervision_level import cases_supervision_level_log
+from data_tests.entities.supervision_level import cases_supervision_level_log
 
 # from run_data_tests import config
 
