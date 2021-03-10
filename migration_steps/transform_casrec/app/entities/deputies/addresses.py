@@ -28,6 +28,14 @@ def insert_addresses_deputies(db_config, target_db):
         deputyship_query, db_config["db_connection_string"]
     )
 
+    deputyship_df = deputyship_df[deputyship_df["Dep Addr No"].notna()]
+    deputyship_df["Dep Addr No"] = deputyship_df["Dep Addr No"].astype("float")
+    deputyship_df["Dep Addr No"] = deputyship_df["Dep Addr No"].astype("Int32")
+
+    addresses_df = addresses_df[addresses_df["c_dep_addr_no"].notna()]
+    addresses_df["c_dep_addr_no"] = addresses_df["c_dep_addr_no"].astype("float")
+    addresses_df["c_dep_addr_no"] = addresses_df["c_dep_addr_no"].astype("Int32")
+
     # there are multiple entries for different CoP_Case
     # but the address details are the same
     deputyship_df = deputyship_df.drop_duplicates()
