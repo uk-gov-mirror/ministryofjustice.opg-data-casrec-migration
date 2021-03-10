@@ -100,13 +100,17 @@ workflows:
       - manage_workflow:
           name: manage workflow
           filters: {branches:{ignore:[master]}}
-      - get_latest_image:
-          name: get latest tag
+#      - get_latest_image:
+#          name: get latest tag
+#          requires: [manage workflow]
+#          filters: {branches:{ignore:[master]}}
+      - build:
+          name: build and unit tests
           requires: [manage workflow]
           filters: {branches:{ignore:[master]}}
       - infrastructure:
           name: plan infra preproduction
-          requires: [get latest tag]
+          requires: [build and unit tests]
           tf_workspace: preproduction
           tf_command: plan
           filters: {branches:{ignore:[master]}}
