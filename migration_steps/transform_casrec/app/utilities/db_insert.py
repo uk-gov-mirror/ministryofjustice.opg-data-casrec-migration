@@ -195,9 +195,12 @@ class InsertData:
         return statement
 
     @timer
-    def insert_data(self, table_name, df, sirius_details=None):
+    def insert_data(self, table_name, df, sirius_details=None, chunk_no=None):
 
-        log.debug(f"inserting {table_name} into " f"database....")
+        if chunk_no:
+            log.debug(f"inserting {table_name} - chunk {chunk_no} into database....")
+        else:
+            log.debug(f"inserting {table_name} into database....")
         log.log(config.DATA, f"\n{df.sample(n=config.row_limit).to_markdown()}")
 
         create_schema_statement = self._create_schema_statement()

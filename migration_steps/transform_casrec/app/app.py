@@ -13,11 +13,27 @@ from sqlalchemy import create_engine
 import custom_logger
 from helpers import log_title
 import helpers
+from decorators import timer
 
 from dotenv import load_dotenv
 
 from run_data_tests import run_data_tests
-from entities import clients, cases, supervision_level, deputies, bonds
+from entities import (
+    clients,
+    cases,
+    supervision_level,
+    deputies,
+    bonds,
+    death,
+    events,
+    finance,
+    remarks,
+    reporting,
+    tasks,
+    teams,
+    visits,
+    warnings,
+)
 from utilities.clear_database import clear_tables
 from utilities.db_insert import InsertData
 
@@ -44,6 +60,7 @@ db_config = {
     "db_connection_string": config.get_db_connection_string("migration"),
     "source_schema": config.schemas["pre_transform"],
     "target_schema": config.schemas["post_transform"],
+    "chunk_size": 10000,
 }
 target_db_engine = create_engine(db_config["db_connection_string"])
 target_db = InsertData(db_engine=target_db_engine, schema=db_config["target_schema"])
@@ -62,6 +79,7 @@ target_db = InsertData(db_engine=target_db_engine, schema=db_config["target_sche
     default=False,
 )
 @click.option("-v", "--verbose", count=True)
+@timer
 def main(clear, include_tests, verbose):
     try:
         log.setLevel(verbosity_levels[verbose])
@@ -86,11 +104,21 @@ def main(clear, include_tests, verbose):
     if clear:
         clear_tables(db_config=db_config)
 
-    clients.runner(config, target_db=target_db, db_config=db_config)
+    clients.runner(target_db=target_db, db_config=db_config)
     cases.runner(target_db=target_db, db_config=db_config)
     bonds.runner(target_db=target_db, db_config=db_config)
     supervision_level.runner(target_db=target_db, db_config=db_config)
     deputies.runner(target_db=target_db, db_config=db_config)
+
+    death.runner(target_db=target_db, db_config=db_config)
+    events.runner(target_db=target_db, db_config=db_config)
+    finance.runner(target_db=target_db, db_config=db_config)
+    remarks.runner(target_db=target_db, db_config=db_config)
+    reporting.runner(target_db=target_db, db_config=db_config)
+    tasks.runner(target_db=target_db, db_config=db_config)
+    teams.runner(target_db=target_db, db_config=db_config)
+    visits.runner(target_db=target_db, db_config=db_config)
+    warnings.runner(target_db=target_db, db_config=db_config)
 
     if include_tests:
         run_data_tests(verbosity_level=verbosity_levels[verbose])

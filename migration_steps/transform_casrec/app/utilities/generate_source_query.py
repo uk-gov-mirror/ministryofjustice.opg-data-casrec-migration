@@ -26,7 +26,11 @@ def additional_cols(additional_columns: list) -> list:
 
 
 def generate_select_string_from_mapping(
-    mapping: dict, source_table_name: str, db_schema: str, additional_columns: list = []
+    mapping: dict,
+    source_table_name: str,
+    db_schema: str,
+    additional_columns: list = [],
+    chunk_details=None,
 ) -> str:
 
     cols = []
@@ -76,7 +80,12 @@ def generate_select_string_from_mapping(
         else:
             statement += " "
 
-    statement += f"FROM {db_schema}.{source_table_name};"
+    statement += f"FROM {db_schema}.{source_table_name}"
+
+    if chunk_details:
+        statement += f' ORDER BY "rct" LIMIT {chunk_details["chunk_size"]} OFFSET {chunk_details["offset"]};'
+    else:
+        statement += ";"
 
     log.debug(f"Using SQL statement to select from source database:\n{statement}")
 
