@@ -1,6 +1,7 @@
 from utilities.basic_data_table import get_basic_data_table
 import pandas as pd
 from transform_data import unique_id as process_unique_id
+from utilities.df_helpers import prep_df_for_merge
 
 definition = {
     "source_table_name": "deputy_address",
@@ -28,9 +29,8 @@ def insert_addresses_deputies(db_config, target_db):
         deputyship_query, db_config["db_connection_string"]
     )
 
-    # there are multiple entries for different CoP_Case
-    # but the address details are the same
-    deputyship_df = deputyship_df.drop_duplicates()
+    deputyship_df = prep_df_for_merge(df=deputyship_df, column="Dep Addr No")
+    addresses_df = prep_df_for_merge(df=addresses_df, column="c_dep_addr_no")
 
     address_deputyship_joined_df = addresses_df.merge(
         deputyship_df, how="left", left_on="c_dep_addr_no", right_on="Dep Addr No"
