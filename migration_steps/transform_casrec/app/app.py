@@ -60,7 +60,6 @@ db_config = {
     "db_connection_string": config.get_db_connection_string("migration"),
     "source_schema": config.schemas["pre_transform"],
     "target_schema": config.schemas["post_transform"],
-    "chunk_size": 10000,
 }
 target_db_engine = create_engine(db_config["db_connection_string"])
 target_db = InsertData(db_engine=target_db_engine, schema=db_config["target_schema"])
@@ -78,9 +77,16 @@ target_db = InsertData(db_engine=target_db_engine, schema=db_config["target_sche
     help="Run data tests after performing the transformations",
     default=False,
 )
+@click.option(
+    "--chunk_size",
+    prompt=False,
+    type=int,
+    help="Defaults to 10,000 but can be changed for dev",
+    default=10000,
+)
 @click.option("-v", "--verbose", count=True)
 @timer
-def main(clear, include_tests, verbose):
+def main(clear, include_tests, verbose, chunk_size):
     try:
         log.setLevel(verbosity_levels[verbose])
         log.info(f"{verbosity_levels[verbose]} logging enabled")
@@ -100,6 +106,9 @@ def main(clear, include_tests, verbose):
     log.info(
         f"Using JSON def version '{version_details['version_id']}' last updated {version_details['last_modified']}"
     )
+
+    db_config["chunk_size"] = chunk_size if chunk_size else 10000
+    log.info(f"Chunking data at {chunk_size} rows")
 
     if clear:
         clear_tables(db_config=db_config)

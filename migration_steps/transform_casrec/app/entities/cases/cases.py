@@ -11,12 +11,9 @@ mapping_file_name = "cases_mapping"
 
 
 def insert_cases(db_config, target_db):
-
-    sirius_details, cases_df = get_basic_data_table(
-        db_config=db_config,
-        mapping_file_name=mapping_file_name,
-        table_definition=definition,
-    )
+    chunk_size = db_config["chunk_size"]
+    offset = 0
+    chunk_no = 1
 
     persons_query = (
         f'select "id", "caserecnumber" from {db_config["target_schema"]}.persons '
@@ -26,16 +23,32 @@ def insert_cases(db_config, target_db):
 
     persons_df = persons_df[["id", "caserecnumber"]]
 
-    cases_joined_df = cases_df.merge(
-        persons_df, how="left", left_on="caserecnumber", right_on="caserecnumber"
-    )
+    while True:
 
-    cases_joined_df["client_id"] = cases_joined_df["id_y"]
-    cases_joined_df = cases_joined_df.drop(columns=["id_y"])
-    cases_joined_df = cases_joined_df.rename(columns={"id_x": "id"})
+        sirius_details, cases_df = get_basic_data_table(
+            db_config=db_config,
+            mapping_file_name=mapping_file_name,
+            table_definition=definition,
+            chunk_details={"chunk_size": chunk_size, "offset": offset},
+        )
 
-    target_db.insert_data(
-        table_name=definition["destination_table_name"],
-        df=cases_joined_df,
-        sirius_details=sirius_details,
-    )
+        cases_joined_df = cases_df.merge(
+            persons_df, how="left", left_on="caserecnumber", right_on="caserecnumber"
+        )
+
+        cases_joined_df["client_id"] = cases_joined_df["id_y"]
+        cases_joined_df = cases_joined_df.drop(columns=["id_y"])
+        cases_joined_df = cases_joined_df.rename(columns={"id_x": "id"})
+
+        if len(cases_joined_df) > 0:
+
+            target_db.insert_data(
+                table_name=definition["destination_table_name"],
+                df=cases_joined_df,
+                sirius_details=sirius_details,
+            )
+
+        offset += chunk_size
+        chunk_no += 1
+        if len(cases_joined_df) < chunk_size:
+            break
