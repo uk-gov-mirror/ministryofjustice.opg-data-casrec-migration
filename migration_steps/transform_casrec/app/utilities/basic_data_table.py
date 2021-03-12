@@ -22,7 +22,7 @@ def get_source_table(mapping_dict):
 
 
 def get_basic_data_table(
-    mapping_file_name, table_definition, db_config, condition=None, chunk_details=None
+    mapping_file_name, table_definition, db_config, chunk_details=None
 ):
 
     mapping_dict = get_mapping_dict(
@@ -48,10 +48,6 @@ def get_basic_data_table(
     source_data_df = pd.read_sql_query(
         sql=source_data_query, con=db_config["db_connection_string"]
     )
-
-    if condition:
-        for field, value in condition.items():
-            source_data_df = source_data_df.loc[source_data_df[field] != value]
 
     result_df = transform.perform_transformations(
         mapping_definitions=mapping_dict,
