@@ -24,31 +24,34 @@ def insert_cases(db_config, target_db):
     persons_df = persons_df[["id", "caserecnumber"]]
 
     while True:
-
-        sirius_details, cases_df = get_basic_data_table(
-            db_config=db_config,
-            mapping_file_name=mapping_file_name,
-            table_definition=definition,
-            chunk_details={"chunk_size": chunk_size, "offset": offset},
-        )
-
-        cases_joined_df = cases_df.merge(
-            persons_df, how="left", left_on="caserecnumber", right_on="caserecnumber"
-        )
-
-        cases_joined_df["client_id"] = cases_joined_df["id_y"]
-        cases_joined_df = cases_joined_df.drop(columns=["id_y"])
-        cases_joined_df = cases_joined_df.rename(columns={"id_x": "id"})
-
-        if len(cases_joined_df) > 0:
-
-            target_db.insert_data(
-                table_name=definition["destination_table_name"],
-                df=cases_joined_df,
-                sirius_details=sirius_details,
+        try:
+            sirius_details, cases_df = get_basic_data_table(
+                db_config=db_config,
+                mapping_file_name=mapping_file_name,
+                table_definition=definition,
+                chunk_details={"chunk_size": chunk_size, "offset": offset},
             )
 
-        offset += chunk_size
-        chunk_no += 1
-        if len(cases_joined_df) < chunk_size:
+            cases_joined_df = cases_df.merge(
+                persons_df,
+                how="left",
+                left_on="caserecnumber",
+                right_on="caserecnumber",
+            )
+
+            cases_joined_df["client_id"] = cases_joined_df["id_y"]
+            cases_joined_df = cases_joined_df.drop(columns=["id_y"])
+            cases_joined_df = cases_joined_df.rename(columns={"id_x": "id"})
+
+            if len(cases_joined_df) > 0:
+
+                target_db.insert_data(
+                    table_name=definition["destination_table_name"],
+                    df=cases_joined_df,
+                    sirius_details=sirius_details,
+                )
+
+            offset += chunk_size
+            chunk_no += 1
+        except Exception:
             break
