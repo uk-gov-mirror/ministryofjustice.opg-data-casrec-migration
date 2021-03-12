@@ -12,27 +12,39 @@ mapping_file_name = "supervision_level_log_mapping"
 
 def insert_supervision_level_log(db_config, target_db):
 
-    sirius_details, supervision_level_df = get_basic_data_table(
-        db_config=db_config,
-        mapping_file_name=mapping_file_name,
-        table_definition=definition,
-    )
+    chunk_size = db_config["chunk_size"]
+    offset = 0
+    chunk_no = 1
 
     cases_query = f'select "id", "caserecnumber", "c_order_no" from {db_config["target_schema"]}.cases;'
     cases_df = pd.read_sql_query(cases_query, db_config["db_connection_string"])
 
-    supervision_level_joined_df = supervision_level_df.merge(
-        cases_df, how="left", left_on="c_order_no", right_on="c_order_no"
-    )
+    while True:
 
-    supervision_level_joined_df["order_id"] = supervision_level_joined_df["id_y"]
-    supervision_level_joined_df = supervision_level_joined_df.drop(columns=["id_y"])
-    supervision_level_joined_df = supervision_level_joined_df.rename(
-        columns={"id_x": "id"}
-    )
+        sirius_details, supervision_level_df = get_basic_data_table(
+            db_config=db_config,
+            mapping_file_name=mapping_file_name,
+            table_definition=definition,
+            chunk_details={"chunk_size": chunk_size, "offset": offset},
+        )
 
-    target_db.insert_data(
-        table_name=definition["destination_table_name"],
-        df=supervision_level_joined_df,
-        sirius_details=sirius_details,
-    )
+        supervision_level_joined_df = supervision_level_df.merge(
+            cases_df, how="left", left_on="c_order_no", right_on="c_order_no"
+        )
+
+        supervision_level_joined_df["order_id"] = supervision_level_joined_df["id_y"]
+        supervision_level_joined_df = supervision_level_joined_df.drop(columns=["id_y"])
+        supervision_level_joined_df = supervision_level_joined_df.rename(
+            columns={"id_x": "id"}
+        )
+
+        target_db.insert_data(
+            table_name=definition["destination_table_name"],
+            df=supervision_level_joined_df,
+            sirius_details=sirius_details,
+            chunk_no=chunk_no,
+        )
+        offset += chunk_size
+        chunk_no += 1
+        if len(supervision_level_joined_df) < chunk_size:
+            break
