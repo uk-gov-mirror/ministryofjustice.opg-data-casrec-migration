@@ -34,8 +34,6 @@ def insert_bonds(target_db, db_config):
                 chunk_details={"chunk_size": chunk_size, "offset": offset},
             )
 
-            # bonds_df = bonds_df.loc[bonds_df["bondreferencenumber"] != ""]
-
             bonds_cases_joined_df = bonds_df.merge(
                 existing_cases_df,
                 how="left",
@@ -50,6 +48,9 @@ def insert_bonds(target_db, db_config):
             bonds_cases_joined_df = reapply_datatypes_to_fk_cols(
                 columns=["order_id"], df=bonds_cases_joined_df
             )
+            bonds_cases_joined_df = bonds_cases_joined_df.loc[
+                bonds_cases_joined_df["bondreferencenumber"] != ""
+            ]
 
             target_db.insert_data(
                 table_name=definition["destination_table_name"],

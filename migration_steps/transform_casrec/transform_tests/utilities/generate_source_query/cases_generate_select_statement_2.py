@@ -81,6 +81,7 @@ def case_mapping_cases():
 
     expected_result = """
         SELECT
+            "carec_row_id"
             "Made Date" as "Made Date",
             "Issue Date" as "Issue Date",
             "Made Date" as "Made Date 1",
