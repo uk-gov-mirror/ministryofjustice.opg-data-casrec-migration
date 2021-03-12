@@ -1,4 +1,4 @@
-from transform_tests.utilities.standard_transformations.convert_to_bool import (
+from transform_tests.utilities_tests.standard_transformations.convert_to_bool import (
     cases_convert_to_bool_shape,
     cases_convert_to_bool_data,
 )

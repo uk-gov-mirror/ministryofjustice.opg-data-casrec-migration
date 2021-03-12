@@ -1,10 +1,10 @@
 import pandas as pd
 
-from transform_tests.transform_data.calculations import cases_calculations_called
+from transform_data.calculations import do_calculations
+from transform_tests.transform_data_tests.calculations import cases_calculations_called
 
 from pytest_cases import parametrize_with_cases
 
-from transform_data.calculations import do_calculations
 
 test_source_data_dict = {
     "Remarks": ["row1", "row2", "row3"],

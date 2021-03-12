@@ -81,7 +81,7 @@ def case_mapping_cases():
 
     expected_result = """
         SELECT
-            "carec_row_id"
+            casrec_row_id,
             "Made Date" as "Made Date",
             "Issue Date" as "Issue Date",
             "Made Date" as "Made Date 1",
@@ -151,6 +151,7 @@ def case_mapping_persons_client():
 
     expected_result = """
         SELECT
+        casrec_row_id,
             "Title" as "Title",
             "Forename" as "Forename",
             "Surname" as "Surname",
@@ -204,6 +205,7 @@ def case_mapping_addresses_client():
 
     expected_result = """
         SELECT
+        casrec_row_id,
             "Adrs1" as "Adrs1",
             "Adrs2" as "Adrs2",
             "Adrs3" as "Adrs3",
