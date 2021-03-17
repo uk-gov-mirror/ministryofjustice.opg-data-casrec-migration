@@ -54,7 +54,7 @@ def get_columns_query(table, schema):
 
 
 def remove_unecessary_columns(columns):
-    unecessary_field_names = ["method"]
+    unecessary_field_names = ["method", "casrec_row_id"]
 
     return [column for column in columns if column not in unecessary_field_names]
 
@@ -101,11 +101,12 @@ def insert_data_into_target(db_config, source_db_engine, target_db_engine, table
     chunk_size = 10000
     offset = 0
     while True:
+
         query = f"""
             SELECT {', '.join(columns)}
             FROM {db_config["source_schema"]}.{table}
             WHERE method = 'INSERT'
-            ORDER BY {pk}
+            ORDER BY {', '.join(pk)}
             LIMIT {chunk_size} OFFSET {offset};
         """
 
@@ -125,13 +126,16 @@ def insert_data_into_target(db_config, source_db_engine, target_db_engine, table
         try:
             target_db_engine.execute(insert_statement)
         except Exception:
+
             log.error(
-                f"There was an error inserting data into {len(data_to_insert)} rows into {db_config['source_schema']}.{table}"
+                f"There was an error inserting  {len(data_to_insert)} rows into {db_config['source_schema']}.{table}"
             )
+
             sys.exit(1)
 
         offset += chunk_size
         log.debug(f"doing offset {offset} for table {table}")
+
         if len(data_to_insert) < chunk_size:
             break
 
@@ -153,7 +157,7 @@ def update_data_in_target(db_config, source_db_engine, table, pk):
         query = f"""
             SELECT {', '.join(columns)} FROM {db_config["source_schema"]}.{table}
             WHERE method = 'UPDATE'
-            ORDER BY {pk}
+            ORDER BY {', '.join(pk)}
             LIMIT {chunk_size} OFFSET {offset};
         """
 

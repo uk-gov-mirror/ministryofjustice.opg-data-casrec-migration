@@ -83,5 +83,5 @@ def get_pk(engine, schema, table):
         """
     response = engine.execute(get_pk_statement)
     for r in response:
-        primary_key = r.values()[0]
+        primary_key = r.values()
         return primary_key
