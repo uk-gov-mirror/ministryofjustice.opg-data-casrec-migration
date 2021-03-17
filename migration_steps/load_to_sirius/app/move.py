@@ -106,7 +106,7 @@ def insert_data_into_target(db_config, source_db_engine, target_db_engine, table
             FROM {db_config["source_schema"]}.{table}
             WHERE method = 'INSERT'
             ORDER BY {pk}
-            LIMIT {chunk_size} OFFSET {offset};;
+            LIMIT {chunk_size} OFFSET {offset};
         """
 
         data_to_insert = pd.read_sql_query(
@@ -124,8 +124,11 @@ def insert_data_into_target(db_config, source_db_engine, target_db_engine, table
 
         try:
             target_db_engine.execute(insert_statement)
-        except Exception as e:
-            log.error(e)
+        except Exception:
+            log.error(
+                f"There was an error inserting data into {len(data_to_insert)} rows into {db_config['source_schema']}.{table}"
+            )
+            sys.exit(1)
 
         offset += chunk_size
         log.debug(f"doing offset {offset} for table {table}")
