@@ -45,11 +45,7 @@ db_config = {
     "target_schema": config.schemas["integration"],
     "sirius_schema": config.schemas["public"],
 }
-target_db_engine = create_engine(
-    db_config["db_connection_string"],
-    execution_options=dict(stream_results=True),
-    server_side_cursors=True,
-)
+target_db_engine = create_engine(db_config["db_connection_string"])
 
 
 @click.command()
