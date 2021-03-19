@@ -15,13 +15,13 @@ def insert_phonenumbers_deputies_evening(db_config, target_db):
     chunk_size = db_config["chunk_size"]
     offset = 0
     chunk_no = 1
-    persons_query = (
-        f'select "id", "email" from {db_config["target_schema"]}.persons '
-        f"where \"type\" = 'actor_deputy';"
-    )
+    persons_query = f"""
+        select "id", "c_deputy_no" from {db_config["target_schema"]}.persons
+        where "type" = 'actor_deputy';
+        """
     persons_df = pd.read_sql_query(persons_query, db_config["db_connection_string"])
 
-    persons_df = persons_df[["id", "email"]]
+    persons_df = persons_df[["id", "c_deputy_no"]]
 
     while True:
         try:
@@ -34,11 +34,11 @@ def insert_phonenumbers_deputies_evening(db_config, target_db):
             )
 
             phonenos_joined_df = phonenos_df.merge(
-                persons_df, how="left", left_on="c_email", right_on="email"
+                persons_df, how="left", left_on="c_deputy_no", right_on="c_deputy_no"
             )
 
             phonenos_joined_df["person_id"] = phonenos_joined_df["id_y"]
-            phonenos_joined_df = phonenos_joined_df.drop(columns=["id_y", "email"])
+            phonenos_joined_df = phonenos_joined_df.drop(columns=["id_y"])
             phonenos_joined_df = phonenos_joined_df.rename(columns={"id_x": "id"})
 
             phonenos_joined_df["person_id"] = (
