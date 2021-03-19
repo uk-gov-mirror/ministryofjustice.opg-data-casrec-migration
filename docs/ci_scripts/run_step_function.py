@@ -60,7 +60,7 @@ def step_function_running_wait_for(client, step_function_arn, wait_for, wait_tim
 def run_step_function(client, step_function_arn, no_reload):
     if no_reload == "true":
         input_json = {
-            "prep": ["prepare/prepare.sh", "-i=casrec_csv"],
+            "prep": ["prepare/prepare.sh", "-i", "casrec_csv"],
             "load1": ["python3", "app.py", "--skip_load=true"],
             "load2": ["python3", "app.py", "--skip_load=true"],
             "load3": ["python3", "app.py", "--skip_load=true"],

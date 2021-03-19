@@ -2,7 +2,7 @@
 set -e
 # Whether to skip all the casrec loading.
 # Change to true to reload (only do this if sure the data in casrec_csv schema is correct)
-NO_RELOAD=false
+NO_RELOAD=true
 if [ "${NO_RELOAD}" == "true" ]
   then
   echo "=== Setting no reload settings ==="

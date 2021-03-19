@@ -100,17 +100,13 @@ workflows:
       - manage_workflow:
           name: manage workflow
           filters: {branches:{ignore:[master]}}
-#      - get_latest_image:
-#          name: get latest tag
-#          requires: [manage workflow]
-#          filters: {branches:{ignore:[master]}}
       - build:
           name: build and unit tests
           requires: [manage workflow]
           filters: {branches:{ignore:[master]}}
       - infrastructure:
           name: plan infra preproduction
-          requires: [get latest tag]
+          requires: [build and unit tests]
           tf_workspace: preproduction
           tf_command: plan
           filters: {branches:{ignore:[master]}}
@@ -284,16 +280,7 @@ jobs:
       - checkout
       - run:
           name: check log message
-          command: |
-            git log -1 --oneline
-            if [ `git log -1 --oneline | grep ~nr | wc -l` -gt 0 ]
-            then
-              echo "Detected noreload flag, not running reload steps"
-              echo "export NO_RELOAD=true" >> $BASH_ENV
-            else
-              echo "Running full job normally"
-              echo "export NO_RELOAD=false" >> $BASH_ENV
-            fi
+          command: echo "export NO_RELOAD=true" >> $BASH_ENV
       - run:
           name: install requirements
           command: pip3 install -r requirements-rsf.txt
@@ -404,18 +391,6 @@ jobs:
           name: Show version
           command: echo ${VERSION}
       - run:
-          name: Run transform_casrec unit tests
-          command: |
-            export PYTHONPATH=~/project/migration_steps/transform_casrec:~/project/migration_steps/transform_casrec/app
-            pip3 install -r migration_steps/transform_casrec/transform_tests/requirements.txt
-            python3 -m pytest migration_steps/transform_casrec/transform_tests --cov-fail-under=85
-      - run:
-          name: Run shared utillities unit tests
-          command: |
-            export PYTHONPATH=~/project/migration_steps/shared:~/project/migration_steps/shared/shared_tests
-            pip3 install -r migration_steps/shared/shared_tests/requirements.txt
-            python3 -m pytest migration_steps/shared/shared_tests
-      - run:
           name: Docker login
           command: aws ecr get-login-password --region $AWS_REGION --profile sirius-ci | docker login --username AWS --password-stdin $AWS_REGISTRY
       - run:
@@ -424,14 +399,6 @@ jobs:
       - run:
           name: Build images
           command: docker-compose -f docker-compose.ci.yml build --parallel
-      - run:
-          name: Full local run through
-          command: |
-            echo "Switching override so we do not use volume mounts"
-            rm docker-compose.override.yml
-            mv docker-compose.override.ci.yml docker-compose.override.yml
-            echo "Running migrate.sh"
-            ./migrate.sh
       - run:
           name: Push images
           command: docker-compose -f docker-compose.ci.yml push
