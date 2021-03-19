@@ -1,6 +1,6 @@
 from pytest_cases import parametrize_with_cases
 
-from transform_tests.utilities.generate_source_query import (
+from transform_tests.utilities_tests.generate_source_query import (
     cases_generate_select_statement_2,
 )
 

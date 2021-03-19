@@ -110,7 +110,7 @@ workflows:
           filters: {branches:{ignore:[master]}}
       - infrastructure:
           name: plan infra preproduction
-          requires: [build and unit tests]
+          requires: [get latest tag]
           tf_workspace: preproduction
           tf_command: plan
           filters: {branches:{ignore:[master]}}
@@ -124,7 +124,7 @@ workflows:
           name: run the step function preproduction
           requires: [build infra preproduction]
           account: "492687888235"
-          wait_for: "3600"
+          wait_for: "6000"
           filters: {branches:{ignore:[master]}}
       - run_elasticsearch_reset:
           name: run elasticsearch reset preproduction

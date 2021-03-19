@@ -29,6 +29,7 @@ def generate_select_string_from_mapping(
     mapping: dict,
     source_table_name: str,
     db_schema: str,
+    default_columns: list = ["casrec_row_id"],
     additional_columns: list = [],
     chunk_details=None,
 ) -> str:
@@ -62,6 +63,8 @@ def generate_select_string_from_mapping(
     col_names_with_alias = cols + additional_columns_list
 
     statement = "SELECT "
+    if default_columns:
+        statement += f"{', '.join(default_columns)}, "
 
     for i, col in enumerate(col_names_with_alias):
         if isinstance(col["casrec_column_name"], list):
@@ -83,7 +86,8 @@ def generate_select_string_from_mapping(
     statement += f"FROM {db_schema}.{source_table_name}"
 
     if chunk_details:
-        statement += f' ORDER BY "rct" LIMIT {chunk_details["chunk_size"]} OFFSET {chunk_details["offset"]};'
+        cols = [f'"{x}"' for x in default_columns]
+        statement += f' ORDER BY {", ".join(cols)} LIMIT {chunk_details["chunk_size"]} OFFSET {chunk_details["offset"]};'
     else:
         statement += ";"
 

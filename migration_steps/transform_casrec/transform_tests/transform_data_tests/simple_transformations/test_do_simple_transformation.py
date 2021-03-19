@@ -1,6 +1,6 @@
 import pandas as pd
 
-from transform_tests.transform_data.simple_transformations import (
+from transform_tests.transform_data_tests.simple_transformations import (
     cases_transformations_called,
 )
 

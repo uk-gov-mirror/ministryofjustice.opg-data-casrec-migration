@@ -156,7 +156,10 @@ def table_exists_already(table_name, table_lookup, schema_name, engine):
 
 
 def create_table_statement(table_name, schema, columns):
-    create_statement = f'CREATE TABLE IF NOT EXISTS "{schema}"."{table_name}" ('
+    create_statement = f"""
+        CREATE TABLE IF NOT EXISTS "{schema}"."{table_name}"
+        ("casrec_row_id" INT GENERATED ALWAYS AS IDENTITY,
+        """
     for i, col in enumerate(columns):
         create_statement += f'"{col}" text'
         if i + 1 < len(columns):
@@ -429,8 +432,7 @@ def main(entities, chunk, delay, verbose, skip_load):
 
             table_name = file.split(".")[0].lower()
 
-            df_renamed = df.rename(columns={"Unnamed: 0": "Record"})
-
+            df_renamed = df.rename(columns={"Unnamed: 0": "csv_record"})
             columns = [x for x in df_renamed.columns.values]
 
             # find the last digits

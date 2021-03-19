@@ -14,6 +14,25 @@ sys.path.insert(0, str(current_path) + "/../../../../../shared")
 log = logging.getLogger("root")
 
 
+def create_schema(target_db_connection, schema_name):
+    statement = f"""
+        CREATE SCHEMA IF NOT EXISTS {schema_name};
+    """
+
+    connection_string = target_db_connection
+    conn = psycopg2.connect(connection_string)
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(statement)
+    except Exception as e:
+        log.error(e)
+        sys.exit(1)
+    finally:
+        cursor.close()
+        conn.commit()
+
+
 @timer
 def move_all_tables(db_config, table_list):
     query = generate_create_tables_query(db_config, table_list)
@@ -25,7 +44,8 @@ def move_all_tables(db_config, table_list):
     try:
         cursor.execute(query)
     except Exception as e:
-        print(e)
+        log.error(e)
+        sys.exit(1)
     finally:
         cursor.close()
         conn.commit()
@@ -42,7 +62,8 @@ def generate_create_tables_query(db_config, table_list):
         select_key_cols = [f"{x} as transformation_schema_{x}" for x in keys]
 
         log.debug(
-            f"Generating CREATE TABLE for {table_name} with extra cols: {', '.join([f'transformation_schema_{x}' for x in keys])}"
+            f"Generating CREATE TABLE for {db_config['target_schema']}.{table_name} "
+            f"with extra cols: {', '.join([f'transformation_schema_{x}' for x in keys])}"
         )
 
         query = f"""
