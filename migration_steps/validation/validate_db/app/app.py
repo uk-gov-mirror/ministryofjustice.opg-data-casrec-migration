@@ -26,8 +26,8 @@ import boto3
 pp = pprint.PrettyPrinter(indent=4)
 
 env_path = current_path / "../../../../.env"
-mapping_path = current_path / "../../../shared/mapping_definitions"
-shared_sql_path = current_path / "../../../shared/sql"
+shared_path = current_path / "../../../shared"
+shared_sql_path = shared_path / "sql"
 load_dotenv(dotenv_path=env_path)
 
 environment = os.environ.get("ENVIRONMENT")
@@ -46,8 +46,8 @@ source_schema = config.schemas["pre_transform"]
 
 mappings_to_run = [
     "client_persons",
-    # "client_addresses",
-    # "client_phonenumbers",
+    "client_addresses",
+    "client_phonenumbers",
     # "cases",
     # "person_caseitem"
 ]
@@ -72,7 +72,7 @@ def set_logging_level(verbose):
 
 
 def get_mapping_report_df():
-    file_path = mapping_path / "summary/mapping_progress_summary.json"
+    file_path = shared_path / "mapping_definitions/summary/mapping_progress_summary.json"
     summary_dict = json.load(open(file_path))
 
     mappings = []
@@ -83,20 +83,6 @@ def get_mapping_report_df():
     return pd.DataFrame.from_records(
         mappings, columns=["mapping", "rows", "unmapped", "mapped", "complete"]
     )
-
-
-def get_sirius_table(mapping):
-    mapping_name_to_table = {
-        "client_persons": "persons",
-        "client_addresses": "addresses",
-        "client_phonenumbers": "phonenumbers",
-    }
-    return mapping_name_to_table.get(mapping)
-
-
-def get_casrec_from(mapping):
-    mapping_name_to_table = {"client_persons": "pat"}
-    return mapping_name_to_table.get(mapping)
 
 
 def get_exception_table(mapping):
@@ -170,10 +156,6 @@ def format_default_value(mapping):
     return default_value
 
 
-def get_sirius_from(mapping):
-    return f"{target_schema}." + mapping["sirius_details"]["table_name"]
-
-
 def wrap_sirius_datatype_functions(mapping, col_name):
     sql = col_name
     if "current_date" == mapping["transform_casrec"]["calculated"]:
@@ -217,9 +199,8 @@ def wrap_casrec_col_conversion_functions(mapping, col):
 
 
 def get_casrec_col_value(mapping):
-    casrec_col_table = None
+    col = ''
     if mapping["transform_casrec"]["casrec_table"]:
-        casrec_col_table = mapping["transform_casrec"]["casrec_table"].lower()
         col = get_full_casrec_column_name(mapping)
         if "" != mapping["transform_casrec"]["lookup_table"]:
             db_lookup_func = mapping["transform_casrec"]["lookup_table"]
@@ -229,7 +210,7 @@ def get_casrec_col_value(mapping):
     elif "" != mapping["transform_casrec"]["calculated"]:
         col = format_calculated_value(mapping)
 
-    return casrec_col_table, col
+    return col
 
 
 def build_casrec_cols(map_dict):
@@ -243,10 +224,7 @@ def build_casrec_cols(map_dict):
         )
     separator = ",\n"
     casrec_cols = separator.join(casrec_cols)
-    separator = ","
-    casrec_tables = separator.join(set(casrec_tables))
-    casrec_tables = separator.join(set(casrec_tables))
-    return casrec_cols, casrec_tables
+    return casrec_cols
 
 
 def get_full_casrec_column_name(mapping):
@@ -255,10 +233,15 @@ def get_full_casrec_column_name(mapping):
     return f'{casrec_col_table}."{casrec_col_name}"'
 
 
+def get_validation_dict():
+    file_path = shared_path / "validation_mapping.json"
+    validation_dict = json.load(open(file_path))
+    return validation_dict
+
+
 def build_validation_statements(sql_lines):
     for mapping in mappings_to_run:
         exception_table_name = get_exception_table(mapping)
-        sirius_table_name = get_sirius_table(mapping)
         map_dict = helpers.get_mapping_dict(
             file_name=mapping + "_mapping", only_complete_fields=True, include_pk=False
         )
@@ -271,8 +254,9 @@ def build_validation_statements(sql_lines):
         sql_lines.append(f"{indent}SELECT * FROM(\n")
         sql_lines.append(f"{indent}{indent}SELECT DISTINCT\n")
         sql_lines.append(f"{casrec_cols}\n")
+        # FROM, with JOINs
         sql_lines.append(
-            f"{indent}{indent}FROM {source_schema}.{get_casrec_from(mapping)}\n"
+            f"{indent}{indent}FROM {source_schema}.{validation_dict[mapping]['casrec']['from_table']}\n"
         )
         sql_lines.append(f"{indent}{indent}ORDER BY caserecnumber ASC\n")
         sql_lines.append(f"{indent}) as csv_data\n")
@@ -281,7 +265,11 @@ def build_validation_statements(sql_lines):
         sql_lines.append(f"{indent}SELECT * FROM(\n")
         sql_lines.append(f"{indent}{indent}SELECT DISTINCT\n")
         sql_lines.append(sirius_cols + "\n")
-        sql_lines.append(f"{indent}{indent}FROM {target_schema}.{sirius_table_name}\n")
+
+        # FROM, with JOINs
+        sql_lines.append(f"{indent}{indent}FROM {target_schema}.{validation_dict[mapping]['sirius']['from_table']}\n")
+        for join in validation_dict[mapping]['sirius']['joins']:
+            sql_lines.append(f"{indent}{indent}{join}\n")
         sql_lines.append(f"{indent}{indent}WHERE clientsource = 'CASRECMIGRATION'\n")
         sql_lines.append(f"{indent}{indent}ORDER BY caserecnumber ASC\n")
         sql_lines.append(f"{indent}) as sirius_data\n")

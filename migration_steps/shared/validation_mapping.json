@@ -1,0 +1,51 @@
+{
+    "client_persons": {
+        "exclude": [
+            "caserecnumber"
+        ],
+        "overriden": [],
+        "casrec": {
+            "from_table": "pat",
+            "overriden": {},
+            "joins": [],
+            "where_clauses": []
+        },
+        "sirius": {
+            "from_table": "persons",
+            "overriden": {},
+            "joins": [],
+           "where_clauses": []
+        }
+    },
+    "client_addresses": {
+        "exclude": [
+            "person_id",
+            "address_lines",
+            "town",
+            "county"
+        ],
+        "overriden": [
+            "address_lines"
+        ],
+        "casrec": {
+            "from_table": "pat",
+            "overriden": {
+                "address_lines":  "getCasrecAddress(\"Adrs1\", \"Adrs2\", \"Adrs3\", \"Adrs4\", \"Adrs5\")"
+            },
+            "joins": [],
+            "where_clauses": []
+        },
+        "sirius": {
+            "from_table": "addresses",
+            "overriden": {
+                "address_lines":  "getSiriusAddress(address_lines, town, county)"
+            },
+            "joins": [
+                "LEFT JOIN public.persons ON persons.id = addresses.person_id"
+            ],
+           "where_clauses": [
+               "persons.type = 'actor_client'"
+           ]
+        }
+    }
+}
