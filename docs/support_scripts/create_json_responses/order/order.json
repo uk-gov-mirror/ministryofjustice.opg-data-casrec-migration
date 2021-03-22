@@ -1,0 +1,181 @@
+{
+    "id": 76,
+    "uId": "7000-0004-0316",
+    "caseRecNumber": "10003409",
+    "assignee": {
+        "id": 0,
+        "phoneNumber": "03004560300",
+        "displayName": "Unassigned"
+    },
+    "client": {
+        "id": 82,
+        "uId": "7000-0002-2439",
+        "workPhoneNumber": null,
+        "homePhoneNumber": {
+            "id": 101,
+            "phoneNumber": "+44808 1570800",
+            "type": "Home",
+            "default": false
+        },
+        "mobilePhoneNumber": null,
+        "email": null,
+        "dob": "06/05/2004",
+        "dateOfDeath": "",
+        "salutation": "Sir",
+        "firstname": "Patricia",
+        "middlenames": "Patricia",
+        "surname": "Collins",
+        "addressLine1": "69 Williams loop",
+        "addressLine2": "Bevanland",
+        "addressLine3": "",
+        "town": "W7 7SS",
+        "county": null,
+        "postcode": "ST2X 2JZ",
+        "country": null,
+        "isAirmailRequired": false,
+        "addresses": [
+            {
+                "id": 82,
+                "addressLines": [
+                    "69 Williams loop",
+                    "Bevanland"
+                ],
+                "town": "W7 7SS",
+                "county": null,
+                "postcode": "ST2X 2JZ",
+                "country": null,
+                "isAirmailRequired": false,
+                "type": "Primary",
+                "addressLine1": "69 Williams loop",
+                "addressLine2": "Bevanland",
+                "addressLine3": ""
+            }
+        ],
+        "phoneNumber": "+44808 1570800",
+        "phoneNumbers": [
+            {
+                "id": 101,
+                "phoneNumber": "+44808 1570800",
+                "type": "Home",
+                "default": false
+            }
+        ],
+        "personType": "Client",
+        "companyName": null
+    },
+    "donor": null,
+    "applicationType": "Classic",
+    "batchId": null,
+    "title": null,
+    "caseType": "ORDER",
+    "caseSubtype": "pfa",
+    "receiptDate": "31/10/2008",
+    "dueDate": null,
+    "registrationDate": null,
+    "closedDate": null,
+    "status": null,
+    "statusDate": null,
+    "orderStatusNotes": null,
+    "ragRating": 1,
+    "invalidDate": null,
+    "rejectedDate": null,
+    "revokedDate": null,
+    "withdrawnDate": null,
+    "caseAttorneySingular": false,
+    "tasks": [],
+    "clauseExpiryDate": null,
+    "bond": null,
+    "latestAnnualReport": false,
+    "latestSupervisionLevel": {
+        "appliesFrom": "22/03/2021",
+        "supervisionLevel": {
+            "handle": "GENERAL",
+            "label": "General",
+            "deprecated": null
+        },
+        "assetLevel": {
+            "handle": "HIGH",
+            "label": "\u00a321k or more",
+            "deprecated": null
+        },
+        "notes": "placeholder note"
+    },
+    "isSupervisedOrder": true,
+    "howDeputyAppointed": null,
+    "fileLocationDescription": null,
+    "orderDate": "24/09/2008",
+    "orderIssueDate": "15/10/2008",
+    "securityBond": false,
+    "bondReferenceNumber": null,
+    "bondValue": null,
+    "orderStatus": {
+        "handle": "CLOSED",
+        "label": "Closed",
+        "deprecated": false
+    },
+    "feePayer": null,
+    "deputies": [
+        {
+            "deputy": {
+                "id": 1218,
+                "uId": "7000-0001-3743",
+                "workPhoneNumber": {
+                    "id": 1237,
+                    "phoneNumber": "+44909 879 0808",
+                    "type": "Work",
+                    "default": false
+                },
+                "homePhoneNumber": null,
+                "mobilePhoneNumber": null,
+                "email": "lucy71@mclean.co.uk",
+                "dob": "",
+                "dateOfDeath": "",
+                "salutation": "Sergeant",
+                "firstname": "Rosie",
+                "middlenames": null,
+                "surname": "Berry",
+                "addressLine1": "",
+                "addressLine2": "",
+                "addressLine3": "",
+                "town": "",
+                "county": "",
+                "postcode": "",
+                "country": "",
+                "isAirmailRequired": false,
+                "addresses": [
+                    {
+                        "id": null,
+                        "addressLines": [],
+                        "town": "",
+                        "county": "",
+                        "postcode": "",
+                        "country": "",
+                        "isAirmailRequired": false,
+                        "type": "Primary",
+                        "addressLine1": "",
+                        "addressLine2": "",
+                        "addressLine3": ""
+                    }
+                ],
+                "phoneNumber": "+44909 879 0808",
+                "phoneNumbers": [
+                    {
+                        "id": 1237,
+                        "phoneNumber": "+44909 879 0808",
+                        "type": "Work",
+                        "default": false
+                    }
+                ],
+                "personType": "Deputy"
+            }
+        }
+    ],
+    "orderExpiryDate": null,
+    "orderClosureReason": null,
+    "orderSubtype": {
+        "handle": "REPLACEMENT",
+        "label": "Replacement",
+        "deprecated": null
+    },
+    "orderNotes": null
+}

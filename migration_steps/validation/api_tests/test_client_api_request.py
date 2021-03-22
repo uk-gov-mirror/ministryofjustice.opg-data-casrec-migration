@@ -174,11 +174,22 @@ def test_csvs(csv, create_a_session):
                     pass
                 assert curr_var == str(row[header]).replace("nan", "")
         if row["full_check"].lower() == "true":
-            with open(f"responses/{csv}_{entity_ref}.json") as json_file:
-                actual_response = flat_dict(json_obj, ["id", "uid"])
-                expected_response = flat_dict(json.load(json_file), ["id", "uid"])
-
-                assert actual_response == expected_response
+            ignore_list = [
+                "id",
+                "uid",
+                "normalizedUid",
+                "statusDate",
+                "updatedDate",
+                "researchOptOut",
+            ]
+            s3_json = f"validation/responses/{csv}_{entity_ref}.json"
+            content_object = create_a_session["s3_sess"].get_object(
+                Bucket=bucket_name, Key=s3_json
+            )
+            content_decoded = json.loads(content_object["Body"].read().decode())
+            actual_response = flat_dict(json_obj, ignore_list)
+            expected_response = flat_dict(content_decoded, ignore_list)
+            assert actual_response == expected_response
 
     print(f"Ran happy path tests against {count} cases in {csv}")
 
@@ -210,13 +221,17 @@ def test_fail_csvs(csv, create_a_session):
 
         fail_count = 0
         for header in row.index:
-            if header not in [
-                "endpoint",
-                "search_entity",
-                "search_field",
-                "entity_ref",
-                "full_check",
-            ]:
+            if (
+                header
+                not in [
+                    "endpoint",
+                    "search_entity",
+                    "search_field",
+                    "entity_ref",
+                    "full_check",
+                ]
+                and json_obj is not None
+            ):
                 var_to_eval = f"json_obj{header}"
                 try:
                     curr_var = eval(var_to_eval)
@@ -230,12 +245,5 @@ def test_fail_csvs(csv, create_a_session):
                 if curr_var != str(row[header]).replace("nan", ""):
                     fail_count = fail_count + 1
         assert fail_count == 1
-
-        if row["full_check"].lower() == "true":
-            with open(f"responses/{csv}_{entity_ref}.json") as json_file:
-                actual_response = flat_dict(json_obj, ["id", "uid"])
-                expected_response = flat_dict(json.load(json_file), ["id", "uid"])
-
-                assert actual_response != expected_response
 
     print(f"Ran unhappy path tests against {count} cases in {csv}")

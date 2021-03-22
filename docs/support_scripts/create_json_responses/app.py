@@ -12,14 +12,8 @@ from helpers import *
 
 env_path = current_path / "../../../migration_steps/.env"
 load_dotenv(dotenv_path=env_path)
-host = os.environ.get("DB_HOST")
-print(host)
 base_url = os.environ.get("SIRIUS_FRONT_URL")
-print(base_url)
 password = os.environ.get("API_TEST_PASSWORD")
-print(password)
-ci = os.getenv("CI")
-account = os.environ["SIRIUS_ACCOUNT"]
 environment = os.environ.get("ENVIRONMENT")
 # This is just a little helper script for
 # generating response json from CSV inputs to use in our tests
