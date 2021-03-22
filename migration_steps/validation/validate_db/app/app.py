@@ -102,12 +102,14 @@ def build_exception_tables(sql_lines):
         map_dict = helpers.get_mapping_dict(
             file_name=mapping + "_mapping", only_complete_fields=True, include_pk=False
         )
+        exclude_cols = validation_dict[mapping]['exclude']
+
         sql_lines.append(f"CREATE TABLE {source_schema}.{exception_table_name}(\n")
         separator = ",\n"
         cols = separator.join(
             [
-                f"{indent}{sirius_col} text default NULL"
-                for sirius_col in map_dict.keys()
+                f"{indent}{col} text default NULL"
+                for col in map_dict.keys() if col not in exclude_cols
             ]
         )
         sql_lines.append(cols)
@@ -168,9 +170,10 @@ def get_sirius_col_name(mapping, col_name):
     return f"{col_table}.{col_name}"
 
 
-def build_sirius_cols(map_dict):
+def build_sirius_cols(map_dict, exclude):
     sirius_cols = []
-    for k, v in map_dict.items():
+    filtered = {k: v for (k, v) in map_dict.items() if k not in exclude}
+    for k, v in filtered.items():
         sirius_cols.append(
             f"{indent}{indent}{indent}{wrap_sirius_datatype_functions(v, get_sirius_col_name(v, k))} AS {k}"
         )
@@ -213,15 +216,17 @@ def get_casrec_col_value(mapping):
     return col
 
 
-def build_casrec_cols(map_dict):
+def build_casrec_cols(map_dict, exclude):
     casrec_cols = []
-    casrec_tables = []
-    for k, v in map_dict.items():
-        col_table, col_value = get_casrec_col_value(v)
-        casrec_tables.append(f"{source_schema}.{col_table}")
-        casrec_cols.append(
-            f"{indent}{indent}{indent}{wrap_casrec_col_conversion_functions(v, col_value)} AS {k}"
-        )
+
+    filtered = {k:v for (k,v) in map_dict.items() if k not in exclude}
+    for k, v in filtered.items():
+        col_value = get_casrec_col_value(v)
+        if col_value != '':
+            casrec_cols.append(
+                f"{indent}{indent}{indent}{wrap_casrec_col_conversion_functions(v, col_value)} AS {k}"
+            )
+
     separator = ",\n"
     casrec_cols = separator.join(casrec_cols)
     return casrec_cols
@@ -245,9 +250,9 @@ def build_validation_statements(sql_lines):
         map_dict = helpers.get_mapping_dict(
             file_name=mapping + "_mapping", only_complete_fields=True, include_pk=False
         )
-
-        casrec_cols, casrec_tables = build_casrec_cols(map_dict)
-        sirius_cols = build_sirius_cols(map_dict)
+        exclude_cols = validation_dict[mapping]['exclude']
+        casrec_cols = build_casrec_cols(map_dict, exclude_cols)
+        sirius_cols = build_sirius_cols(map_dict, exclude_cols)
 
         sql_lines.append(f"INSERT INTO {source_schema}.{exception_table_name}(\n")
         # casrec half
@@ -281,6 +286,9 @@ def build_column_validation_statements(sql_lines):
         map_dict = helpers.get_mapping_dict(
             file_name=mapping + "_mapping", only_complete_fields=True, include_pk=False
         )
+        exclude_cols = validation_dict[mapping]['exclude']
+        casrec_cols = build_casrec_cols(map_dict, exclude_cols)
+        sirius_cols = build_sirius_cols(map_dict, exclude_cols)
 
         exception_table = f"{source_schema}.{get_exception_table(mapping)}"
 
@@ -371,7 +379,7 @@ def write_results_sql():
     results_rows = []
     for mapping in mappings_to_run:
         exception_table_name = get_exception_table(mapping)
-        casrec_table_name = get_casrec_from(mapping)
+        casrec_table_name = validation_dict[mapping]['casrec']['from_table']
         results_rows.append(
             f"SELECT '{mapping}' AS mapping,"
             f"(SELECT COUNT(*) FROM {source_schema}.{casrec_table_name}) as attempted,"
