@@ -38,7 +38,7 @@
         "sirius": {
             "from_table": "addresses",
             "overriden": {
-                "address_lines":  "getSiriusAddress(address_lines, town, county)"
+                "address_lines":  "getSiriusAddress(addresses.address_lines, addresses.town, addresses.county)"
             },
             "joins": [
                 "LEFT JOIN public.persons ON persons.id = addresses.person_id"

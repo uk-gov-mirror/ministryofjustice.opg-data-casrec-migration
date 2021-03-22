@@ -213,7 +213,6 @@ def wrap_casrec_col_conversion_functions(mapping):
 
 def get_casrec_col_source(mapping):
     col = ''
-    print(mapping)
     if mapping["transform_casrec"]["casrec_table"]:
         col = get_full_casrec_column_name(mapping)
         if "" != mapping["transform_casrec"]["lookup_table"]:
@@ -324,69 +323,78 @@ def sql_add(sql, indent_level=0, line_breaks=1):
     sql_lines.append(f"{indent}{sql}{breaks}")
 
 
+def write_column_validation_sql(mapping, colname, col_source_casrec, col_source_sirius):
+    exception_table = get_exception_table(mapping)
+
+    sql_add(f"-- {colname}")
+    sql_add(f"UPDATE {source_schema}.{exception_table}")
+    sql_add(f"SET vary_columns = array_append(vary_columns, '{colname}')")
+    sql_add("WHERE caserecnumber IN (")
+    sql_add(f"SELECT caserecnumber FROM (", 1)
+
+    # casrec half
+    sql_add("SELECT * FROM(", 2)
+    sql_add("SELECT", 3)
+    sql_add("exc_table.caserecnumber,", 4) # caserecnumber
+    sql_add(f"{col_source_casrec} AS {colname}", 4) # tested column
+    sql_add(f"FROM {source_schema}.pat", 3)
+    sql_add(f"LEFT JOIN {source_schema}.{exception_table} exc_table", 3)
+    sql_add('ON exc_table.caserecnumber = pat."Case"', 4)
+    sql_add("WHERE exc_table.caserecnumber IS NOT NULL", 3)
+    sql_add("ORDER BY exc_table.caserecnumber", 3)
+    sql_add(") as csv_data", 2)
+
+    sql_add("EXCEPT", 2)
+
+    # sirius half
+    sql_add("SELECT * FROM(", 2)
+    sql_add("SELECT", 3)
+    sql_add("exc_table.caserecnumber,", 4) # caserecnumber
+    sql_add(f"{col_source_sirius} AS {colname}", 4) # tested column
+    sql_add(f"FROM {target_schema}.{validation_dict[mapping]['sirius']['from_table']}", 3)
+    for join in validation_dict[mapping]['sirius']['joins']:
+        sql_add(f"{join}", 3)
+    sql_add(f"LEFT JOIN {source_schema}.{exception_table} exc_table", 3)
+    sql_add("ON exc_table.caserecnumber = persons.caserecnumber", 4)
+    sql_add("WHERE exc_table.caserecnumber IS NOT NULL", 3)
+    sql_add("ORDER BY exc_table.caserecnumber", 3)
+    sql_add(") as sirius_data", 2)
+
+    sql_add(") as vary", 1)
+    sql_add(");", 0, 2)
+
+
 def build_column_validation_statements():
     for mapping in mappings_to_run:
-        exception_table_name = get_exception_table(mapping)
         map_dict = helpers.get_mapping_dict(
             file_name=mapping + "_mapping", only_complete_fields=True, include_pk=False
         )
         exclude_cols = validation_dict[mapping]['exclude']
-        casrec_cols = build_casrec_cols(map_dict, exclude_cols)
-        casrec_overridden_cols = validation_dict[mapping]['casrec']['overriden']
-        sirius_cols = build_sirius_cols(map_dict, exclude_cols)
-        sirius_overridden_cols = validation_dict[mapping]['sirius']['overriden']
+        overridden_cols = validation_dict[mapping]['overriden']
 
-        exception_table = f"{source_schema}.{get_exception_table(mapping)}"
+        exception_table = get_exception_table(mapping)
 
-        sql_add(f"ALTER TABLE {exception_table} DROP COLUMN IF EXISTS vary_columns;")
-        sql_add(f"ALTER TABLE {exception_table} ADD vary_columns varchar(255)[];", 0, 2)
+        sql_add(f"ALTER TABLE {source_schema}.{exception_table} DROP COLUMN IF EXISTS vary_columns;")
+        sql_add(f"ALTER TABLE {source_schema}.{exception_table} ADD vary_columns varchar(255)[];", 0, 2)
 
-        # if "caserecnumber" in map_dict:
-        #     del map_dict["caserecnumber"]
+        # test overridden columns
+        for overridden_col in overridden_cols:
+            write_column_validation_sql(
+                mapping,
+                overridden_col,
+                validation_dict[mapping]['casrec']['overriden'][overridden_col],
+                validation_dict[mapping]['sirius']['overriden'][overridden_col]
+            )
 
-        # # overridden cols (normally run through plsql transform routines)
-        # for colname, col in sirius_overridden_cols.items():
-        #     sql_add(f"                {col} AS {colname},", 3)
-
+        # test regular columns
         filtered = {k: v for (k, v) in map_dict.items() if k not in exclude_cols}
-        for k, v in filtered.items():
-            sql_add(f"-- {k}")
-            sql_add(f"UPDATE {exception_table}")
-            sql_add(f"SET vary_columns = array_append(vary_columns, '{k}')")
-            sql_add("WHERE caserecnumber IN (")
-
-            # OUTER SELECT
-            sql_add(f"SELECT caserecnumber FROM (", 1)
-            # casrec half
-            sql_add("SELECT * FROM(", 2)
-            sql_add("SELECT", 3)
-            sql_add("exc_table.caserecnumber,", 4)
-            # tested column
-            sql_add(f"{wrap_casrec_col_conversion_functions(v)} AS {k}", 4)
-            sql_add(f"FROM {source_schema}.pat", 3)
-            sql_add(f"LEFT JOIN {exception_table} exc_table", 3)
-            sql_add('ON exc_table.caserecnumber = pat."Case"', 4)
-            sql_add("WHERE exc_table.caserecnumber IS NOT NULL", 3)
-            sql_add("ORDER BY exc_table.caserecnumber", 3)
-            sql_add(") as csv_data", 2)
-            sql_add("EXCEPT", 2)
-
-            # sirius half
-            sql_add("SELECT * FROM(", 2)
-            sql_add("SELECT", 3)
-            sql_add("exc_table.caserecnumber,", 4)
-            # tested column
-            sql_add(f"{get_sirius_col_name(v, k)} AS {k}", 4)
-            sql_add(f"FROM {target_schema}.{validation_dict[mapping]['sirius']['from_table']}", 3)
-            for join in validation_dict[mapping]['sirius']['joins']:
-                sql_add(f"{join}", 3)
-            sql_add(f"LEFT JOIN {exception_table} exc_table", 3)
-            sql_add("ON exc_table.caserecnumber = persons.caserecnumber", 4)
-            sql_add("WHERE exc_table.caserecnumber IS NOT NULL", 3)
-            sql_add("ORDER BY exc_table.caserecnumber", 3)
-            sql_add(") as sirius_data", 2)
-            sql_add(") as vary", 1)
-            sql_add(");", 0, 2)
+        for colname, v in filtered.items():
+            write_column_validation_sql(
+                mapping,
+                colname,
+                wrap_casrec_col_conversion_functions(v),
+                get_sirius_col_name(v, colname)
+            )
 
 
 def write_validation_sql():
