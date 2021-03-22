@@ -105,14 +105,20 @@ def build_exception_tables(sql_lines):
         exclude_cols = validation_dict[mapping]['exclude']
 
         sql_lines.append(f"CREATE TABLE {source_schema}.{exception_table_name}(\n")
+        sql_lines.append(f"{indent}caserecnumber text default NULL,\n")
+
+        # overridden cols (normally run through plsql transform routines)
+        for col in validation_dict[mapping]['overriden']:
+            sql_lines.append(f"{indent}{col} text default NULL,\n")
+
+        # other columns
         separator = ",\n"
-        cols = separator.join(
+        sql_lines.append(separator.join(
             [
                 f"{indent}{col} text default NULL"
                 for col in map_dict.keys() if col not in exclude_cols
             ]
-        )
-        sql_lines.append(cols)
+        ))
         sql_lines.append("\n);\n\n")
 
 
@@ -182,7 +188,15 @@ def build_sirius_cols(map_dict, exclude):
     return separator.join(sirius_cols)
 
 
+def wrap_transformation_func(map_dict, col):
+    if "" != map_dict["transform_casrec"]["requires_transformation"]:
+        transform_func = map_dict["transform_casrec"]["requires_transformation"]
+        col = f"transf_{transform_func}({col})"
+    return col
+
+
 def wrap_casrec_col_conversion_functions(mapping, col):
+    col = wrap_transformation_func(mapping, col)
     datatype = mapping["sirius_details"]["data_type"]
     if datatype in ["date"]:
         wrapped_col = f"CAST(NULLIF(NULLIF(TRIM({col}), 'NaT'), '') AS DATE)"
@@ -252,30 +266,60 @@ def build_validation_statements(sql_lines):
         )
         exclude_cols = validation_dict[mapping]['exclude']
         casrec_cols = build_casrec_cols(map_dict, exclude_cols)
+        casrec_overridden_cols = validation_dict[mapping]['casrec']['overriden']
         sirius_cols = build_sirius_cols(map_dict, exclude_cols)
+        sirius_overridden_cols = validation_dict[mapping]['sirius']['overriden']
 
+        sql_lines.append(f"-- {mapping}\n")
         sql_lines.append(f"INSERT INTO {source_schema}.{exception_table_name}(\n")
-        # casrec half
+
+        # CASREC half
         sql_lines.append(f"{indent}SELECT * FROM(\n")
         sql_lines.append(f"{indent}{indent}SELECT DISTINCT\n")
+
+        #casrec col
+        sql_lines.append(f"{indent}{indent}{indent}pat.\"Case\" AS caserecnumber,\n")
+
+        # overridden cols (normally run through plsql transform routines)
+        for colname, col in casrec_overridden_cols.items():
+            sql_lines.append(f"{indent}{indent}{indent}{col} AS {colname},\n")
+
+        # standard cols
         sql_lines.append(f"{casrec_cols}\n")
+
         # FROM, with JOINs
         sql_lines.append(
             f"{indent}{indent}FROM {source_schema}.{validation_dict[mapping]['casrec']['from_table']}\n"
         )
+
+        #ORDER
         sql_lines.append(f"{indent}{indent}ORDER BY caserecnumber ASC\n")
         sql_lines.append(f"{indent}) as csv_data\n")
         sql_lines.append(f"{indent}EXCEPT\n")
-        # sirius half
+
+        # SIRIUS half
         sql_lines.append(f"{indent}SELECT * FROM(\n")
         sql_lines.append(f"{indent}{indent}SELECT DISTINCT\n")
+
+        #casrec col
+        sql_lines.append(f"{indent}{indent}{indent}persons.caserecnumber AS caserecnumber,\n")
+
+        # overridden cols (normally run through plsql transform routines)
+        for colname, col in sirius_overridden_cols.items():
+            sql_lines.append(f"{indent}{indent}{indent}{col} AS {colname},\n")
+
+        # standard cols
         sql_lines.append(sirius_cols + "\n")
 
         # FROM, with JOINs
         sql_lines.append(f"{indent}{indent}FROM {target_schema}.{validation_dict[mapping]['sirius']['from_table']}\n")
         for join in validation_dict[mapping]['sirius']['joins']:
             sql_lines.append(f"{indent}{indent}{join}\n")
+
+        # WHERE
         sql_lines.append(f"{indent}{indent}WHERE clientsource = 'CASRECMIGRATION'\n")
+
+        # ORDER
         sql_lines.append(f"{indent}{indent}ORDER BY caserecnumber ASC\n")
         sql_lines.append(f"{indent}) as sirius_data\n")
         sql_lines.append(");\n\n")
@@ -283,12 +327,15 @@ def build_validation_statements(sql_lines):
 
 def build_column_validation_statements(sql_lines):
     for mapping in mappings_to_run:
+        exception_table_name = get_exception_table(mapping)
         map_dict = helpers.get_mapping_dict(
             file_name=mapping + "_mapping", only_complete_fields=True, include_pk=False
         )
         exclude_cols = validation_dict[mapping]['exclude']
         casrec_cols = build_casrec_cols(map_dict, exclude_cols)
+        casrec_overridden_cols = validation_dict[mapping]['casrec']['overriden']
         sirius_cols = build_sirius_cols(map_dict, exclude_cols)
+        sirius_overridden_cols = validation_dict[mapping]['sirius']['overriden']
 
         exception_table = f"{source_schema}.{get_exception_table(mapping)}"
 
@@ -299,27 +346,32 @@ def build_column_validation_statements(sql_lines):
             f"ALTER TABLE {exception_table} ADD vary_columns varchar(255)[];\n\n"
         )
 
-        if "caserecnumber" in map_dict:
-            del map_dict["caserecnumber"]
+        # if "caserecnumber" in map_dict:
+        #     del map_dict["caserecnumber"]
 
-        for k, v in map_dict.items():
-            col_table, col_value = get_casrec_col_value(v)
+        # # overridden cols (normally run through plsql transform routines)
+        # for col in validation_dict[mapping]['overriden']:
+        #     sql_lines.append(f"{indent}{col} text default NULL,\n")
+
+        filtered = {k: v for (k, v) in map_dict.items() if k not in exclude_cols}
+        for k, v in filtered.items():
+            col_value = get_casrec_col_value(v)
 
             sql_lines.append(f"-- {k}\n")
-            sql_lines.append(f"UPDATE {exception_table}\n")
-            sql_lines.append(f"SET vary_columns = array_append(vary_columns, '{k}')\n")
-            sql_lines.append(f"WHERE caserecnumber IN (\n")
-            sql_lines.append(f"{indent}SELECT caserecnumber FROM (\n")
+            # sql_lines.append(f"UPDATE {exception_table}\n")
+            # sql_lines.append(f"SET vary_columns = array_append(vary_columns, '{k}')\n")
+            # sql_lines.append(f"WHERE caserecnumber IN (\n")
+            # sql_lines.append(f"{indent}SELECT caserecnumber FROM (\n")
 
             # casrec half
-            sql_lines.append(f"{indent}{indent}SELECT * FROM(\n")
+            # sql_lines.append(f"{indent}{indent}SELECT * FROM(\n")
             sql_lines.append(f"{indent}{indent}{indent}SELECT \n")
             sql_lines.append(
                 f"{indent}{indent}{indent}{indent}exc_table.caserecnumber,\n"
             )
-            sql_lines.append(
-                f"{indent}{indent}{indent}{indent}{wrap_casrec_col_conversion_functions(v, col_value)} AS {k}\n"
-            )
+            # sql_lines.append(
+            #     f"{indent}{indent}{indent}{indent}{wrap_casrec_col_conversion_functions(v, col_value)} AS {k}\n"
+            # )
             sql_lines.append(f"{indent}{indent}{indent}FROM {source_schema}.pat\n")
             sql_lines.append(
                 f"{indent}{indent}{indent}LEFT JOIN {exception_table} exc_table\n"
@@ -333,36 +385,36 @@ def build_column_validation_statements(sql_lines):
             sql_lines.append(
                 f"{indent}{indent}{indent}ORDER BY exc_table.caserecnumber\n"
             )
-            sql_lines.append(f"{indent}{indent}) as csv_data\n")
-
-            sql_lines.append(f"{indent}{indent}EXCEPT\n")
-
-            # sirius half
-            sql_lines.append(f"{indent}{indent}SELECT * FROM(\n")
-            sql_lines.append(f"{indent}{indent}{indent}SELECT\n")
-            sql_lines.append(
-                f"{indent}{indent}{indent}{indent}exc_table.caserecnumber,\n"
-            )
-            sql_lines.append(
-                f"{indent}{indent}{indent}{indent}{get_sirius_col_name(v, k)} AS {k}\n"
-            )
-            sql_lines.append(f"{indent}{indent}{indent}FROM {get_sirius_from(v)}\n")
-            sql_lines.append(
-                f"{indent}{indent}{indent}LEFT JOIN {exception_table} exc_table\n"
-            )
-            sql_lines.append(
-                f"{indent}{indent}{indent}{indent}ON exc_table.caserecnumber = persons.caserecnumber\n"
-            )
-            sql_lines.append(
-                f"{indent}{indent}{indent}WHERE exc_table.caserecnumber IS NOT NULL\n"
-            )
-            sql_lines.append(
-                f"{indent}{indent}{indent}ORDER BY exc_table.caserecnumber\n"
-            )
-            sql_lines.append(f"{indent}{indent}) as sirius_data\n")
-
-            sql_lines.append(f"{indent}) as vary\n")
-            sql_lines.append(");\n\n")
+            # sql_lines.append(f"{indent}{indent}) as csv_data\n")
+            #
+            # sql_lines.append(f"{indent}{indent}EXCEPT\n")
+            #
+            # # sirius half
+            # sql_lines.append(f"{indent}{indent}SELECT * FROM(\n")
+            # sql_lines.append(f"{indent}{indent}{indent}SELECT\n")
+            # sql_lines.append(
+            #     f"{indent}{indent}{indent}{indent}exc_table.caserecnumber,\n"
+            # )
+            # sql_lines.append(
+            #     f"{indent}{indent}{indent}{indent}{get_sirius_col_name(v, k)} AS {k}\n"
+            # )
+            # sql_lines.append(f"{indent}{indent}{indent}FROM {target_schema}.{validation_dict[mapping]['sirius']['from_table']}\n")
+            # sql_lines.append(
+            #     f"{indent}{indent}{indent}LEFT JOIN {exception_table} exc_table\n"
+            # )
+            # sql_lines.append(
+            #     f"{indent}{indent}{indent}{indent}ON exc_table.caserecnumber = persons.caserecnumber\n"
+            # )
+            # sql_lines.append(
+            #     f"{indent}{indent}{indent}WHERE exc_table.caserecnumber IS NOT NULL\n"
+            # )
+            # sql_lines.append(
+            #     f"{indent}{indent}{indent}ORDER BY exc_table.caserecnumber\n"
+            # )
+            # sql_lines.append(f"{indent}{indent}) as sirius_data\n")
+            #
+            # sql_lines.append(f"{indent}) as vary\n")
+            # sql_lines.append(");\n\n")
 
 
 def write_validation_sql(sql_lines):
@@ -524,6 +576,8 @@ if __name__ == "__main__":
 
     log.setLevel(1)
     log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
+
+    validation_dict = get_validation_dict()
 
     main()
 
