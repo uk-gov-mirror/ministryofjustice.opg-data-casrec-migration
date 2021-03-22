@@ -45,7 +45,7 @@ target_schema = None
 source_schema = config.schemas["pre_transform"]
 
 mappings_to_run = [
-    # "client_persons",
+    "client_persons",
     "client_addresses",
     # "client_phonenumbers",
     # "cases",
@@ -95,7 +95,7 @@ def build_exception_tables():
         sql_add(
             f"DROP TABLE IF EXISTS {source_schema}.{get_exception_table(mapfile)};"
         )
-    sql_add("\n")
+    sql_add("")
 
     for mapping in mappings_to_run:
         exception_table_name = get_exception_table(mapping)
@@ -119,20 +119,21 @@ def build_exception_tables():
                 for col in map_dict.keys() if col not in exclude_cols
             ]
         ))
-        sql_add("\n);", 0, 2)
+        sql_add(");", 0, 2)
+    sql_add("")
 
 
 def build_lookup_functions():
     # drop all the lookup tables from last run
     for lookup_name, lookup in helpers.get_all_lookup_dicts().items():
         sql_add(f"DROP FUNCTION IF EXISTS {source_schema}.{lookup_name}(character varying);")
-    sql_add("\n\n")
+    sql_add("")
 
     for lookup_name, lookup in helpers.get_all_lookup_dicts().items():
         sql_add(
-            f"CREATE OR REPLACE FUNCTION {source_schema}.{lookup_name}(lookup_key varchar default null) RETURNS TEXT AS\n"
+            f"CREATE OR REPLACE FUNCTION {source_schema}.{lookup_name}(lookup_key varchar default null) RETURNS TEXT AS"
         )
-        sql_add(f"$$\n")
+        sql_add(f"$$")
         sql_add(f"SELECT CASE", 1)
         for k, v in lookup.items():
             try:
@@ -141,7 +142,8 @@ def build_lookup_functions():
                 sirius_value = v["sirius_mapping"]
             sql_add(f"WHEN ($1 = '{k}') THEN '{sirius_value}'", 2)
         sql_add("END", 1)
-        sql_add("$$ LANGUAGE sql;", 0, 3)
+        sql_add("$$ LANGUAGE sql;", 0, 2)
+    sql_add("")
 
 
 def format_calculated_value(mapping):
@@ -177,7 +179,7 @@ def build_sirius_cols(map_dict, exclude):
     filtered = {k: v for (k, v) in map_dict.items() if k not in exclude}
     for k, v in filtered.items():
         sirius_cols.append(
-            f"                {wrap_sirius_datatype_functions(v, get_sirius_col_name(v, k))} AS {k}"
+            f"            {wrap_sirius_datatype_functions(v, get_sirius_col_name(v, k))} AS {k}"
         )
 
     separator = ",\n"
@@ -233,7 +235,7 @@ def build_casrec_cols(map_dict, exclude):
     for k, v in filtered.items():
         if get_casrec_col_source(v) != '':
             casrec_cols.append(
-                f"                {wrap_casrec_col_conversion_functions(v)} AS {k}"
+                f"            {wrap_casrec_col_conversion_functions(v)} AS {k}"
             )
 
     separator = ",\n"
@@ -290,9 +292,9 @@ def build_validation_statements():
 
         # SIRIUS half
         sql_add("SELECT * FROM(", 1)
-        sql_add("SELECT DISTINCT", 1)
+        sql_add("SELECT DISTINCT", 2)
 
-        #casrec col
+        #caserec col
         sql_add("persons.caserecnumber AS caserecnumber,", 3)
 
         # overridden cols (normally run through plsql transform routines)
@@ -303,7 +305,7 @@ def build_validation_statements():
         sql_add(sirius_cols)
 
         # FROM, with JOINs
-        sql_add(f"FROM {target_schema}.{validation_dict[mapping]['sirius']['from_table']}", 3)
+        sql_add(f"FROM {target_schema}.{validation_dict[mapping]['sirius']['from_table']}", 2)
         for join in validation_dict[mapping]['sirius']['joins']:
             sql_add(f"{join}", 2)
 
@@ -314,6 +316,7 @@ def build_validation_statements():
         sql_add("ORDER BY caserecnumber ASC", 2)
         sql_add(") as sirius_data", 1)
         sql_add(");", 0, 2)
+    sql_add("")
 
 
 def sql_add(sql, indent_level=0, line_breaks=1):
@@ -393,7 +396,7 @@ def build_column_validation_statements():
                 mapping,
                 colname,
                 wrap_casrec_col_conversion_functions(v),
-                get_sirius_col_name(v, colname)
+                wrap_sirius_datatype_functions(v, get_sirius_col_name(v, colname))
             )
 
 
@@ -414,15 +417,15 @@ def write_results_sql():
         exception_table_name = get_exception_table(mapping)
         casrec_table_name = validation_dict[mapping]['casrec']['from_table']
         results_rows.append(
-            f"SELECT '{mapping}' AS mapping,"
-            f"(SELECT COUNT(*) FROM {source_schema}.{casrec_table_name}) as attempted,"
-            f"(SELECT COUNT(*) FROM {source_schema}.{exception_table_name}),"
-            f"(SELECT CONCAT( CAST( CAST( "
-            f"(SELECT COUNT(*) FROM {source_schema}.{exception_table_name}) / "
-            f"(SELECT COUNT(*) FROM {source_schema}.{casrec_table_name})::FLOAT AS numeric ) AS TEXT), '%')),"
-            f"(SELECT json_agg(vary) AS affected_columns FROM ("
-            f"SELECT DISTINCT unnest(vary_columns) as vary FROM {source_schema}.{exception_table_name}"
-            f") t1)\n"
+            f"SELECT '{mapping}' AS mapping,\n"
+            f"(SELECT COUNT(*) FROM {source_schema}.{casrec_table_name}) as attempted,\n"
+            f"(SELECT COUNT(*) FROM {source_schema}.{exception_table_name}),\n"
+            f"(SELECT CONCAT( CAST( CAST( (\n"
+            f"    (SELECT COUNT(*) FROM {source_schema}.{exception_table_name}) / \n"
+            f"    (SELECT COUNT(*) FROM {source_schema}.{casrec_table_name})::FLOAT) * 100 AS NUMERIC) AS TEXT), '%')),\n"
+            f"CAST((SELECT json_agg(vary) AS affected_columns FROM (\n"
+            f"    SELECT DISTINCT unnest(vary_columns) as vary FROM {source_schema}.{exception_table_name}\n"
+            f") t1) AS TEXT)\n"
         )
     separator = "UNION\n"
     sql_file.writelines(separator.join(results_rows))
@@ -449,30 +452,30 @@ def write_get_exception_count_sql():
 
 
 def pre_validation():
-    # if is_staging is False:
-    #     log.info(f"Validating with SIRIUS")
-    #     log.info(f"Copying casrec csv source data to Sirius for comparison work")
-    #     copy_schema(
-    #         log=log,
-    #         sql_path=shared_sql_path,
-    #         from_config=config.db_config["migration"],
-    #         from_schema=config.schemas["pre_transform"],
-    #         to_config=config.db_config["target"],
-    #         to_schema=config.schemas["pre_transform"],
-    #     )
-    # else:
-    #     log.info(f"Validating with STAGING schema")
+    if is_staging is False:
+        log.info(f"Validating with SIRIUS")
+        log.info(f"Copying casrec csv source data to Sirius for comparison work")
+        copy_schema(
+            log=log,
+            sql_path=shared_sql_path,
+            from_config=config.db_config["migration"],
+            from_schema=config.schemas["pre_transform"],
+            to_config=config.db_config["target"],
+            to_schema=config.schemas["pre_transform"],
+        )
+    else:
+        log.info(f"Validating with STAGING schema")
 
     log.info(f"GENERATE SQL")
 
-    # log.info("- Exception Tables")
-    # build_exception_tables()
-    #
-    # log.info("- Lookup Functions")
-    # build_lookup_functions()
-    #
-    # log.info("- Validation SQL")
-    # build_validation_statements()
+    log.info("- Exception Tables")
+    build_exception_tables()
+
+    log.info("- Lookup Functions")
+    build_lookup_functions()
+
+    log.info("- Validation SQL")
+    build_validation_statements()
 
     log.info("- Column insight")
     build_column_validation_statements()
@@ -525,29 +528,29 @@ def main(verbose, staging):
     set_validation_target()
 
     pre_validation()
-    #
-    # log.info("RUN VALIDATION")
-    #
-    # execute_sql_file(
-    #     shared_sql_path, validation_sqlfile, conn_target, config.schemas["public"]
-    # )
-    # log.info("- ok\n")
 
-    # post_validation()
+    log.info("RUN VALIDATION")
 
-    # if get_exception_count() > 0:
-    #     exit(1)
-    #
-    # log.info("No exceptions found: continue...\n")
-    # log.info("Adding sql files to bucket...\n")
-    #
-    # s3 = get_s3_session(session, environment, host)
-    # if ci != "true":
-    #     for file in os.listdir(shared_sql_path):
-    #         file_path = f"{shared_sql_path}/{file}"
-    #         s3_file_path = f"validation/sql/{file}"
-    #         if file.endswith(".sql"):
-    #             upload_file(bucket_name, file_path, s3, log, s3_file_path)
+    execute_sql_file(
+        shared_sql_path, validation_sqlfile, conn_target, config.schemas["public"]
+    )
+    log.info("- ok\n")
+
+    post_validation()
+
+    if get_exception_count() > 0:
+        exit(1)
+
+    log.info("No exceptions found: continue...\n")
+    log.info("Adding sql files to bucket...\n")
+
+    s3 = get_s3_session(session, environment, host)
+    if ci != "true":
+        for file in os.listdir(shared_sql_path):
+            file_path = f"{shared_sql_path}/{file}"
+            s3_file_path = f"validation/sql/{file}"
+            if file.endswith(".sql"):
+                upload_file(bucket_name, file_path, s3, log, s3_file_path)
 
 
 if __name__ == "__main__":
