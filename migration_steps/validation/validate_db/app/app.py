@@ -27,7 +27,8 @@ pp = pprint.PrettyPrinter(indent=4)
 
 env_path = current_path / "../../../../.env"
 shared_path = current_path / "../../../shared"
-shared_sql_path = shared_path / "sql"
+sql_path = shared_path / "sql"
+sql_path_temp = sql_path / "temp"
 load_dotenv(dotenv_path=env_path)
 
 environment = os.environ.get("ENVIRONMENT")
@@ -52,6 +53,7 @@ mappings_to_run = [
 
 results_sqlfile = "get_validation_results.sql"
 validation_sqlfile = "validation.sql"
+transformations_sqlfile = "transformation_functions.sql"
 total_exceptions_sqlfile = "get_exceptions_total.sql"
 host = os.environ.get("DB_HOST")
 ci = os.getenv("CI")
@@ -401,7 +403,7 @@ def build_column_validation_statements():
 def write_validation_sql():
     global sql_lines
     log.debug(f"Writing to file")
-    validation_sql_path = shared_sql_path / validation_sqlfile
+    validation_sql_path = sql_path_temp / validation_sqlfile
     validation_sql_file = open(validation_sql_path, "w")
     validation_sql_file.writelines(sql_lines)
     validation_sql_file.close()
@@ -409,7 +411,7 @@ def write_validation_sql():
 
 
 def write_results_sql():
-    sql_file = open(shared_sql_path / results_sqlfile, "w")
+    sql_file = open(sql_path_temp / results_sqlfile, "w")
     results_rows = []
     for mapping in mappings_to_run:
         exception_table_name = get_exception_table(mapping)
@@ -431,7 +433,7 @@ def write_results_sql():
 
 
 def write_get_exception_count_sql():
-    sql_file = open(shared_sql_path / total_exceptions_sqlfile, "w")
+    sql_file = open(sql_path_temp / total_exceptions_sqlfile, "w")
     sql = f"SELECT SUM(exceptions) FROM (\n"
 
     ex_tables_sql = []
@@ -455,7 +457,7 @@ def pre_validation():
         log.info(f"Copying casrec csv source data to Sirius for comparison work")
         copy_schema(
             log=log,
-            sql_path=shared_sql_path,
+            sql_path=sql_path,
             from_config=config.db_config["migration"],
             from_schema=config.schemas["pre_transform"],
             to_config=config.db_config["target"],
@@ -463,6 +465,11 @@ def pre_validation():
         )
     else:
         log.info(f"Validating with STAGING schema")
+
+    log.info(f"INSTALL TRANSFORMATION ROUTINES")
+    execute_sql_file(
+        sql_path, transformations_sqlfile, conn_target, config.schemas["public"]
+    )
 
     log.info(f"GENERATE SQL")
 
@@ -478,15 +485,19 @@ def pre_validation():
     log.info("- Column insight")
     build_column_validation_statements()
 
-    log.info(f"Printing Lines:")
     write_validation_sql()
 
 
 def post_validation():
+    log.info(f"REMOVE TRANSFORMATION ROUTINES")
+    execute_sql_file(
+        sql_path, f"drop_{transformations_sqlfile}", conn_target, config.schemas["public"]
+    )
+
     log.info("REPORT")
     mapping_df = get_mapping_report_df()
     write_results_sql()
-    exceptions_df = df_from_sql_file(shared_sql_path, results_sqlfile, conn_target)
+    exceptions_df = df_from_sql_file(sql_path_temp, results_sqlfile, conn_target)
     report_df = mapping_df.merge(exceptions_df, on="mapping")
     headers = [
         "Casrec Mapping",
@@ -511,7 +522,7 @@ def set_validation_target():
 
 def get_exception_count():
     write_get_exception_count_sql()
-    return result_from_sql_file(shared_sql_path, total_exceptions_sqlfile, conn_target)
+    return result_from_sql_file(sql_path_temp, total_exceptions_sqlfile, conn_target)
 
 
 @click.command()
@@ -528,9 +539,8 @@ def main(verbose, staging):
     pre_validation()
 
     log.info("RUN VALIDATION")
-
     execute_sql_file(
-        shared_sql_path, validation_sqlfile, conn_target, config.schemas["public"]
+        sql_path_temp, validation_sqlfile, conn_target, config.schemas["public"]
     )
     log.info("- ok\n")
 
@@ -544,8 +554,8 @@ def main(verbose, staging):
 
     s3 = get_s3_session(session, environment, host)
     if ci != "true":
-        for file in os.listdir(shared_sql_path):
-            file_path = f"{shared_sql_path}/{file}"
+        for file in os.listdir(sql_path_temp):
+            file_path = f"{sql_path_temp}/{file}"
             s3_file_path = f"validation/sql/{file}"
             if file.endswith(".sql"):
                 upload_file(bucket_name, file_path, s3, log, s3_file_path)
