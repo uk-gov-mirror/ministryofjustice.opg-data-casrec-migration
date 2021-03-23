@@ -18,8 +18,13 @@ data "aws_iam_policy_document" "state_assume" {
 
 data "aws_iam_policy_document" "state_machine" {
   statement {
-    effect    = "Allow"
-    resources = [aws_iam_role.etl.arn, aws_iam_role.execution_role.arn]
+    effect = "Allow"
+    resources = [
+      aws_iam_role.etl.arn,
+      aws_iam_role.execution_role.arn,
+      data.aws_iam_role.sirius_behat_execution_role.arn,
+      data.aws_iam_role.sirius_behat_task_role.arn
+    ]
     actions = [
       "iam:GetRole",
       "iam:PassRole"
@@ -33,7 +38,8 @@ data "aws_iam_policy_document" "state_machine" {
       "arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/etl2-${terraform.workspace}*",
       "arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/etl3-${terraform.workspace}*",
       "arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/etl4-${terraform.workspace}*",
-      "arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/etl5-${terraform.workspace}*"
+      "arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/etl5-${terraform.workspace}*",
+      "arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/reset-elasticsearch-${local.account.sirius_env}*"
     ]
     actions = ["ecs:RunTask"]
   }
@@ -276,7 +282,7 @@ resource "aws_sfn_state_machine" "casrec_migration" {
         },
         "Run Load To Target": {
             "Type": "Task",
-            "Next": "Run Validation",
+            "Next": "Reset Elasticsearch",
             "Resource": "arn:aws:states:::ecs:runTask.sync",
             "Parameters": {
                 "LaunchType": "FARGATE",
@@ -294,6 +300,30 @@ resource "aws_sfn_state_machine" "casrec_migration" {
                     "ContainerOverrides": [{
                         "Name": "etl4",
                         "Command": ["python3", "app.py", "--audit=${local.account.run_audit}"]
+                    }]
+                }
+            }
+        },
+        "Reset Elasticsearch": {
+            "Type": "Task",
+            "Next": "Run Validation",
+            "Resource": "arn:aws:states:::ecs:runTask.sync",
+            "Parameters": {
+                "LaunchType": "FARGATE",
+                "PlatformVersion": "1.4.0",
+                "Cluster": "${local.account.sirius_env}",
+                "TaskDefinition": "arn:aws:ecs:eu-west-1:${local.account.account_id}:task-definition/reset-elasticsearch-${local.account.sirius_env}",
+                "NetworkConfiguration": {
+                    "AwsvpcConfiguration": {
+                        "Subnets": [${local.subnets_string}],
+                        "SecurityGroups": ["${data.aws_security_group.sirius_ecs_api.id}"],
+                        "AssignPublicIp": "DISABLED"
+                    }
+                },
+                "Overrides": {
+                    "ContainerOverrides": [{
+                        "Name": "reset-elasticsearch",
+                        "Command": ["scripts/elasticsearch/setup.sh"]
                     }]
                 }
             }

@@ -15,7 +15,7 @@ if [ "${RUN_API_TESTS}" == "True" ]
 then
   cd "${DIR}/api_tests"
   echo "== Installing requirements for API tests =="
-  pip3 install -r requirements.txt
+  pip3 install -r requirements.txt > /dev/null
   echo "== Running API tests =="
   pytest -s .
 fi

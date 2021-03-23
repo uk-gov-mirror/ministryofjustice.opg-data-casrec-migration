@@ -8,7 +8,7 @@
             "fk_parents": "",
             "data_type": "int",
             "table_name": "notes",
-            "entity": ""
+            "entity": "remarks"
         },
         "transform_casrec": {
             "casrec_table": "",
@@ -30,7 +30,7 @@
             "fk_parents": "",
             "data_type": "int",
             "table_name": "notes",
-            "entity": ""
+            "entity": "remarks"
         },
         "transform_casrec": {
             "casrec_table": "",
@@ -52,7 +52,7 @@
             "fk_parents": "",
             "data_type": "str",
             "table_name": "notes",
-            "entity": ""
+            "entity": "remarks"
         },
         "transform_casrec": {
             "casrec_table": "",
@@ -74,7 +74,7 @@
             "fk_parents": "",
             "data_type": "str",
             "table_name": "notes",
-            "entity": ""
+            "entity": "remarks"
         },
         "transform_casrec": {
             "casrec_table": "REMARKS",
@@ -82,7 +82,7 @@
             "alias": "Log Type",
             "requires_transformation": "",
             "lookup_table": "note_type_lookup",
-            "default_value": "placeholder",
+            "default_value": "not mapped",
             "calculated": "",
             "additional_columns": ""
         }
@@ -96,7 +96,7 @@
             "fk_parents": "",
             "data_type": "str",
             "table_name": "notes",
-            "entity": ""
+            "entity": "remarks"
         },
         "transform_casrec": {
             "casrec_table": "",
@@ -118,7 +118,7 @@
             "fk_parents": "",
             "data_type": "str",
             "table_name": "notes",
-            "entity": ""
+            "entity": "remarks"
         },
         "transform_casrec": {
             "casrec_table": "REMARKS",
@@ -140,7 +140,7 @@
             "fk_parents": "",
             "data_type": "str",
             "table_name": "notes",
-            "entity": ""
+            "entity": "remarks"
         },
         "transform_casrec": {
             "casrec_table": "",
@@ -162,10 +162,10 @@
             "fk_parents": "",
             "data_type": "datetime",
             "table_name": "notes",
-            "entity": ""
+            "entity": "remarks"
         },
         "transform_casrec": {
-            "casrec_table": "remarks",
+            "casrec_table": "REMARKS",
             "casrec_column_name": "Logdate",
             "alias": "Logdate",
             "requires_transformation": "",
@@ -184,7 +184,7 @@
             "fk_parents": "assignees:id",
             "data_type": "int",
             "table_name": "notes",
-            "entity": ""
+            "entity": "remarks"
         },
         "transform_casrec": {
             "casrec_table": "",
@@ -192,7 +192,7 @@
             "alias": "",
             "requires_transformation": "",
             "lookup_table": "",
-            "default_value": 1.0,
+            "default_value": 1,
             "calculated": "",
             "additional_columns": ""
         }
@@ -206,7 +206,7 @@
             "fk_parents": "uploads:id",
             "data_type": "int",
             "table_name": "notes",
-            "entity": ""
+            "entity": "remarks"
         },
         "transform_casrec": {
             "casrec_table": "",
@@ -228,7 +228,7 @@
             "fk_parents": "documents:id",
             "data_type": "int",
             "table_name": "notes",
-            "entity": ""
+            "entity": "remarks"
         },
         "transform_casrec": {
             "casrec_table": "",
@@ -250,7 +250,7 @@
             "fk_parents": "",
             "data_type": "str",
             "table_name": "notes",
-            "entity": ""
+            "entity": "remarks"
         },
         "transform_casrec": {
             "casrec_table": "REMARKS",
