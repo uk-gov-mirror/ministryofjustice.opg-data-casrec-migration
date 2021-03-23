@@ -47,9 +47,7 @@ source_schema = config.schemas["pre_transform"]
 mappings_to_run = [
     "client_persons",
     "client_addresses",
-    # "client_phonenumbers",
-    # "cases",
-    # "person_caseitem"
+    "client_phonenumbers"
 ]
 
 results_sqlfile = "get_validation_results.sql"

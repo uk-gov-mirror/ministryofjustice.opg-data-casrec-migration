@@ -14,7 +14,7 @@
             "from_table": "persons",
             "overriden": {},
             "joins": [],
-           "where_clauses": []
+            "where_clauses": []
         }
     },
     "client_addresses": {
@@ -43,9 +43,29 @@
             "joins": [
                 "LEFT JOIN public.persons ON persons.id = addresses.person_id"
             ],
-           "where_clauses": [
-               "persons.type = 'actor_client'"
-           ]
+            "where_clauses": [
+                "persons.type = 'actor_client'"
+            ]
+        }
+    },
+    "client_phonenumbers": {
+        "exclude": [
+            "person_id"
+        ],
+        "overriden": [],
+        "casrec": {
+            "from_table": "pat",
+            "overriden": {},
+            "joins": [],
+            "where_clauses": []
+        },
+        "sirius": {
+            "from_table": "phonenumbers",
+            "overriden": {},
+            "joins": [
+                "LEFT JOIN public.persons ON persons.id = phonenumbers.person_id"
+            ],
+            "where_clauses": []
         }
     }
 }
