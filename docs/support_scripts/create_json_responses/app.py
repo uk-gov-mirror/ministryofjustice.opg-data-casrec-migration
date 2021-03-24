@@ -15,8 +15,6 @@ load_dotenv(dotenv_path=env_path)
 base_url = os.environ.get("SIRIUS_FRONT_URL")
 password = os.environ.get("API_TEST_PASSWORD")
 environment = os.environ.get("ENVIRONMENT")
-# This is just a little helper script for
-# generating response json from CSV inputs to use in our tests
 
 
 def get_session(base_url, user, password):
@@ -46,7 +44,7 @@ def create_a_session():
     return session
 
 
-def get_entity_id(session, entity, search_field, search_value):
+def get_entity_id(session, entity, search_field, search_value, csv_type):
     extra_headers = {"content-type": "application/json"}
     full_headers = {**session["headers_dict"], **extra_headers}
 
@@ -68,15 +66,59 @@ def get_entity_id(session, entity, search_field, search_value):
         headers=full_headers,
         data=json.dumps(data_raw),
     )
+
     search_result = json.loads(response.text)
-    entity_id = None
+
+    ids = []
+
     if search_result["hits"]["total"] > 0:
-        entity_id = search_result["hits"]["hits"][0]["_id"]
+        if csv_type == "clients":
+            entity_id = search_result["hits"]["hits"][0]["_id"]
+            ids.append(entity_id)
+        elif csv_type == "orders":
+            cases = search_result["hits"]["hits"][0]["_source"]["cases"]
+            for case in cases:
+                if case["caseType"] == "ORDER":
+                    ids.append(case["id"])
+    return ids
 
-    return entity_id
+
+def rationalise_var(v, json_obj):
+    try:
+        response_var = eval(v)
+        if response_var is None:
+            response_var = ""
+        else:
+            response_var = str(response_var)
+    except IndexError:
+        response_var = ""
+        pass
+    except KeyError:
+        response_var = ""
+        pass
+    except TypeError:
+        response_var = ""
+        pass
+    return response_var
 
 
-headers = [
+def restructure_text(col):
+    col_restructured = sorted(set(col.split("|")))
+    col_restructured_text = "|".join(str(e) for e in col_restructured)
+    try:
+        if col_restructured_text.startswith("|"):
+            col_restructured_text = col_restructured_text[1:]
+    except Exception:
+        pass
+    try:
+        if col_restructured_text.endswith("|"):
+            col_restructured_text = col_restructured_text[:-1]
+    except Exception:
+        pass
+    return col_restructured_text
+
+
+clients_headers = [
     '["firstname"]',
     '["surname"]',
     '["otherNames"]',
@@ -100,7 +142,23 @@ headers = [
     '["supervisionCaseOwner"]["phoneNumber"]',
     '["maritalStatus"]',
 ]
-csvs = ["clients"]
+
+orders_headers = [
+    '["client"]["firstname"]',
+    '["client"]["surname"]',
+    '["client"]["dob"]',
+    '["client"]["addressLine1"]',
+    '["client"]["postcode"]',
+    '["orderDate"]',
+    '["orderIssueDate"]',
+    '["orderStatus"]["handle"]',
+    '["deputies"][0]["deputy"]["firstname"]',
+    '["deputies"][0]["deputy"]["surname"]',
+    '["orderSubtype"]["handle"]',
+    '["orderExpiryDate"]',
+]
+
+csvs = ["orders", "clients"]
 
 search_headers = [
     "endpoint",
@@ -114,7 +172,7 @@ for csv in csvs:
     head_line = ""
     for header in search_headers:
         head_line = head_line + header + ","
-    for header in headers:
+    for header in eval(f"{csv}_headers"):
         head_line = head_line + header + ","
     head_line = head_line[:-1]
     head_line = head_line + "\n"
@@ -134,35 +192,42 @@ for csv in csvs:
         entity_ref = row["entity_ref"]
         search_entity = row["search_entity"]
         search_field = row["search_field"]
-        entity_id = get_entity_id(conn, search_entity, search_field, entity_ref)
-        endpoint_final = str(endpoint).replace("{id}", str(entity_id))
-        print(endpoint_final)
-        response = conn["sess"].get(
-            f'{conn["base_url"]}{endpoint_final}', headers=conn["headers_dict"],
-        )
-        json_obj = json.loads(response.text)
-        with open(f"responses/{csv}_{entity_ref}.json", "w") as outfile:
-            json.dump(json_obj, outfile, indent=4, sort_keys=False)
+        entity_ids = get_entity_id(conn, search_entity, search_field, entity_ref, csv)
 
+        line_struct = {}
         line = ""
-        for header in search_headers:
-            curr_var = eval(f'row["{header}"]')
-            line = line + str(curr_var) + ","
-        for header in headers:
-            var_to_eval = f"json_obj{header}"
-            try:
-                curr_var = eval(var_to_eval)
-                if curr_var is None:
-                    curr_var = ""
-                else:
-                    curr_var = str(curr_var)
-            except KeyError:
-                curr_var = ""
-                pass
+        for entity_id in entity_ids:
+            endpoint_final = str(endpoint).replace("{id}", str(entity_id))
+            print(endpoint_final)
+            response = conn["sess"].get(
+                f'{conn["base_url"]}{endpoint_final}', headers=conn["headers_dict"],
+            )
+            json_obj = json.loads(response.text)
+            with open(f"responses/{csv}_{entity_ref}.json", "w") as outfile:
+                json.dump(json_obj, outfile, indent=4, sort_keys=False)
 
-            line = line + curr_var + ","
+            for header in search_headers:
+                curr_var = eval(f'row["{header}"]')
+                try:
+                    line_struct[header] = line_struct[header] + curr_var + "|"
+                except Exception:
+                    line_struct[header] = curr_var + "|"
+            for header in eval(f"{csv}_headers"):
+                var_to_eval = f"json_obj{header}"
+                rationalised_var = rationalise_var(var_to_eval, json_obj)
+                try:
+                    line_struct[header] = line_struct[header] + rationalised_var + "|"
+                except Exception:
+                    line_struct[header] = rationalised_var + "|"
+
+        for header in eval(f"{csv}_headers") + search_headers:
+            col_restruct_text = restructure_text(line_struct[header])
+            line_struct[header] = col_restruct_text
+
+        for attr, value in line_struct.items():
+            line = line + value + ","
+
         line = line[:-1]
         line = line + "\n"
-        print(line)
         with open(f"responses/{csv}_output.csv", "a") as csv_outfile:
             csv_outfile.write(line)

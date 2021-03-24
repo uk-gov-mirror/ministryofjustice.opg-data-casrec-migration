@@ -76,7 +76,7 @@ def test_authentication(create_a_session):
     assert status_code == 401 or status_code == 200
 
 
-def get_entity_id(session, entity, search_field, search_value):
+def get_entity_ids(session, entity, search_field, search_value, csv_type):
     extra_headers = {"content-type": "application/json"}
     full_headers = {**session["headers_dict"], **extra_headers}
 
@@ -98,13 +98,56 @@ def get_entity_id(session, entity, search_field, search_value):
         headers=full_headers,
         data=json.dumps(data_raw),
     )
+
     search_result = json.loads(response.text)
 
-    entity_id = None
-    if search_result["hits"]["total"] > 0:
-        entity_id = search_result["hits"]["hits"][0]["_id"]
+    ids = []
 
-    return entity_id
+    if search_result["hits"]["total"] > 0:
+        if csv_type == "clients":
+            entity_id = search_result["hits"]["hits"][0]["_id"]
+            ids.append(entity_id)
+        elif csv_type == "orders":
+            cases = search_result["hits"]["hits"][0]["_source"]["cases"]
+            for case in cases:
+                if case["caseType"] == "ORDER":
+                    ids.append(case["id"])
+    return ids
+
+
+def rationalise_var(v, json_obj):
+    try:
+        response_var = eval(v)
+        if response_var is None:
+            response_var = ""
+        else:
+            response_var = str(response_var)
+    except IndexError:
+        response_var = ""
+        pass
+    except KeyError:
+        response_var = ""
+        pass
+    except TypeError:
+        response_var = ""
+        pass
+    return response_var
+
+
+def restructure_text(col):
+    col_restructured = sorted(set(col.split("|")))
+    col_restructured_text = "|".join(str(e) for e in col_restructured)
+    try:
+        if col_restructured_text.startswith("|"):
+            col_restructured_text = col_restructured_text[1:]
+    except Exception:
+        pass
+    try:
+        if col_restructured_text.endswith("|"):
+            col_restructured_text = col_restructured_text[:-1]
+    except Exception:
+        pass
+    return col_restructured_text
 
 
 def remove_dynamic_keys(dict, keys):
@@ -129,31 +172,23 @@ def flat_dict(d, ignore_list):
     return final_dict
 
 
-@pytest.mark.parametrize("csv", ["clients"])
+@pytest.mark.parametrize("csv", ["orders", "clients"])
 def test_csvs(csv, create_a_session):
     s3_csv_path = f"validation/csvs/{csv}.csv"
 
     obj = create_a_session["s3_sess"].get_object(Bucket=bucket_name, Key=s3_csv_path)
     csv_data = pd.read_csv(io.BytesIO(obj["Body"].read()), dtype=str)
     count = 0
-    # Iterate over rows
+    # Iterate over rows in the input spreadheet
     for index, row in csv_data.iterrows():
         count = count + 1
         endpoint = row["endpoint"]
         entity_ref = row["entity_ref"]
         search_entity = row["search_entity"]
         search_field = row["search_field"]
-        entity_id = get_entity_id(
-            create_a_session, search_entity, search_field, entity_ref
-        )
-        endpoint_final = str(endpoint).replace("{id}", str(entity_id))
 
-        response = create_a_session["sess"].get(
-            f'{create_a_session["base_url"]}{endpoint_final}',
-            headers=create_a_session["headers_dict"],
-        )
-        json_obj = json.loads(response.text)
-
+        # Create a list of headers to verify
+        headers_to_check = []
         for header in row.index:
             if header not in [
                 "endpoint",
@@ -162,34 +197,59 @@ def test_csvs(csv, create_a_session):
                 "entity_ref",
                 "full_check",
             ]:
-                var_to_eval = f"json_obj{header}"
-                try:
-                    curr_var = eval(var_to_eval)
-                    if curr_var is None:
-                        curr_var = ""
-                    else:
-                        curr_var = str(curr_var)
-                except KeyError:
-                    curr_var = ""
-                    pass
-                assert curr_var == str(row[header]).replace("nan", "")
-        if row["full_check"].lower() == "true":
-            ignore_list = [
-                "id",
-                "uid",
-                "normalizedUid",
-                "statusDate",
-                "updatedDate",
-                "researchOptOut",
-            ]
-            s3_json = f"validation/responses/{csv}_{entity_ref}.json"
-            content_object = create_a_session["s3_sess"].get_object(
-                Bucket=bucket_name, Key=s3_json
+                headers_to_check.append(header)
+        # Get the ids to perform the search on based on the caserecnumber
+        entity_ids = get_entity_ids(
+            create_a_session, search_entity, search_field, entity_ref, csv
+        )
+
+        # Because some of our searches may bring back multiple entities we need an object to aggregate them
+        response_struct = {}
+        for entity_id in entity_ids:
+            endpoint_final = str(endpoint).replace("{id}", str(entity_id))
+            print(f"Checking responses from: {endpoint_final}")
+            response = create_a_session["sess"].get(
+                f'{create_a_session["base_url"]}{endpoint_final}',
+                headers=create_a_session["headers_dict"],
             )
-            content_decoded = json.loads(content_object["Body"].read().decode())
-            actual_response = flat_dict(json_obj, ignore_list)
-            expected_response = flat_dict(content_decoded, ignore_list)
-            assert actual_response == expected_response
+            json_obj = json.loads(response.text)
+
+            for header in headers_to_check:
+                var_to_eval = f"json_obj{header}"
+                rationalised_var = rationalise_var(var_to_eval, json_obj)
+                try:
+                    response_struct[header] = (
+                        response_struct[header] + rationalised_var + "|"
+                    )
+                except Exception:
+                    response_struct[header] = rationalised_var + "|"
+
+            # Does a full check against each sub entity
+            if row["full_check"].lower() == "true":
+                ignore_list = [
+                    "id",
+                    "uid",
+                    "normalizedUid",
+                    "statusDate",
+                    "updatedDate",
+                    "researchOptOut",
+                ]
+                s3_json = f"validation/responses/{csv}_{entity_ref}.json"
+                content_object = create_a_session["s3_sess"].get_object(
+                    Bucket=bucket_name, Key=s3_json
+                )
+                content_decoded = json.loads(content_object["Body"].read().decode())
+                actual_response = flat_dict(json_obj, ignore_list)
+                expected_response = flat_dict(content_decoded, ignore_list)
+                assert actual_response == expected_response
+
+        # Where we have multiple entity_ids we need rationalise the grouped responses
+        for header in headers_to_check:
+            col_restruct_text = restructure_text(response_struct[header])
+            response_struct[header] = col_restruct_text
+        # Check through each value in spreadsheet for that row against each value in our response struct
+        for header in headers_to_check:
+            assert response_struct[header] == str(row[header]).replace("nan", "")
 
     print(f"Ran happy path tests against {count} cases in {csv}")
 
@@ -208,42 +268,43 @@ def test_fail_csvs(csv, create_a_session):
         entity_ref = row["entity_ref"]
         search_entity = row["search_entity"]
         search_field = row["search_field"]
-        entity_id = get_entity_id(
-            create_a_session, search_entity, search_field, entity_ref
+        entity_ids = get_entity_ids(
+            create_a_session, search_entity, search_field, entity_ref, csv
         )
-        endpoint_final = str(endpoint).replace("{id}", str(entity_id))
+        for entity_id in entity_ids:
+            endpoint_final = str(endpoint).replace("{id}", str(entity_id))
 
-        response = create_a_session["sess"].get(
-            f'{create_a_session["base_url"]}{endpoint_final}',
-            headers=create_a_session["headers_dict"],
-        )
-        json_obj = json.loads(response.text)
+            response = create_a_session["sess"].get(
+                f'{create_a_session["base_url"]}{endpoint_final}',
+                headers=create_a_session["headers_dict"],
+            )
+            json_obj = json.loads(response.text)
 
-        fail_count = 0
-        for header in row.index:
-            if (
-                header
-                not in [
-                    "endpoint",
-                    "search_entity",
-                    "search_field",
-                    "entity_ref",
-                    "full_check",
-                ]
-                and json_obj is not None
-            ):
-                var_to_eval = f"json_obj{header}"
-                try:
-                    curr_var = eval(var_to_eval)
-                    if curr_var is None:
+            fail_count = 0
+            for header in row.index:
+                if (
+                    header
+                    not in [
+                        "endpoint",
+                        "search_entity",
+                        "search_field",
+                        "entity_ref",
+                        "full_check",
+                    ]
+                    and json_obj is not None
+                ):
+                    var_to_eval = f"json_obj{header}"
+                    try:
+                        curr_var = eval(var_to_eval)
+                        if curr_var is None:
+                            curr_var = ""
+                        else:
+                            curr_var = str(curr_var)
+                    except KeyError:
                         curr_var = ""
-                    else:
-                        curr_var = str(curr_var)
-                except KeyError:
-                    curr_var = ""
-                    pass
-                if curr_var != str(row[header]).replace("nan", ""):
-                    fail_count = fail_count + 1
-        assert fail_count == 1
+                        pass
+                    if curr_var != str(row[header]).replace("nan", ""):
+                        fail_count = fail_count + 1
+            assert fail_count == 1
 
     print(f"Ran unhappy path tests against {count} cases in {csv}")
