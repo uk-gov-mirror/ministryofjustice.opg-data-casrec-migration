@@ -48,7 +48,8 @@ source_schema = config.schemas["pre_transform"]
 mappings_to_run = [
     "client_persons",
     "client_addresses",
-    "client_phonenumbers"
+    "client_phonenumbers",
+    "cases"
 ]
 
 results_sqlfile = "get_validation_results.sql"
@@ -159,6 +160,8 @@ def format_default_value(mapping):
     default_value = mapping["transform_casrec"]["default_value"]
     if mapping["sirius_details"]["data_type"] in ["date", "datetime", "str"]:
         default_value = f"'{default_value}'"
+    elif mapping["sirius_details"]["data_type"] == 'bool':
+        default_value = default_value in ["true", "True", 1]
     return default_value
 
 
@@ -246,7 +249,7 @@ def build_casrec_cols(map_dict, exclude):
 def get_full_casrec_column_name(mapping):
     casrec_col_table = mapping["transform_casrec"]["casrec_table"].lower()
     casrec_col_name = mapping["transform_casrec"]["casrec_column_name"]
-    return f'{casrec_col_table}."{casrec_col_name}"'
+    return f'{source_schema}.{casrec_col_table}."{casrec_col_name}"'
 
 
 def get_validation_dict():
@@ -284,6 +287,13 @@ def build_validation_statements():
 
         # FROM, with JOINs
         sql_add(f"FROM {source_schema}.{validation_dict[mapping]['casrec']['from_table']}", 2)
+        for join in validation_dict[mapping]['casrec']['joins']:
+            sql_add(f"{join}", 2)
+
+        # WHERE
+        sql_add("WHERE pat.\"Case\" IS NOT NULL", 2)
+        for where_clause in validation_dict[mapping]['casrec']['where_clauses']:
+            sql_add(f"AND {where_clause}", 2)
 
         #ORDER
         sql_add("ORDER BY caserecnumber ASC", 2)
@@ -311,6 +321,8 @@ def build_validation_statements():
 
         # WHERE
         sql_add("WHERE clientsource = 'CASRECMIGRATION'", 2)
+        for where_clause in validation_dict[mapping]['sirius']['where_clauses']:
+            sql_add(f"AND {where_clause}", 2)
 
         # ORDER
         sql_add("ORDER BY caserecnumber ASC", 2)
@@ -328,6 +340,9 @@ def sql_add(sql, indent_level=0, line_breaks=1):
 
 def write_column_validation_sql(mapping, colname, col_source_casrec, col_source_sirius):
     exception_table = get_exception_table(mapping)
+    casrec_orderby = ['exc_table.caserecnumber ASC'] + list(validation_dict[mapping]['casrec']['order'].values())
+    sirius_orderby = ['exc_table.caserecnumber ASC'] + list(validation_dict[mapping]['sirius']['order'].values())
+    order_sep = ",\n"
 
     sql_add(f"-- {colname}")
     sql_add(f"UPDATE {source_schema}.{exception_table}")
@@ -340,11 +355,13 @@ def write_column_validation_sql(mapping, colname, col_source_casrec, col_source_
     sql_add("SELECT", 3)
     sql_add("exc_table.caserecnumber,", 4) # caserecnumber
     sql_add(f"{col_source_casrec} AS {colname}", 4) # tested column
-    sql_add(f"FROM {source_schema}.pat", 3)
+    sql_add(f"FROM {source_schema}.{validation_dict[mapping]['casrec']['from_table']}", 3)
+    for join in validation_dict[mapping]['casrec']['joins']:
+        sql_add(f"{join}", 3)
     sql_add(f"LEFT JOIN {source_schema}.{exception_table} exc_table", 3)
     sql_add('ON exc_table.caserecnumber = pat."Case"', 4)
     sql_add("WHERE exc_table.caserecnumber IS NOT NULL", 3)
-    sql_add("ORDER BY exc_table.caserecnumber", 3)
+    sql_add(f"ORDER BY {order_sep.join(casrec_orderby)}", 3)
     sql_add(") as csv_data", 2)
 
     sql_add("EXCEPT", 2)
@@ -360,7 +377,7 @@ def write_column_validation_sql(mapping, colname, col_source_casrec, col_source_
     sql_add(f"LEFT JOIN {source_schema}.{exception_table} exc_table", 3)
     sql_add("ON exc_table.caserecnumber = persons.caserecnumber", 4)
     sql_add("WHERE exc_table.caserecnumber IS NOT NULL", 3)
-    sql_add("ORDER BY exc_table.caserecnumber", 3)
+    sql_add(f"ORDER BY {order_sep.join(sirius_orderby)}", 3)
     sql_add(") as sirius_data", 2)
 
     sql_add(") as vary", 1)
@@ -546,12 +563,7 @@ def main(verbose, staging):
 
     post_validation()
 
-    if get_exception_count() > 0:
-        exit(1)
-
-    log.info("No exceptions found: continue...\n")
-    log.info("Adding sql files to bucket...\n")
-
+    log.info("Adding sql files to bucket...\n")#
     s3 = get_s3_session(session, environment, host)
     if ci != "true":
         for file in os.listdir(sql_path_temp):
@@ -559,6 +571,11 @@ def main(verbose, staging):
             s3_file_path = f"validation/sql/{file}"
             if file.endswith(".sql"):
                 upload_file(bucket_name, file_path, s3, log, s3_file_path)
+
+    if get_exception_count() > 0:
+        exit(1)
+
+    log.info("No exceptions found: continue...\n")
 
 
 if __name__ == "__main__":

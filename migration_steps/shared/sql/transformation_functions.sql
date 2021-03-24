@@ -1,6 +1,15 @@
 -- NOTE
 -- Add corresponding drop function in drop_transformation_functions.sql
 
+-- capitalise
+CREATE OR REPLACE FUNCTION transf_capitalise(source varchar)
+RETURNS varchar AS $$
+DECLARE
+BEGIN
+    RETURN upper(source);
+END;
+$$ LANGUAGE plpgsql;
+
 -- convert_to_bool
 CREATE OR REPLACE FUNCTION transf_convert_to_bool(source varchar)
 RETURNS boolean AS $$

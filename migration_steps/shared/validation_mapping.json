@@ -1,20 +1,38 @@
 {
-    "client_persons": {
+    "cases": {
         "exclude": [
-            "caserecnumber"
+            "caserecnumber",
+            "person_id",
+            "assignee_id",
+            "donor_id",
+            "correspondent_id",
+            "client_id",
+            "feepayer_id"
         ],
         "overriden": [],
         "casrec": {
-            "from_table": "pat",
+            "from_table": "order",
             "overriden": {},
-            "joins": [],
-            "where_clauses": []
+            "joins": [
+                "LEFT JOIN casrec_csv.pat ON casrec_csv.pat.\"Case\" = casrec_csv.order.\"Case\""
+            ],
+            "where_clauses": [],
+            "order": {
+                "orderissuedate": "casrec_csv.order.\"Issue Date\" ASC"
+            }
         },
         "sirius": {
-            "from_table": "persons",
+            "from_table": "cases",
             "overriden": {},
-            "joins": [],
-            "where_clauses": []
+            "joins": [
+                "LEFT JOIN public.persons ON persons.id = cases.client_id"
+            ],
+            "where_clauses": [
+                "persons.type = 'actor_client'"
+            ],
+            "order": {
+                "orderissuedate": "cases.orderissuedate ASC"
+            }
         }
     },
     "client_addresses": {
@@ -33,7 +51,8 @@
                 "address_lines":  "getCasrecAddress(\"Adrs1\", \"Adrs2\", \"Adrs3\", \"Adrs4\")"
             },
             "joins": [],
-            "where_clauses": []
+            "where_clauses": [],
+            "order": {}
         },
         "sirius": {
             "from_table": "addresses",
@@ -45,7 +64,30 @@
             ],
             "where_clauses": [
                 "persons.type = 'actor_client'"
-            ]
+            ],
+            "order": {}
+        }
+    },
+    "client_persons": {
+        "exclude": [
+            "caserecnumber"
+        ],
+        "overriden": [],
+        "casrec": {
+            "from_table": "pat",
+            "overriden": {},
+            "joins": [],
+            "where_clauses": [],
+            "order": {}
+        },
+        "sirius": {
+            "from_table": "persons",
+            "overriden": {},
+            "joins": [],
+            "where_clauses": [
+                "persons.type = 'actor_client'"
+            ],
+            "order": {}
         }
     },
     "client_phonenumbers": {
@@ -57,7 +99,8 @@
             "from_table": "pat",
             "overriden": {},
             "joins": [],
-            "where_clauses": []
+            "where_clauses": [],
+            "order": {}
         },
         "sirius": {
             "from_table": "phonenumbers",
@@ -65,7 +108,10 @@
             "joins": [
                 "LEFT JOIN public.persons ON persons.id = phonenumbers.person_id"
             ],
-            "where_clauses": []
+            "where_clauses": [
+                "persons.type = 'actor_client'"
+            ],
+            "order": {}
         }
     }
 }
