@@ -11,7 +11,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION getCasrecAddress(ad1 varchar, ad2 varchar, ad3 varchar, ad4 varchar, ad5 varchar)
+CREATE OR REPLACE FUNCTION getCasrecAddress(ad1 varchar, ad2 varchar, ad3 varchar, ad4 varchar)
 RETURNS varchar AS $$
 DECLARE
     addressConcat varchar;
@@ -29,9 +29,6 @@ BEGIN
     END IF;
     IF (NULLIF(TRIM(ad4), '') IS NOT NULL) THEN
         addressConcat := addressConcat || ',' || ad4;
-    END IF;
-    IF (NULLIF(TRIM(ad5), '') IS NOT NULL) THEN
-        addressConcat := addressConcat || ',' || ad5;
     END IF;
 
     RETURN right(addressConcat,-1);

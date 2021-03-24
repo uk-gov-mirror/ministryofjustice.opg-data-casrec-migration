@@ -30,7 +30,7 @@
         "casrec": {
             "from_table": "pat",
             "overriden": {
-                "address_lines":  "getCasrecAddress(\"Adrs1\", \"Adrs2\", \"Adrs3\", \"Adrs4\", \"Adrs5\")"
+                "address_lines":  "getCasrecAddress(\"Adrs1\", \"Adrs2\", \"Adrs3\", \"Adrs4\")"
             },
             "joins": [],
             "where_clauses": []
