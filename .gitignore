@@ -47,3 +47,4 @@ migration_steps/shared/sql/temp/*.sql
 migration_steps/shared/sql/schemas/*.sql
 migration_steps/shared/mapping_definitions_old*
 validation.sql
+docs/support_scripts/create_json_responses/responses/*.csv
