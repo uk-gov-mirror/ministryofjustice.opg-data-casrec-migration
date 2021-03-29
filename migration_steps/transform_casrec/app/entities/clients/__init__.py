@@ -21,13 +21,22 @@ def runner(target_db, db_config):
     log.info(log_title(message="clients"))
 
     log.debug("insert_persons_clients")
-    insert_persons_clients(target_db=target_db, db_config=db_config)
+    insert_persons_clients(
+        target_db=target_db,
+        db_config=db_config,
+    )
 
     log.debug("insert_addresses_clients")
-    insert_addresses_clients(target_db=target_db, db_config=db_config)
+    insert_addresses_clients(
+        target_db=target_db,
+        db_config=db_config,
+    )
 
     log.debug("insert_phonenumbers_clients")
-    insert_phonenumbers_clients(target_db=target_db, db_config=db_config)
+    insert_phonenumbers_clients(
+        target_db=target_db,
+        db_config=db_config,
+    )
 
 
 if __name__ == "__main__":

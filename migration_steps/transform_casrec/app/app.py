@@ -2,10 +2,13 @@ import os
 import sys
 from pathlib import Path
 
+# from utilities.progress import update_progress
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, str(current_path) + "/../../shared")
 
+from decorators import files_used
+from progress import update_progress
 import logging
 import time
 import click
@@ -87,6 +90,7 @@ target_db = InsertData(db_engine=target_db_engine, schema=db_config["target_sche
 @click.option("-v", "--verbose", count=True)
 @timer
 def main(clear, include_tests, verbose, chunk_size):
+
     try:
         log.setLevel(verbosity_levels[verbose])
         log.info(f"{verbosity_levels[verbose]} logging enabled")
@@ -131,6 +135,10 @@ def main(clear, include_tests, verbose, chunk_size):
 
     if include_tests:
         run_data_tests(verbosity_level=verbosity_levels[verbose])
+
+    if environment == "local":
+        update_progress(module_name="transform", completed_items=files_used)
+        log.debug(f"Number of mapping docs used: {len(files_used)}")
 
 
 if __name__ == "__main__":

@@ -23,7 +23,10 @@ def runner(db_config, target_db):
     insert_cases(target_db=target_db, db_config=db_config)
 
     log.debug("insert_person_caseitem")
-    insert_person_caseitem(target_db=target_db, db_config=db_config)
+    insert_person_caseitem(
+        target_db=target_db,
+        db_config=db_config,
+    )
 
 
 if __name__ == "__main__":
