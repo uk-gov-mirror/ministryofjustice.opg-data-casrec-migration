@@ -3,6 +3,7 @@ import os
 import sys
 from pathlib import Path
 
+from dev_data_fixes import amend_dev_data
 from reset_sequences import reset_all_sequences, reset_all_uid_sequences
 from move import insert_data_into_target
 from move import update_data_in_target
@@ -11,7 +12,7 @@ current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, str(current_path) + "/../../../shared")
 
 from audit import run_audit
-import logging
+import logging.config
 import time
 import click
 from sqlalchemy import create_engine
@@ -19,7 +20,6 @@ import custom_logger
 from helpers import log_title
 from progress import update_progress
 import table_helpers
-
 from dotenv import load_dotenv
 
 
@@ -33,12 +33,12 @@ import helpers
 
 config = helpers.get_config(env=environment)
 
+
 # logging
-# custom_logger.custom_log_level(levels=config.custom_log_levels)
-config.custom_log_level()
-verbosity_levels = config.verbosity_levels
 log = logging.getLogger("root")
-log.addHandler(custom_logger.MyHandler())
+# custom_logger.setup_logging(env="environment")
+custom_logger.setup_logging(env=environment)
+
 
 # database
 db_config = {
@@ -54,17 +54,8 @@ completed_tables = []
 
 
 @click.command()
-@click.option("-v", "--verbose", count=True)
 @click.option("-a", "--audit", count=False)
-def main(verbose, audit):
-    try:
-        log.setLevel(verbosity_levels[verbose])
-        log.info(f"{verbosity_levels[verbose]} logging enabled")
-    except KeyError:
-        log.setLevel("INFO")
-        log.info(f"{verbose} is not a valid verbosity level")
-        log.info(f"INFO logging enabled")
-
+def main(audit):
     log.info(log_title(message="Load to Target Step: AKA do the migration already"))
     log.info(
         log_title(
@@ -72,6 +63,9 @@ def main(verbose, audit):
         )
     )
     log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
+
+    if environment != "preprod":
+        amend_dev_data(db_engine=target_db_engine)
 
     tables_dict = table_helpers.get_table_file()
     tables_list = table_helpers.get_table_list(tables_dict)
