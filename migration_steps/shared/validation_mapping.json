@@ -1,20 +1,34 @@
 {
-    "client_persons": {
+    "cases": {
         "exclude": [
-            "caserecnumber"
+            "caserecnumber",
+            "person_id",
+            "assignee_id",
+            "donor_id",
+            "correspondent_id",
+            "client_id",
+            "feepayer_id"
         ],
+        "orderby": ["orderdate"],
         "overriden": [],
         "casrec": {
-            "from_table": "pat",
+            "from_table": "order",
             "overriden": {},
-            "joins": [],
+            "joins": [
+                "LEFT JOIN casrec_csv.pat ON casrec_csv.pat.\"Case\" = casrec_csv.order.\"Case\""
+            ],
             "where_clauses": []
         },
         "sirius": {
-            "from_table": "persons",
+            "from_table": "cases",
             "overriden": {},
-            "joins": [],
-            "where_clauses": []
+            "joins": [
+                "LEFT JOIN public.persons ON persons.id = cases.client_id"
+            ],
+            "where_clauses": [
+                "persons.type = 'actor_client'",
+                "cases.casetype = 'ORDER'"
+            ]
         }
     },
     "client_addresses": {
@@ -27,6 +41,7 @@
         "overriden": [
             "address_lines"
         ],
+        "orderby": [],
         "casrec": {
             "from_table": "pat",
             "overriden": {
@@ -48,11 +63,33 @@
             ]
         }
     },
+    "client_persons": {
+        "exclude": [
+            "caserecnumber"
+        ],
+        "overriden": [],
+        "orderby": [],
+        "casrec": {
+            "from_table": "pat",
+            "overriden": {},
+            "joins": [],
+            "where_clauses": []
+        },
+        "sirius": {
+            "from_table": "persons",
+            "overriden": {},
+            "joins": [],
+            "where_clauses": [
+                "persons.type = 'actor_client'"
+            ]
+        }
+    },
     "client_phonenumbers": {
         "exclude": [
             "person_id"
         ],
         "overriden": [],
+        "orderby": [],
         "casrec": {
             "from_table": "pat",
             "overriden": {},
@@ -65,7 +102,9 @@
             "joins": [
                 "LEFT JOIN public.persons ON persons.id = phonenumbers.person_id"
             ],
-            "where_clauses": []
+            "where_clauses": [
+                "persons.type = 'actor_client'"
+            ]
         }
     }
 }
