@@ -62,7 +62,7 @@ def main(audit):
             message=f"Source: {db_config['source_schema']} Target: sirius.{db_config['target_schema']}"
         )
     )
-    log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
+    log.info(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
 
     if environment != "preprod":
         amend_dev_data(db_engine=target_db_engine)
