@@ -108,9 +108,9 @@ def main(clear, include_tests, chunk_size):
     # if clear:
     #     clear_tables(db_config=db_config)
 
-    # clients.runner(target_db=target_db, db_config=db_config)
-    # cases.runner(target_db=target_db, db_config=db_config)
-    # bonds.runner(target_db=target_db, db_config=db_config)
+    clients.runner(target_db=target_db, db_config=db_config)
+    cases.runner(target_db=target_db, db_config=db_config)
+    bonds.runner(target_db=target_db, db_config=db_config)
     # supervision_level.runner(target_db=target_db, db_config=db_config)
     # deputies.runner(target_db=target_db, db_config=db_config)
     #

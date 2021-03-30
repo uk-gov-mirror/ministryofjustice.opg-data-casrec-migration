@@ -14,38 +14,6 @@
 		}],
 		"order_by": ["id"]
 	},
-	"addresses": {
-		"pk": "id",
-		"fks": [
-			{
-				"column":"person_id",
-				"parent_table" : "persons",
-				"parent_column": "id"
-			}],
-		"table_type": "data",
-		"sequences": [{
-			"name": "addresses_id_seq",
-			"column": "id",
-			"type": "pk"
-		}],
-		"order_by": ["id"]
-	},
-	"phonenumbers": {
-		"table_type": "data",
-		"pk": "id",
-		"fks": [
-			{
-				"column":"person_id",
-				"parent_table" : "persons",
-				"parent_column": "id"
-			}],
-		"sequences": [{
-			"name": "phonenumbers_id_seq",
-			"column": "id",
-			"type": "pk"
-		}],
-		"order_by": ["id"]
-	},
 	"cases": {
 		"table_type": "data",
 		"pk": "id",
@@ -65,38 +33,6 @@
 		}],
 		"order_by": ["id"]
 	},
-	"person_caseitem": {
-		"pk": "",
-		"fks": [
-			{
-				"column":"person_id",
-				"parent_table" : "persons",
-				"parent_column": "id"
-			},{
-				"column":"caseitem_id",
-				"parent_table" : "cases",
-				"parent_column": "id"
-			}],
-		"table_type": "join",
-		"sequences": [],
-		"order_by": ["person_id", "caseitem_id"]
-	},
-	"supervision_level_log": {
-		"table_type": "data",
-		"pk": "id",
-		"fks": [
-			{
-				"column":"order_id",
-				"parent_table" : "cases",
-				"parent_column": "id"
-			}],
-		"sequences": [{
-			"name": "supervision_level_log_id_seq",
-			"column": "id",
-			"type": "pk"
-		}],
-		"order_by": ["id"]
-	},
 	"bonds": {
 		"table_type": "data",
 		"pk": "id",
@@ -112,48 +48,5 @@
 			"type": "pk"
 		}],
 		"order_by": ["id"]
-	},
-	"order_deputy": {
-		"pk": "id",
-		"fks": [
-			{
-				"column":"deputy_id",
-				"parent_table" : "persons",
-				"parent_column": "id"
-			},{
-				"column":"order_id",
-				"parent_table" : "cases",
-				"parent_column": "id"
-			}],
-		"table_type": "join",
-		"sequences": [],
-		"order_by": ["id"]
-	},
-	"notes": {
-		"table_type": "data",
-		"pk": "id",
-		"fks": [],
-		"sequences": [{
-			"name": "notes_id_seq",
-			"column": "id",
-			"type": "pk"
-		}],
-		"order_by": ["id"]
-	},
-	"caseitem_note": {
-		"pk": "",
-		"fks": [
-			{
-				"column":"note_id",
-				"parent_table" : "notes",
-				"parent_column": "id"
-			},{
-				"column":"caseitem_id",
-				"parent_table" : "cases",
-				"parent_column": "id"
-			}],
-		"table_type": "join",
-		"sequences": [],
-		"order_by": ["note_id", "caseitem_id"]
 	}
 }
