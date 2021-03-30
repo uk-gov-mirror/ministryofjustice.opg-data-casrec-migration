@@ -9,6 +9,7 @@
             "client_id",
             "feepayer_id"
         ],
+        "orderby": ["orderdate"],
         "overriden": [],
         "casrec": {
             "from_table": "order",
@@ -16,10 +17,7 @@
             "joins": [
                 "LEFT JOIN casrec_csv.pat ON casrec_csv.pat.\"Case\" = casrec_csv.order.\"Case\""
             ],
-            "where_clauses": [],
-            "order": {
-                "orderissuedate": "casrec_csv.order.\"Issue Date\" ASC"
-            }
+            "where_clauses": []
         },
         "sirius": {
             "from_table": "cases",
@@ -28,11 +26,9 @@
                 "LEFT JOIN public.persons ON persons.id = cases.client_id"
             ],
             "where_clauses": [
-                "persons.type = 'actor_client'"
-            ],
-            "order": {
-                "orderissuedate": "cases.orderissuedate ASC"
-            }
+                "persons.type = 'actor_client'",
+                "cases.casetype = 'ORDER'"
+            ]
         }
     },
     "client_addresses": {
@@ -45,14 +41,14 @@
         "overriden": [
             "address_lines"
         ],
+        "orderby": [],
         "casrec": {
             "from_table": "pat",
             "overriden": {
                 "address_lines":  "getCasrecAddress(\"Adrs1\", \"Adrs2\", \"Adrs3\", \"Adrs4\")"
             },
             "joins": [],
-            "where_clauses": [],
-            "order": {}
+            "where_clauses": []
         },
         "sirius": {
             "from_table": "addresses",
@@ -64,8 +60,7 @@
             ],
             "where_clauses": [
                 "persons.type = 'actor_client'"
-            ],
-            "order": {}
+            ]
         }
     },
     "client_persons": {
@@ -73,12 +68,12 @@
             "caserecnumber"
         ],
         "overriden": [],
+        "orderby": [],
         "casrec": {
             "from_table": "pat",
             "overriden": {},
             "joins": [],
-            "where_clauses": [],
-            "order": {}
+            "where_clauses": []
         },
         "sirius": {
             "from_table": "persons",
@@ -86,8 +81,7 @@
             "joins": [],
             "where_clauses": [
                 "persons.type = 'actor_client'"
-            ],
-            "order": {}
+            ]
         }
     },
     "client_phonenumbers": {
@@ -95,12 +89,12 @@
             "person_id"
         ],
         "overriden": [],
+        "orderby": [],
         "casrec": {
             "from_table": "pat",
             "overriden": {},
             "joins": [],
-            "where_clauses": [],
-            "order": {}
+            "where_clauses": []
         },
         "sirius": {
             "from_table": "phonenumbers",
@@ -110,8 +104,7 @@
             ],
             "where_clauses": [
                 "persons.type = 'actor_client'"
-            ],
-            "order": {}
+            ]
         }
     }
 }
