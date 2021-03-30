@@ -61,19 +61,20 @@ def main(clear):
             message=f"Source: {db_config['source_schema']} Target: {db_config['target_schema']}"
         )
     )
-    log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
-    tables_list = table_helpers.get_table_list(table_helpers.get_table_file())
+    log.info(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
+    log.info(f"Using log level {log.level}")
+    # tables_list = table_helpers.get_table_list(table_helpers.get_table_file())
 
-    if clear:
-        empty_target_tables(
-            db_config=db_config, db_engine=target_db_engine, tables=tables_list[:]
-        )
-
-    insert_base_data(db_config=db_config, db_engine=target_db_engine)
-
-    generate_inserts(
-        db_config=db_config, db_engine=target_db_engine, tables=tables_list
-    )
+    # if clear:
+    #     empty_target_tables(
+    #         db_config=db_config, db_engine=target_db_engine, tables=tables_list[:]
+    #     )
+    #
+    # insert_base_data(db_config=db_config, db_engine=target_db_engine)
+    #
+    # generate_inserts(
+    #     db_config=db_config, db_engine=target_db_engine, tables=tables_list
+    # )
 
     if environment == "local":
         update_progress(module_name="load_to_staging", completed_items=completed_tables)

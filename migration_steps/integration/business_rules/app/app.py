@@ -62,12 +62,13 @@ def main(clear):
             message=f"Source: {db_config['source_schema']} Target: {db_config['target_schema']}"
         )
     )
-    log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
+    log.info(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
+    log.info(f"Using log level {log.level}")
 
-    if clear:
-        clear_tables(db_engine=target_db_engine, db_config=db_config)
+    # if clear:
+    #     clear_tables(db_engine=target_db_engine, db_config=db_config)
 
-    insert_unique_uids(db_config=db_config, target_db_engine=target_db_engine)
+    # insert_unique_uids(db_config=db_config, target_db_engine=target_db_engine)
 
 
 if __name__ == "__main__":

@@ -63,53 +63,54 @@ def main(audit):
         )
     )
     log.info(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
+    log.info(f"Using log level {log.level}")
 
     if environment != "preproduction":
         amend_dev_data(db_engine=target_db_engine)
 
-    tables_dict = table_helpers.get_table_file()
-    tables_list = table_helpers.get_table_list(tables_dict)
-
-    if audit == "True":
-        log.info(f"Running Pre-Audit - Table Copies")
-        run_audit(target_db_engine, source_db_engine, "before", log, tables_list)
-        log.info(f"Finished Pre-Audit - Table Copies")
-
-    for i, table in enumerate(tables_list):
-
-        log.debug(f"This is table number {i + 1} of {len(tables_list)}")
-
-        insert_data_into_target(
-            db_config=db_config,
-            source_db_engine=source_db_engine,
-            target_db_engine=target_db_engine,
-            table_name=table,
-            table_details=tables_dict[table],
-        )
-        update_data_in_target(
-            db_config=db_config,
-            source_db_engine=source_db_engine,
-            table=table,
-            table_details=tables_dict[table],
-        )
-
-        completed_tables.append(table)
-
-    if environment == "local":
-        update_progress(module_name="load_to_sirius", completed_items=completed_tables)
-
-    if audit == "True":
-        log.info(f"Running Post-Audit - Table Copies and Comparisons")
-        run_audit(target_db_engine, source_db_engine, "after", log, tables_list)
-        log.info(f"Finished Post-Audit - Table Copies and Comparisons")
-
-    # Post migration db jobs
-    sequence_list = table_helpers.get_sequences_list(table_helpers.get_table_file())
-    reset_all_sequences(sequence_list=sequence_list, db_config=db_config)
-    uid_sequence_list = table_helpers.get_uid_sequences_list(
-        table_helpers.get_table_file()
-    )
-    reset_all_uid_sequences(uid_sequence_list=uid_sequence_list, db_config=db_config)
+    # tables_dict = table_helpers.get_table_file()
+    # tables_list = table_helpers.get_table_list(tables_dict)
+    #
+    # if audit == "True":
+    #     log.info(f"Running Pre-Audit - Table Copies")
+    #     run_audit(target_db_engine, source_db_engine, "before", log, tables_list)
+    #     log.info(f"Finished Pre-Audit - Table Copies")
+    #
+    # for i, table in enumerate(tables_list):
+    #
+    #     log.debug(f"This is table number {i + 1} of {len(tables_list)}")
+    #
+    #     insert_data_into_target(
+    #         db_config=db_config,
+    #         source_db_engine=source_db_engine,
+    #         target_db_engine=target_db_engine,
+    #         table_name=table,
+    #         table_details=tables_dict[table],
+    #     )
+    #     update_data_in_target(
+    #         db_config=db_config,
+    #         source_db_engine=source_db_engine,
+    #         table=table,
+    #         table_details=tables_dict[table],
+    #     )
+    #
+    #     completed_tables.append(table)
+    #
+    # if environment == "local":
+    #     update_progress(module_name="load_to_sirius", completed_items=completed_tables)
+    #
+    # if audit == "True":
+    #     log.info(f"Running Post-Audit - Table Copies and Comparisons")
+    #     run_audit(target_db_engine, source_db_engine, "after", log, tables_list)
+    #     log.info(f"Finished Post-Audit - Table Copies and Comparisons")
+    #
+    # # Post migration db jobs
+    # sequence_list = table_helpers.get_sequences_list(table_helpers.get_table_file())
+    # reset_all_sequences(sequence_list=sequence_list, db_config=db_config)
+    # uid_sequence_list = table_helpers.get_uid_sequences_list(
+    #     table_helpers.get_table_file()
+    # )
+    # reset_all_uid_sequences(uid_sequence_list=uid_sequence_list, db_config=db_config)
 
 
 if __name__ == "__main__":

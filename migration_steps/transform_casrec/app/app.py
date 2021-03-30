@@ -89,12 +89,14 @@ target_db = InsertData(db_engine=target_db_engine, schema=db_config["target_sche
 def main(clear, include_tests, chunk_size):
 
     log.info(log_title(message="Migration Step: Transform Casrec Data"))
+
     log.info(
         log_title(
             message=f"Source: {db_config['source_schema']} Target: {db_config['target_schema']}"
         )
     )
-    log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
+    log.info(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
+    log.info(f"Using log level {log.level}")
     version_details = helpers.get_json_version()
     log.info(
         f"Using JSON def version '{version_details['version_id']}' last updated {version_details['last_modified']}"
@@ -103,24 +105,24 @@ def main(clear, include_tests, chunk_size):
     db_config["chunk_size"] = chunk_size if chunk_size else 10000
     log.info(f"Chunking data at {chunk_size} rows")
 
-    if clear:
-        clear_tables(db_config=db_config)
+    # if clear:
+    #     clear_tables(db_config=db_config)
 
-    clients.runner(target_db=target_db, db_config=db_config)
-    cases.runner(target_db=target_db, db_config=db_config)
-    bonds.runner(target_db=target_db, db_config=db_config)
-    supervision_level.runner(target_db=target_db, db_config=db_config)
-    deputies.runner(target_db=target_db, db_config=db_config)
-
-    death.runner(target_db=target_db, db_config=db_config)
-    events.runner(target_db=target_db, db_config=db_config)
-    finance.runner(target_db=target_db, db_config=db_config)
-    remarks.runner(target_db=target_db, db_config=db_config)
-    reporting.runner(target_db=target_db, db_config=db_config)
-    tasks.runner(target_db=target_db, db_config=db_config)
-    teams.runner(target_db=target_db, db_config=db_config)
-    visits.runner(target_db=target_db, db_config=db_config)
-    warnings.runner(target_db=target_db, db_config=db_config)
+    # clients.runner(target_db=target_db, db_config=db_config)
+    # cases.runner(target_db=target_db, db_config=db_config)
+    # bonds.runner(target_db=target_db, db_config=db_config)
+    # supervision_level.runner(target_db=target_db, db_config=db_config)
+    # deputies.runner(target_db=target_db, db_config=db_config)
+    #
+    # death.runner(target_db=target_db, db_config=db_config)
+    # events.runner(target_db=target_db, db_config=db_config)
+    # finance.runner(target_db=target_db, db_config=db_config)
+    # remarks.runner(target_db=target_db, db_config=db_config)
+    # reporting.runner(target_db=target_db, db_config=db_config)
+    # tasks.runner(target_db=target_db, db_config=db_config)
+    # teams.runner(target_db=target_db, db_config=db_config)
+    # visits.runner(target_db=target_db, db_config=db_config)
+    # warnings.runner(target_db=target_db, db_config=db_config)
 
     if include_tests:
         run_data_tests(verbosity_level="DEBUG")
