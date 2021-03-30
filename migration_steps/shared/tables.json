@@ -128,5 +128,32 @@
 		"table_type": "join",
 		"sequences": [],
 		"order_by": ["id"]
+	},
+	"notes": {
+		"table_type": "data",
+		"pk": "id",
+		"fks": [],
+		"sequences": [{
+			"name": "notes_id_seq",
+			"column": "id",
+			"type": "pk"
+		}],
+		"order_by": ["id"]
+	},
+	"caseitem_note": {
+		"pk": "",
+		"fks": [
+			{
+				"column":"note_id",
+				"parent_table" : "notes",
+				"parent_column": "id"
+			},{
+				"column":"caseitem_id",
+				"parent_table" : "cases",
+				"parent_column": "id"
+			}],
+		"table_type": "join",
+		"sequences": [],
+		"order_by": ["note_id", "caseitem_id"]
 	}
 }

@@ -115,7 +115,7 @@ def main(clear, include_tests, chunk_size):
     death.runner(target_db=target_db, db_config=db_config)
     events.runner(target_db=target_db, db_config=db_config)
     finance.runner(target_db=target_db, db_config=db_config)
-    # remarks.runner(target_db=target_db, db_config=db_config)
+    remarks.runner(target_db=target_db, db_config=db_config)
     reporting.runner(target_db=target_db, db_config=db_config)
     tasks.runner(target_db=target_db, db_config=db_config)
     teams.runner(target_db=target_db, db_config=db_config)
