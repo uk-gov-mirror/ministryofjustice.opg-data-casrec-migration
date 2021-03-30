@@ -64,31 +64,32 @@ def main(clear):
             message=f"Source: {db_config['source_schema']} Target: {db_config['target_schema']}"
         )
     )
-    log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
+    log.info(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
+    log.info(f"Using log level {log.level}")
 
     log.info(f"Creating schema '{db_config['target_schema']}' if it doesn't exist")
-    create_schema(
-        target_db_connection=db_config["db_connection_string"],
-        schema_name=db_config["target_schema"],
-    )
-
-    if clear:
-        clear_tables(db_config)
-
-    table_details = table_helpers.get_table_file()
-
-    log.info(
-        f"Moving data from '{db_config['source_schema']}' schema to '{db_config['target_schema']}' schema"
-    )
-    move_all_tables(db_config=db_config, table_list=table_details)
-
-    log.info(f"Merge new data with existing data in Sirius")
-    match_existing_data(db_config=db_config, table_details=table_details)
-
-    log.info(f"Reindex all primary keys")
-    update_pks(db_config=db_config, table_details=table_details)
-    log.info(f"Reindex all foreign keys")
-    update_fks(db_config=db_config, table_details=table_details)
+    # create_schema(
+    #     target_db_connection=db_config["db_connection_string"],
+    #     schema_name=db_config["target_schema"],
+    # )
+    #
+    # if clear:
+    #     clear_tables(db_config)
+    #
+    # table_details = table_helpers.get_table_file()
+    #
+    # log.info(
+    #     f"Moving data from '{db_config['source_schema']}' schema to '{db_config['target_schema']}' schema"
+    # )
+    # move_all_tables(db_config=db_config, table_list=table_details)
+    #
+    # log.info(f"Merge new data with existing data in Sirius")
+    # match_existing_data(db_config=db_config, table_details=table_details)
+    #
+    # log.info(f"Reindex all primary keys")
+    # update_pks(db_config=db_config, table_details=table_details)
+    # log.info(f"Reindex all foreign keys")
+    # update_fks(db_config=db_config, table_details=table_details)
 
 
 if __name__ == "__main__":
