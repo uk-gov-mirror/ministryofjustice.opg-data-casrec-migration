@@ -9,8 +9,17 @@
             "client_id",
             "feepayer_id"
         ],
-        "orderby": ["orderdate"],
         "overriden": [],
+        "orderby": {
+            "casesubtype": {
+                "mapping_table": "cases.casesubtype",
+                "direction": "ASC"
+            },
+            "orderdate": {
+                "mapping_table": "cases.orderdate",
+                "direction": "ASC"
+            }
+        },
         "casrec": {
             "from_table": "order",
             "overriden": {},
@@ -41,7 +50,7 @@
         "overriden": [
             "address_lines"
         ],
-        "orderby": [],
+        "orderby": {},
         "casrec": {
             "from_table": "pat",
             "overriden": {
@@ -68,7 +77,7 @@
             "caserecnumber"
         ],
         "overriden": [],
-        "orderby": [],
+        "orderby": {},
         "casrec": {
             "from_table": "pat",
             "overriden": {},
@@ -89,7 +98,7 @@
             "person_id"
         ],
         "overriden": [],
-        "orderby": [],
+        "orderby": {},
         "casrec": {
             "from_table": "pat",
             "overriden": {},
