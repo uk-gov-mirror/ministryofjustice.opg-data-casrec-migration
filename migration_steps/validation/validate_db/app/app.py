@@ -188,15 +188,23 @@ def get_wrapped_casrec_col(col, mapped_item):
     if datatype not in ["bool", "int"]:
         col = f"NULLIF(TRIM({col}), '')"
 
-        if datatype in ["date"]:
-            col = f"CAST(NULLIF(NULLIF(TRIM({col}), 'NaT'), '') AS DATE)"
-        elif datatype in ["datetime"]:
-            if "current_date" == calculated:
-                col = f"CAST(NULLIF(TRIM({col}), '') AS DATE)"
-            else:
-                col = (
-                    f"CAST(NULLIF(NULLIF(TRIM({col}), 'NaT'), '') AS TIMESTAMP(0))"
-                )
+    # wrap fransform
+    if col_definition["transform_casrec"]["requires_transformation"]:
+        transform_func = col_definition["transform_casrec"]["requires_transformation"]
+        col = f"transf_{transform_func}({col})"
+
+    # cast to datatype
+    if datatype in ["date"]:
+        col = f"CAST(NULLIF(NULLIF(TRIM({col}), 'NaT'), '') AS DATE)"
+    elif datatype in ["datetime"]:
+        if "current_date" == calculated:
+            col = f"CAST(NULLIF(TRIM({col}), '') AS DATE)"
+        else:
+            col = (
+                f"CAST(NULLIF(NULLIF(TRIM({col}), 'NaT'), '') AS TIMESTAMP(0))"
+            )
+    elif datatype in ["int"]:
+        col = f"CAST({col} AS INT)"
 
     return col
 
@@ -256,10 +264,6 @@ def get_casrec_col_source(mapped_item):
     elif "" != col_definition["calculated"]:
         col = get_casrec_calculated_value(mapped_item)
 
-    if "" != col_definition["requires_transformation"]:
-        transform_func = col_definition["requires_transformation"]
-        col = f"transf_{transform_func}({col})"
-
     return col
 
 
@@ -270,8 +274,6 @@ def casrec_wrap(mapped_item):
 
 
 def build_validation_statements(mapping_name):
-    casrec_overridden_cols = validation_dict[mapping_name]['casrec']['overriden']
-    sirius_overridden_cols = validation_dict[mapping_name]['sirius']['overriden']
     exclude_cols = validation_dict[mapping_name]['exclude'] + list(validation_dict[mapping_name]['orderby'].keys())
     order_by = ",\n        ".join(['caserecnumber ASC'] + list(validation_dict[mapping_name]['orderby'].keys()))
     col_separator = ",\n"
@@ -284,7 +286,7 @@ def build_validation_statements(mapping_name):
     sql_add("pat.\"Case\" AS caserecnumber,", 3)
 
     # overridden cols (normally run through plsql transform routines)
-    for colname, col in casrec_overridden_cols.items():
+    for colname, col in validation_dict[mapping_name]['casrec']['overriden'].items():
         sql_add(f"{col} AS {colname},", 3)
 
     # forced order cols
@@ -317,12 +319,10 @@ def build_validation_statements(mapping_name):
     # SIRIUS half
     sql_add("SELECT * FROM(", 1)
     sql_add("SELECT DISTINCT", 2)
-
-    #caserec col
     sql_add(f"persons.caserecnumber AS caserecnumber,", 3)
 
     # overridden cols (normally run through plsql transform routines)
-    for colname, col in sirius_overridden_cols.items():
+    for colname, col in validation_dict[mapping_name]['sirius']['overriden'].items():
         sql_add(f"{col} AS {colname},", 3)
 
     # forced order cols
@@ -372,7 +372,8 @@ def write_column_validation_sql(mapping_name, mapped_item, col_source_casrec, co
     # casrec half
     sql_add("SELECT * FROM(", 2)
     sql_add("SELECT", 3)
-    sql_add("exc_table.caserecnumber,", 4) # caserecnumber
+    # caserecnumber
+    sql_add("exc_table.caserecnumber AS caserecnumber,", 4)
     # forced order cols
     for order_mapped_item_name, order_mapped_item in validation_dict[mapping_name]['orderby'].items():
         sql_add(f"{casrec_wrap(order_mapped_item)} AS {order_mapped_item_name},", 4)
@@ -387,6 +388,7 @@ def write_column_validation_sql(mapping_name, mapped_item, col_source_casrec, co
     sql_add("WHERE exc_table.caserecnumber IS NOT NULL", 3)
     for where_clause in validation_dict[mapping_name]['casrec']['where_clauses']:
         sql_add(f"AND {where_clause}", 2)
+
     sql_add(f"ORDER BY {order_by}", 2)
     sql_add(") as csv_data", 2)
 
@@ -395,7 +397,8 @@ def write_column_validation_sql(mapping_name, mapped_item, col_source_casrec, co
     # sirius half
     sql_add("SELECT * FROM(", 2)
     sql_add("SELECT", 3)
-    sql_add("exc_table.caserecnumber,", 4) # caserecnumber
+    # caserecnumber
+    sql_add("exc_table.caserecnumber AS caserecnumber,", 4)
     # forced order cols
     for order_mapped_item_name, order_mapped_item in validation_dict[mapping_name]['orderby'].items():
         sql_add(f"{sirius_wrap(order_mapped_item)} AS {order_mapped_item_name},", 4)
@@ -523,6 +526,7 @@ def pre_validation():
         mapping_dict = helpers.get_mapping_dict(
             file_name=mapping_name + "_mapping", only_complete_fields=True, include_pk=False
         )
+
         log.info(mapping_name)
 
         log.info("- Exception Table")
@@ -533,7 +537,7 @@ def pre_validation():
 
         log.info("- Column Validation Statements")
         build_column_validation_statements(mapping_name)
-    #
+
     write_validation_sql()
 
 
