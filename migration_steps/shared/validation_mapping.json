@@ -1,13 +1,48 @@
 {
+    "bonds": {
+        "exclude": [
+            "order_id"
+        ],
+        "overriden": [],
+        "orderby": {
+            "casesubtype": {
+                "mapping_table": "cases.casesubtype",
+                "direction": "ASC"
+            },
+            "orderdate": {
+                "mapping_table": "cases.orderdate",
+                "direction": "ASC"
+            }
+        },
+        "casrec": {
+            "from_table": "order",
+            "overriden": {},
+            "joins": [
+                "LEFT JOIN casrec_csv.pat ON casrec_csv.pat.\"Case\" = casrec_csv.order.\"Case\""
+            ],
+            "where_clauses": [
+                "casrec_csv.order.\"Bond No.\" != ''"
+            ]
+        },
+        "sirius": {
+            "from_table": "bonds",
+            "overriden": {},
+            "joins": [
+                "LEFT JOIN public.cases ON cases.id = bonds.order_id",
+                "LEFT JOIN public.persons ON persons.id = cases.client_id"
+            ],
+            "where_clauses": []
+        }
+    },
     "cases": {
         "exclude": [
-            "caserecnumber",
-            "person_id",
             "assignee_id",
-            "donor_id",
-            "correspondent_id",
+            "caserecnumber",
             "client_id",
-            "feepayer_id"
+            "correspondent_id",
+            "donor_id",
+            "feepayer_id",
+            "person_id"
         ],
         "overriden": [],
         "orderby": {

@@ -47,6 +47,7 @@ source_schema = config.schemas["pre_transform"]
 mapping_dict = None
 
 mappings_to_run = [
+    "bonds",
     "cases",
     "client_addresses",
     "client_persons",
@@ -382,7 +383,10 @@ def write_column_validation_sql(mapping_name, mapped_item, col_source_casrec, co
         sql_add(f"{join}", 3)
     sql_add(f"LEFT JOIN {get_exception_table(mapping_name)} exc_table", 3)
     sql_add('ON exc_table.caserecnumber = pat."Case"', 4)
+    # WHERE
     sql_add("WHERE exc_table.caserecnumber IS NOT NULL", 3)
+    for where_clause in validation_dict[mapping_name]['casrec']['where_clauses']:
+        sql_add(f"AND {where_clause}", 2)
     sql_add(f"ORDER BY {order_by}", 2)
     sql_add(") as csv_data", 2)
 
@@ -402,7 +406,10 @@ def write_column_validation_sql(mapping_name, mapped_item, col_source_casrec, co
         sql_add(f"{join}", 3)
     sql_add(f"LEFT JOIN {get_exception_table(mapping_name)} exc_table", 3)
     sql_add("ON exc_table.caserecnumber = persons.caserecnumber", 4)
+    # WHERE
     sql_add("WHERE exc_table.caserecnumber IS NOT NULL", 3)
+    for where_clause in validation_dict[mapping_name]['sirius']['where_clauses']:
+        sql_add(f"AND {where_clause}", 2)
     sql_add(f"ORDER BY {order_by}", 2)
     sql_add(") as sirius_data", 2)
 
