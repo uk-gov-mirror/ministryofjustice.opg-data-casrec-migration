@@ -65,10 +65,10 @@ def main(clear):
     log.info(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
     log.info(f"Using log level {log.level}")
 
-    # if clear:
-    #     clear_tables(db_engine=target_db_engine, db_config=db_config)
-    #
-    # insert_unique_uids(db_config=db_config, target_db_engine=target_db_engine)
+    if clear:
+        clear_tables(db_engine=target_db_engine, db_config=db_config)
+
+    insert_unique_uids(db_config=db_config, target_db_engine=target_db_engine)
 
 
 if __name__ == "__main__":
