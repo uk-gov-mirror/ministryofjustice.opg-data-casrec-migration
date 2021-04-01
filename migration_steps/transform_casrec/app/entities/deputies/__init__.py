@@ -29,24 +29,20 @@ def runner(target_db, db_config):
 
     log.debug("insert_phonenumbers_deputies")
     insert_phonenumbers_deputies_daytime(
-        target_db=target_db,
-        db_config=db_config,
+        target_db=target_db, db_config=db_config,
     )
     insert_phonenumbers_deputies_evening(
-        target_db=target_db,
-        db_config=db_config,
+        target_db=target_db, db_config=db_config,
     )
 
     log.debug("insert_addresses_deputies")
     insert_addresses_deputies(
-        target_db=target_db,
-        db_config=db_config,
+        target_db=target_db, db_config=db_config,
     )
 
     log.debug("insert_order_deputies")
     insert_order_deputies(
-        target_db=target_db,
-        db_config=db_config,
+        target_db=target_db, db_config=db_config,
     )
 
 

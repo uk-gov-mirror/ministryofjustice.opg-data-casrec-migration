@@ -10,9 +10,7 @@ from data_tests.helpers import (
 log = logging.getLogger("root")
 
 
-def test_deputy_address_joins(
-    test_config,
-):
+def test_deputy_address_joins(test_config,):
 
     config = test_config
     source_query = f"""

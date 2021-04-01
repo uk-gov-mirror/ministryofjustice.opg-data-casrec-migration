@@ -4,11 +4,7 @@ from pytest_cases import case
 @case(id="current_date called")
 def case_current_date():
     test_calculation = {
-        "current_date": [
-            {
-                "column_name": "todays_date",
-            },
-        ],
+        "current_date": [{"column_name": "todays_date",},],
         "conditional_lookup": [
             {"column_name": "dateofdeath", "lookup_table": "death_lookup"},
         ],

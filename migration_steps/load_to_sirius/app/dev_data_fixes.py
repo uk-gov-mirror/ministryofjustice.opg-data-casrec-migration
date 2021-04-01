@@ -29,9 +29,6 @@ def amend_dev_data(db_engine):
 
         log.error(
             f"Error amending Sirius DB",
-            extra={
-                "file_name": "",
-                "error": format_error_message(e=e),
-            },
+            extra={"file_name": "", "error": format_error_message(e=e),},
         )
         os._exit(1)

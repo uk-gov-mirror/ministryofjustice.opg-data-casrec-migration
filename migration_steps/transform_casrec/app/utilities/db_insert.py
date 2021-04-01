@@ -5,7 +5,6 @@ import sys
 import os
 from pathlib import Path
 
-
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, str(current_path) + "/../../../shared")
 
@@ -195,7 +194,6 @@ class InsertData:
         return statement
 
     def _check_datatypes(self, mapping_details, df):
-        log.debug("Checking df datatypes against mapping dict")
         pandas_to_db_map = {
             "text": ["object"],
             "int": ["Int64", "Int32", "int64"],
@@ -214,7 +212,6 @@ class InsertData:
                 pass
 
         datatypes_match = True if non_matching_count == 0 else False
-        log.debug(f"datatypes_match: {datatypes_match}")
 
         return datatypes_match
 
@@ -222,11 +219,20 @@ class InsertData:
     def insert_data(self, table_name, df, sirius_details=None, chunk_no=None):
 
         if not self._check_datatypes(mapping_details=sirius_details, df=df):
-            log.error("Datatypes do not match")
+            log.error(
+                "Datatypes do not match",
+                extra={
+                    "db_table": table_name,
+                    "error_message": "datatypes do not match",
+                },
+            )
             os._exit(1)
 
         if len(df) == 0:
-            log.error("No data in dataframe, there is a problem!")
+            log.error(
+                "No data in dataframe, there is a problem!",
+                extra={"db_table": table_name, "error_message": "empty df"},
+            )
             os._exit(1)
 
         if chunk_no:
@@ -240,7 +246,6 @@ class InsertData:
         if self._check_table_exists(table_name=table_name):
             col_diff = self._check_columns_exist(table_name, df)
             if len(col_diff) > 0:
-
                 add_missing_colums_statement = self._add_missing_columns_with_datatypes(
                     table_name, col_diff, mapping_details=sirius_details
                 )
@@ -258,9 +263,23 @@ class InsertData:
         try:
 
             self.db_engine.execute(insert_statement)
-        except Exception:
+            log.debug(
+                f"Inserted data into {table_name}",
+                extra={
+                    "db_table": table_name,
+                    "action": "insert",
+                    "rows": len(df),
+                    "chunk_no": chunk_no if chunk_no else None,
+                },
+            )
 
-            log.error(f"There was a problem inserting into {table_name}")
+        except Exception as e:
+            log.error(
+                f"There was a problem inserting into {table_name}",
+                extra={
+                    "db_table": table_name,
+                    "action": "insert",
+                    "error_message": str(e).split("\n")[0],
+                },
+            )
             os._exit(1)
-        inserted_count = len(df)
-        log.info(f"Inserted {inserted_count} records into '{table_name}' table")

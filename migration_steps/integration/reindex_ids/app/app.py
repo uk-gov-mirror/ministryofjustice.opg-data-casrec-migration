@@ -88,8 +88,8 @@ def main(clear):
 
     log.info(f"Reindex all primary keys")
     update_pks(db_config=db_config, table_details=table_details)
-    log.info(f"Reindex all foreign keys")
-    update_fks(db_config=db_config, table_details=table_details)
+    # log.info(f"Reindex all foreign keys")
+    # update_fks(db_config=db_config, table_details=table_details)
 
 
 if __name__ == "__main__":

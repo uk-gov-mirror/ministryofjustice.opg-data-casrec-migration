@@ -24,8 +24,7 @@ def runner(db_config, target_db):
 
     log.debug("insert_person_caseitem")
     insert_person_caseitem(
-        target_db=target_db,
-        db_config=db_config,
+        target_db=target_db, db_config=db_config,
     )
 
 

@@ -9,19 +9,12 @@ log = logging.getLogger("root")
 
 
 @parametrize_with_cases(
-    (
-        "source_query",
-        "transformed_query",
-        "module_name",
-    ),
+    ("source_query", "transformed_query", "module_name",),
     cases=list_of_test_cases,
     has_tag="row_count",
 )
 def test_row_counts(
-    test_config,
-    source_query,
-    transformed_query,
-    module_name,
+    test_config, source_query, transformed_query, module_name,
 ):
     log.debug(f"module_name: {module_name}")
 
@@ -34,9 +27,7 @@ def test_row_counts(
     assert source_sample_df.shape[0] > 0
 
     transformed_df = get_data_from_query(
-        query=transformed_query,
-        config=config,
-        sample=False,
+        query=transformed_query, config=config, sample=False,
     )
 
     assert transformed_df.shape[0] > 0

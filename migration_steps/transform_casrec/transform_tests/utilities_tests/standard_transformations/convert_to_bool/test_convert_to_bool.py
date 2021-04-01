@@ -27,12 +27,7 @@ def test_convert_to_bool_shape(
 
 
 @parametrize_with_cases(
-    (
-        "test_data_df",
-        "original_col",
-        "new_col",
-        "expected_result",
-    ),
+    ("test_data_df", "original_col", "new_col", "expected_result",),
     cases=cases_convert_to_bool_data,
 )
 def test_convert_to_bool_data(test_data_df, original_col, new_col, expected_result):

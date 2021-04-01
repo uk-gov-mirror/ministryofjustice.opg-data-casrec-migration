@@ -1,3 +1,4 @@
+import inspect
 import json
 import os
 import logging
@@ -41,6 +42,7 @@ class MyHandler(colourlog.StreamHandler):
 class CustomJsonFormatter(jsonlogger.JsonFormatter):
     def add_fields(self, log_record, record, message_dict):
         super(CustomJsonFormatter, self).add_fields(log_record, record, message_dict)
+
         if not log_record.get("timestamp"):
             # this doesn't use record.created, so it is slightly off
             now = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
@@ -71,6 +73,10 @@ def setup_logging(env, level=None):
             self._log(DATA_LEVELV_NUM, message, args, **kws)
 
     logging.Logger.data = data
+    fmt_string = (
+        "%(asctime)s %(levelname)s  %(name)s %(message)s %(filename)s %("
+        "lineno)s %(funcName)s %(db_table)s %(error_message)s"
+    )
 
     if env == "local":
         level = level if level else "VERBOSE"
@@ -78,7 +84,7 @@ def setup_logging(env, level=None):
     else:
         level = "DEBUG"
         logHandler = logging.StreamHandler()
-        formatter = CustomJsonFormatter("%(timestamp)s %(level)s %(name)s %(message)s")
+        formatter = CustomJsonFormatter(fmt_string)
         logHandler.setFormatter(formatter)
         log.addHandler(logHandler)
     log.setLevel(level)

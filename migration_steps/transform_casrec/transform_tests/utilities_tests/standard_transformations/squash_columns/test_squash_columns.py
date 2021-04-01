@@ -28,12 +28,7 @@ def test_squash_columns_shape(
 
 
 @parametrize_with_cases(
-    (
-        "test_data_df",
-        "cols_to_squash",
-        "new_col",
-        "expected_result",
-    ),
+    ("test_data_df", "cols_to_squash", "new_col", "expected_result",),
     cases=cases_squash_columns_data,
 )
 def test_squash_columns_data(test_data_df, cols_to_squash, new_col, expected_result):

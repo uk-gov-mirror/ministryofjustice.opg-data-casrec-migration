@@ -164,23 +164,13 @@ expected_default_values_dict = {
 
 expected_transformations_dict = {
     "unique_number": [
-        {
-            "original_columns": "",
-            "aggregate_col": "uid",
-        },
-        {
-            "original_columns": "",
-            "aggregate_col": "another_uid",
-        },
+        {"original_columns": "", "aggregate_col": "uid",},
+        {"original_columns": "", "aggregate_col": "another_uid",},
     ],
 }
 
 expected_calculated_fields_dict = {
-    "current_date": [
-        {
-            "column_name": "todays_date",
-        },
-    ],
+    "current_date": [{"column_name": "todays_date",},],
     # "conditional_lookup": [
     #     {
     #         "column_name": "dateofdeath",

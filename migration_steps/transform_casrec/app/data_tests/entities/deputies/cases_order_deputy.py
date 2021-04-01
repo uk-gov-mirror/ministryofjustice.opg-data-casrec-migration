@@ -47,10 +47,7 @@ def case_order_deputies_con_lookups(test_config):
 
     lookup_fields = {
         "statuschangedate": {
-            "cols": {
-                "result": "Disch Death",
-                "reference": "Stat",
-            },
+            "cols": {"result": "Disch Death", "reference": "Stat",},
             "lookup_def": "discharge_date_lookup",
         }
     }

@@ -1,47 +1,9 @@
 {
-	"persons": {
-		"table_type": "data",
-		"pk": "id",
-		"fks": [],
-		"sequences": [{
-			"name": "persons_id_seq",
-			"column": "id",
-			"type": "pk"
-		},{
-			"name": "global_uid_seq",
-			"column": "uid",
-			"type": "uid"
-		}],
-		"order_by": ["id"]
-	},
-	"cases": {
-		"table_type": "data",
-		"pk": "id",
-		"fks": [{
-			"column": "client_id",
-			"parent_table": "persons",
-			"parent_column": "id"
-		}],
-		"sequences": [{
-			"name": "cases_id_seq",
-			"column": "id",
-			"type": "pk"
-		},{
-			"name": "global_uid_seq",
-			"column": "uid",
-			"type": "uid"
-		}],
-		"order_by": ["id"]
-	},
+
 	"bonds": {
 		"table_type": "data",
 		"pk": "id",
-		"fks": [
-			{
-				"column":"order_id",
-				"parent_table" : "cases",
-				"parent_column": "id"
-			}],
+		"fks": [],
 		"sequences": [{
 			"name": "bonds_id_seq",
 			"column": "id",

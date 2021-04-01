@@ -42,11 +42,7 @@ def test_one_to_one_joins(
 
     config = test_config
 
-    fk_child_df = get_data_from_query(
-        query=fk_child_query,
-        config=config,
-        sample=True,
-    )
+    fk_child_df = get_data_from_query(query=fk_child_query, config=config, sample=True,)
 
     sample_caserefs = get_merge_col_data_as_list(
         df=fk_child_df, column_name=merge_columns["fk_child"]

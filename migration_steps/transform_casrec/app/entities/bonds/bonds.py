@@ -16,14 +16,14 @@ def insert_bonds(target_db, db_config):
     offset = 0
     chunk_no = 1
 
-    existing_cases_query = f"""
-        SELECT c_cop_case, c_bond_no, id from {db_config['target_schema']}.cases;
-    """
-
-    existing_cases_df = pd.read_sql_query(
-        existing_cases_query, db_config["db_connection_string"]
-    )
-    existing_cases_df = existing_cases_df.loc[existing_cases_df["c_bond_no"].notnull()]
+    # existing_cases_query = f"""
+    #     SELECT c_cop_case, c_bond_no, id from {db_config['target_schema']}.cases;
+    # """
+    #
+    # existing_cases_df = pd.read_sql_query(
+    #     existing_cases_query, db_config["db_connection_string"]
+    # )
+    # existing_cases_df = existing_cases_df.loc[existing_cases_df["c_bond_no"].notnull()]
 
     while True:
         try:
@@ -34,27 +34,27 @@ def insert_bonds(target_db, db_config):
                 chunk_details={"chunk_size": chunk_size, "offset": offset},
             )
 
-            bonds_cases_joined_df = bonds_df.merge(
-                existing_cases_df,
-                how="left",
-                left_on="c_cop_case",
-                right_on="c_cop_case",
-            )
-
-            bonds_cases_joined_df = bonds_cases_joined_df.rename(
-                columns={"id_x": "id", "id_y": "order_id"}
-            )
-
-            bonds_cases_joined_df = reapply_datatypes_to_fk_cols(
-                columns=["order_id"], df=bonds_cases_joined_df
-            )
-            bonds_cases_joined_df = bonds_cases_joined_df.loc[
-                bonds_cases_joined_df["bondreferencenumber"] != ""
-            ]
+            # bonds_cases_joined_df = bonds_df.merge(
+            #     existing_cases_df,
+            #     how="left",
+            #     left_on="c_cop_case",
+            #     right_on="c_cop_case",
+            # )
+            #
+            # bonds_cases_joined_df = bonds_cases_joined_df.rename(
+            #     columns={"id_x": "id", "id_y": "order_id"}
+            # )
+            #
+            # bonds_cases_joined_df = reapply_datatypes_to_fk_cols(
+            #     columns=["order_id"], df=bonds_cases_joined_df
+            # )
+            # bonds_cases_joined_df = bonds_cases_joined_df.loc[
+            #     bonds_cases_joined_df["bondreferencenumber"] != ""
+            # ]
 
             target_db.insert_data(
                 table_name=definition["destination_table_name"],
-                df=bonds_cases_joined_df,
+                df=bonds_df,
                 sirius_details=sirius_details,
                 chunk_no=chunk_no,
             )
