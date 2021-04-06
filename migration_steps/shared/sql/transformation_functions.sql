@@ -19,6 +19,15 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- money_poundPence
+CREATE OR REPLACE FUNCTION transf_money_poundPence(source character)
+    RETURNS decimal AS $$
+DECLARE
+BEGIN
+    RETURN ROUND(source::numeric, 2);
+END;
+$$ LANGUAGE plpgsql;
+
 
 CREATE OR REPLACE FUNCTION getCasrecAddress(ad1 varchar, ad2 varchar, ad3 varchar, ad4 varchar)
 RETURNS varchar AS $$
