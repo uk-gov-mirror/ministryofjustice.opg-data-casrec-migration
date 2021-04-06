@@ -69,11 +69,11 @@ def main(clear):
             db_config=db_config, db_engine=target_db_engine, tables=tables_list[:]
         )
 
-    insert_base_data(db_config=db_config, db_engine=target_db_engine)
+    if insert_base_data(db_config=db_config, db_engine=target_db_engine):
 
-    generate_inserts(
-        db_config=db_config, db_engine=target_db_engine, tables=tables_list
-    )
+        generate_inserts(
+            db_config=db_config, db_engine=target_db_engine, tables=tables_list
+        )
 
     if environment == "local":
         update_progress(module_name="load_to_staging", completed_items=completed_tables)
