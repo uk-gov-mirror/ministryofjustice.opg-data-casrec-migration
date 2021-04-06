@@ -75,6 +75,10 @@ docker-compose run --rm load_to_target python3 app.py
 docker-compose run --rm validation validation/validate.sh
 ```
 
+You will be asked if you want to resynch your data from development s3. You can just hit enter if you don't.
+
+If you do then you will need to enter your aws vault password and 2FA.
+
 Running the steps (Non-dockerised):
 
 Note - the steps rely on data passed forward by the chain, so your safest bet is to run ./migrate  - but for debugging.
