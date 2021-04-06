@@ -17,7 +17,8 @@ def insert_base_data(db_config, db_engine):
         INSERT INTO {db_config['target_schema']}.assignees(id, name, type)
             VALUES
             (10, 'casrec migration', 'default'),
-            (1, 'casrec migration', 'default');
+--             (1, 'casrec migration', 'default');
+            (2, 'casrec migration', 'default');
         """,
         "bond_providers": f"""
         insert into {db_config['target_schema']}.bond_providers (id, name, oneoffvalue, telephonenumber, emailaddress, webaddress, uid)
