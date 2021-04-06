@@ -2,6 +2,13 @@
 set -e
 # Whether to skip all the casrec loading.
 # Change to true to reload (only do this if sure the data in casrec_csv schema is correct)
+if [ "${CI}" != "true" ]
+then
+  read -p "Do you want to resynch? (y/n) [n]: " RESYNCH
+  RESYNCH=${RESYNCH:-n}
+  echo $RESYNCH
+fi
+
 NO_RELOAD=false
 GENERATE_DOCS=false
 if [ "${NO_RELOAD}" == "true" ]
@@ -20,7 +27,12 @@ if [ "${NO_RELOAD}" != "true" ]
 then
   if [ "${CI}" != "true" ]
   then
-    docker-compose run --rm load_s3 python3 load_s3_local.py
+      if [ ${RESYNCH} == "y" ]
+      then
+        aws-vault exec identity -- docker-compose run --rm load_s3 ./local_s3.sh -s TRUE
+      else
+        docker-compose run --rm load_s3 ./local_s3.sh
+      fi
   else
     RESTORE_DOCKER_ID=$(docker ps -a | grep sirius-restore | awk {'print $1'})
     docker cp sirius_db/db_snapshots/api.backup ${RESTORE_DOCKER_ID}:/db_snapshots/api.backup
