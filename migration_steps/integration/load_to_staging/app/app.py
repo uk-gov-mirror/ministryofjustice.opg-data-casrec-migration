@@ -1,5 +1,6 @@
 import os
 import sys
+import threading
 from pathlib import Path
 
 from clear_database import empty_target_tables
@@ -44,6 +45,37 @@ db_config = {
     "target_schema": config.schemas["pre_migration"],
 }
 target_db_engine = create_engine(db_config["db_connection_string"])
+result = None
+tables_list = table_helpers.get_table_list(table_helpers.get_table_file())
+
+
+def clear_tables():
+    empty_target_tables(
+        db_config=db_config, db_engine=target_db_engine, tables=tables_list[:]
+    )
+
+    global result
+    result = "empty_target_tables complete"
+
+
+def base_data():
+    insert_base_data(db_config=db_config, db_engine=target_db_engine)
+    global result
+    result = "base_data complete"
+
+
+def inserts():
+    generate_inserts(
+        db_config=db_config, db_engine=target_db_engine, tables=tables_list
+    )
+    global result
+    result = "inserts complete"
+
+
+def update():
+    update_progress(module_name="load_to_staging", completed_items=completed_tables)
+    global result
+    result = "update complete"
 
 
 @click.command()
@@ -62,21 +94,19 @@ def main(clear):
         )
     )
     log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
-    tables_list = table_helpers.get_table_list(table_helpers.get_table_file())
+
+    work = [base_data, inserts]
 
     if clear:
-        empty_target_tables(
-            db_config=db_config, db_engine=target_db_engine, tables=tables_list[:]
-        )
-
-    insert_base_data(db_config=db_config, db_engine=target_db_engine)
-
-    generate_inserts(
-        db_config=db_config, db_engine=target_db_engine, tables=tables_list
-    )
-
+        work.insert(0, clear_tables)
     if environment == "local":
-        update_progress(module_name="load_to_staging", completed_items=completed_tables)
+        work.append(update)
+
+    for item in work:
+        thread = threading.Thread(target=item)
+        thread.start()
+        thread.join()
+        log.debug(f"Result: {result}")
 
 
 if __name__ == "__main__":
