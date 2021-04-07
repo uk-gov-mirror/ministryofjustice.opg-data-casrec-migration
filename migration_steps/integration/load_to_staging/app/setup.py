@@ -35,7 +35,9 @@ def insert_base_data(db_config, db_engine):
     for name, statement in base_data.items():
 
         try:
-            db_engine.execute(statement)
+            with db_engine.begin() as conn:
+                conn.execute(statement)
+
         except Exception as e:
             log.error(
                 f"There was an error inserting the {name} data into {db_config['target_schema']}"

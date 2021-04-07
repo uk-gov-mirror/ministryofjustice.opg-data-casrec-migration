@@ -80,7 +80,9 @@ def generate_inserts(db_config, db_engine, tables):
         """
 
         try:
-            db_engine.execute(query)
+            with db_engine.begin() as conn:
+                conn.execute(query)
+
             global completed_tables
             completed_tables.append(table)
             log.info(

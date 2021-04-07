@@ -23,7 +23,8 @@ def empty_target_tables(db_config, db_engine, tables):
         """
 
         try:
-            db_engine.execute(statement)
+            with db_engine.connect() as conn:
+                conn.execute(statement)
         except Exception as e:
             log.error(
                 f"There was an error clearing {table} in {db_config['target_schema']}"
