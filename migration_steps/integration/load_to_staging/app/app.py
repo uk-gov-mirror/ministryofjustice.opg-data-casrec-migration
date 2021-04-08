@@ -47,7 +47,9 @@ db_config = {
 target_db_engine = create_engine(db_config["db_connection_string"])
 result = None
 tables_list = table_helpers.get_table_list(table_helpers.get_table_file())
-
+enabled_tables_list = table_helpers.get_table_list(
+    table_helpers.get_enabled_table_details()
+)
 
 def clear_tables():
     empty_target_tables(
@@ -66,7 +68,7 @@ def base_data():
 
 def inserts():
     generate_inserts(
-        db_config=db_config, db_engine=target_db_engine, tables=tables_list
+        db_config=db_config, db_engine=target_db_engine, tables=enabled_tables_list
     )
     global result
     result = "inserts complete"
@@ -91,6 +93,11 @@ def main(clear):
     log.info(
         log_title(
             message=f"Source: {db_config['source_schema']} Target: {db_config['target_schema']}"
+        )
+    )
+    log.info(
+        log_title(
+            message=f"Enabled entities: {', '.join(k for k, v in config.ENABLED_ENTITIES.items() if v is True)}"
         )
     )
     log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")

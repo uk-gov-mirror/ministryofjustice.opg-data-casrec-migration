@@ -64,6 +64,11 @@ def main(clear):
             message=f"Source: {db_config['source_schema']} Target: {db_config['target_schema']}"
         )
     )
+    log.info(
+        log_title(
+            message=f"Enabled entities: {', '.join(k for k, v in config.ENABLED_ENTITIES.items() if v is True)}"
+        )
+    )
     log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
 
     log.info(f"Creating schema '{db_config['target_schema']}' if it doesn't exist")
@@ -75,7 +80,7 @@ def main(clear):
     if clear:
         clear_tables(db_config)
 
-    table_details = table_helpers.get_table_file()
+    table_details = table_helpers.get_enabled_table_details()
 
     log.info(
         f"Moving data from '{db_config['source_schema']}' schema to '{db_config['target_schema']}' schema"
