@@ -42,7 +42,7 @@ db_config = {
 
 
 def reset_sequences():
-    tables_dict = table_helpers.get_table_file()
+    tables_dict = table_helpers.get_enabled_table_details()
     sequence_list = table_helpers.get_sequences_list(tables_dict)
     reset_all_sequences(sequence_list=sequence_list, db_config=db_config)
 
@@ -51,7 +51,7 @@ def reset_sequences():
 
 
 def reset_uid_sequences():
-    tables_dict = table_helpers.get_table_file()
+    tables_dict = table_helpers.get_enabled_table_details()
     uid_sequence_list = table_helpers.get_uid_sequences_list(tables_dict)
     reset_all_uid_sequences(uid_sequence_list=uid_sequence_list, db_config=db_config)
 

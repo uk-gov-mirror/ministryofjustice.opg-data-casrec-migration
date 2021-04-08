@@ -35,6 +35,7 @@ config = helpers.get_config(env=environment)
 
 # logging
 log = logging.getLogger("root")
+# custom_logger.setup_logging(env="environment")
 custom_logger.setup_logging(env=environment)
 
 
@@ -65,7 +66,7 @@ def main(audit):
     if environment != "preproduction":
         amend_dev_data(db_engine=target_db_engine)
 
-    tables_dict = table_helpers.get_table_file()
+    tables_dict = table_helpers.get_enabled_table_details()
     tables_list = table_helpers.get_table_list(tables_dict)
 
     if audit == "True":
