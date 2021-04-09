@@ -118,6 +118,17 @@ def get_timeline_dict(file_name: str) -> Dict:
     return timeline_dict
 
 
+def get_all_timeline_files():
+    dirname = get_current_directory()
+    file_path = os.path.join(dirname, f"mapping_definitions/timeline")
+
+    all_files = []
+    for file in os.listdir(file_path):
+        all_files.append(file)
+
+    return all_files
+
+
 def get_all_lookup_dicts() -> Dict[str, List[str]]:
     dirname = get_current_directory()
     file_path = os.path.join(dirname, f"mapping_definitions/lookups")

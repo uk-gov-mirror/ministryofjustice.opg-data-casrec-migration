@@ -1,9 +1,14 @@
 import datetime
 import json
+import os
+import sys
+from pathlib import Path
 
 import pandas as pd
 from sqlalchemy import create_engine
 
+current_path = Path(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, str(current_path) + "/../../shared")
 from helpers import get_timeline_dict
 
 DEFAULT_USER_ID = 1
@@ -19,22 +24,7 @@ TIMELINE_TABLE_COLS = {
 }
 
 
-timeline_file_name = "client_persons_timeline_mapping"
-
-
 def prep_timeline_data(timeline_dict, db_config):
-    # {
-    # 	'sirius_table': 'persons',
-    # 	'casrec_table': 'PAT',
-    # 	'entity': 'client',
-    # 	'timeline_cols': {
-    # 		'DOB': 'birthdate',
-    # 		'Term Date': 'Term Date',
-    # 		'Title': 'Title',
-    # 		'Forename': 'Forename',
-    # 		'Surname': 'Surname'
-    # 	}
-    # }
 
     cols = ", ".join(
         f'"{col}" as "{alias}"' for col, alias in timeline_dict["timeline_cols"].items()
@@ -99,7 +89,6 @@ def format_event(df):
     )
     new_df["event"] = new_df["event"].apply(lambda x: json.dumps(x))
 
-    # print(f"new_df: {new_df.sample(10).to_markdown()}")
     return new_df
 
 
@@ -118,9 +107,6 @@ def format_other_cols(df):
     )
 
     formatted_df = df[[x for x in cols_required]]
-
-    # print(df.sample(10).to_markdown())
-    # print(formatted_df.sample(10).to_markdown())
 
     return formatted_df
 
@@ -166,11 +152,10 @@ def create_insert_statement(db_config, timeline_table_name, df):
         else:
             insert_statement += ";\n\n\n"
 
-    print(f"insert_statement: {insert_statement}")
     return insert_statement
 
 
-def insert_persons_client_timeline(db_config):
+def insert_timeline(db_config, timeline_file_name):
     target_db_engine = create_engine(db_config["db_connection_string"])
 
     timeline_dict = get_timeline_dict(file_name=timeline_file_name)
@@ -187,13 +172,9 @@ def insert_persons_client_timeline(db_config):
     timeline_data_df = prep_timeline_data(
         timeline_dict=timeline_dict, db_config=db_config
     )
-    # print(timeline_data_df.sample(10).to_markdown())
 
     timeline_data_df = format_event(df=timeline_data_df)
-    # print(timeline_data_df.sample(10).to_markdown())
-
     timeline_data_df = format_other_cols(df=timeline_data_df)
-    # print(timeline_data_df.sample(10).to_markdown())
 
     insert_statement = create_insert_statement(
         db_config=db_config,
