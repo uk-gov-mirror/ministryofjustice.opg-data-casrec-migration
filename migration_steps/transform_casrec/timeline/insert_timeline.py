@@ -9,7 +9,7 @@ from sqlalchemy import create_engine
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, str(current_path) + "/../../shared")
-from helpers import get_timeline_dict
+from helpers import get_timeline_dict, get_config
 
 log = logging.getLogger("root")
 
@@ -158,9 +158,20 @@ def create_insert_statement(db_config, timeline_table_name, df):
 
 
 def insert_timeline(db_config, timeline_file_name):
+    config = get_config(env=os.environ.get("ENVIRONMENT"))
+
+    allowed_entities = [k for k, v in config.ENABLED_ENTITIES.items() if v is True]
+
     target_db_engine = create_engine(db_config["db_connection_string"])
 
     timeline_dict = get_timeline_dict(file_name=timeline_file_name)
+
+    if not timeline_dict["entity"] in allowed_entities:
+        log.info(
+            f"{timeline_file_name} is party of entity '{timeline_dict['entity']}'  which is not enabled, moving on"
+        )
+        return False
+
     timeline_table_name = (
         f"timeline_event_{timeline_dict['entity']}_{timeline_dict['sirius_table']}"
     )

@@ -62,6 +62,7 @@ allowed_entities = [k for k, v in config.ENABLED_ENTITIES.items() if v is True]
 @mem_tracker
 @timer
 def main(clear, chunk_size):
+    allowed_entities = [k for k, v in config.ENABLED_ENTITIES.items() if v is True]
 
     log.info(log_title(message="Migration Step: Timeline"))
     log.info(
@@ -69,16 +70,18 @@ def main(clear, chunk_size):
             message=f"Source: {db_config['source_schema']} Target: {db_config['target_schema']}"
         )
     )
-    # log.info(
-    #     log_title(
-    #         message=f"Enabled entities: {', '.join(k for k, v in config.ENABLED_ENTITIES.items() if v is True)}"
-    #     )
-    # )
+    log.info(log_title(message=f"Enabled entities: {', '.join(allowed_entities)}"))
+
     log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
     version_details = helpers.get_json_version()
     log.info(
         f"Using JSON def version '{version_details['version_id']}' last updated {version_details['last_modified']}"
     )
+
+    if "timeline" not in allowed_entities:
+
+        log.info("Timeline entity not enabled, exiting")
+        return False
 
     all_files = [x[:-5] for x in helpers.get_all_timeline_files()]
 

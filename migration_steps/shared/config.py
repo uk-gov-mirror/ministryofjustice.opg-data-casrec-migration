@@ -76,6 +76,7 @@ class BaseConfig:
         "teams": False,
         "visits": False,
         "warnings": False,
+        "timeline": True,
     }
 
 
