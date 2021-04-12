@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 import logging
 import pandas as pd
+import numpy as np
 from sqlalchemy import create_engine
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -40,6 +41,12 @@ def prep_timeline_data(timeline_dict, db_config):
     timeline_data_df = pd.read_sql_query(
         sql=timeline_data_query, con=db_config["db_connection_string"]
     )
+
+    important_cols = [v for k, v in timeline_dict["timeline_cols"].items()]
+
+    timeline_data_df = timeline_data_df.replace("", np.nan)
+    timeline_data_df = timeline_data_df.dropna(subset=important_cols, thresh=1)
+    timeline_data_df = timeline_data_df.replace(np.nan, "")
 
     base_data_query = f"""
         SELECT id, cast(casrec_row_id as int)
