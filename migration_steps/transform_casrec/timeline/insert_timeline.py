@@ -3,13 +3,15 @@ import json
 import os
 import sys
 from pathlib import Path
-
+import logging
 import pandas as pd
 from sqlalchemy import create_engine
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, str(current_path) + "/../../shared")
 from helpers import get_timeline_dict
+
+log = logging.getLogger("root")
 
 DEFAULT_USER_ID = 1
 TIMELINE_TABLE_COLS = {
@@ -186,8 +188,9 @@ def insert_timeline(db_config, timeline_file_name):
 
         with target_db_engine.begin() as conn:
 
-            conn.execute(insert_statement)
+            inserted = conn.execute(insert_statement)
+            log.debug(f"inserted {inserted.rowcount} rows into {timeline_table_name}")
 
     except Exception as e:
-        print("TERRIBLE ERRORROROROR inserting into the table")
+        log.error("TERRIBLE ERRORROROROR inserting into the table")
         print(f"e: {e}")

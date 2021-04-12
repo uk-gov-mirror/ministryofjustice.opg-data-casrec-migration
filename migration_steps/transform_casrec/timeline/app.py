@@ -2,6 +2,7 @@ import os
 import sys
 from pathlib import Path
 
+from clear import clear_tables
 from insert_timeline import insert_timeline
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -80,6 +81,9 @@ def main(clear, chunk_size):
     )
 
     all_files = [x[:-5] for x in helpers.get_all_timeline_files()]
+
+    if clear:
+        clear_tables(db_config=db_config, files=all_files)
 
     for file in all_files:
         insert_timeline(db_config=db_config, timeline_file_name=file)
