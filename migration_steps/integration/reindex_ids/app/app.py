@@ -9,6 +9,11 @@ from existing_data.match_existing_data import match_existing_data
 from reindex.move_by_table import move_all_tables, create_schema
 from reindex.reindex_foreign_keys import update_fks
 from reindex.reindex_primary_keys import update_pks
+from reindex.reindex_timeline import (
+    get_timeline_tables,
+    update_timeline_id,
+    update_timeline_json,
+)
 from utilities.clear_database import clear_tables
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -80,20 +85,26 @@ def main(clear):
     if clear:
         clear_tables(db_config)
 
-    table_details = table_helpers.get_enabled_table_details()
+    # table_details = table_helpers.get_enabled_table_details()
 
     log.info(
         f"Moving data from '{db_config['source_schema']}' schema to '{db_config['target_schema']}' schema"
     )
-    move_all_tables(db_config=db_config, table_list=table_details)
+    # move_all_tables(db_config=db_config, table_list=table_details)
 
-    log.info(f"Merge new data with existing data in Sirius")
-    match_existing_data(db_config=db_config, table_details=table_details)
+    # log.info(f"Merge new data with existing data in Sirius")
+    # match_existing_data(db_config=db_config, table_details=table_details)
+    #
+    # log.info(f"Reindex all primary keys")
+    # update_pks(db_config=db_config, table_details=table_details)
+    # log.info(f"Reindex all foreign keys")
+    # update_fks(db_config=db_config, table_details=table_details)
 
-    log.info(f"Reindex all primary keys")
-    update_pks(db_config=db_config, table_details=table_details)
-    log.info(f"Reindex all foreign keys")
-    update_fks(db_config=db_config, table_details=table_details)
+    timeline_tables = get_timeline_tables(db_config=db_config)
+    print(f"timeline_tables: {timeline_tables}")
+    for table in timeline_tables:
+        # update_timeline_id(db_config=db_config, table=table)
+        update_timeline_json(db_config=db_config, table=table)
 
 
 if __name__ == "__main__":

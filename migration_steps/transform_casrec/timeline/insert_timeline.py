@@ -24,6 +24,7 @@ TIMELINE_TABLE_COLS = {
     "c_casrec_row_id": "int",
     "c_sirius_table": "text",
     "c_sirius_table_id": "int",
+    "transformation_schema_id": "int",
 }
 
 
@@ -86,7 +87,8 @@ def format_event(df):
     ]
 
     cols = df.columns.tolist()
-    event_columns = [x for x in cols if x not in standard_cols]
+    # event_columns = [x for x in cols if x not in standard_cols]
+    event_columns = [x for x in cols if x not in ["casrec_table", "casrec_row_id"]]
 
     event_dict = df[[x for x in event_columns]].to_dict("records")
 
@@ -118,6 +120,7 @@ def format_other_cols(df):
             "sirius_table_id": "c_sirius_table_id",
         }
     )
+    df["transformation_schema_id"] = df["c_sirius_table_id"]
 
     formatted_df = df[[x for x in cols_required]]
 
