@@ -54,6 +54,7 @@ def get_mappings():
         "clients": ["client_addresses", "client_persons", "client_phonenumbers"],
         "cases": ["cases"],
         "bonds": ["bonds"],
+        "deputies": ["deputy_persons"],
     }
 
     for entity, mapping in all_mappings.items():

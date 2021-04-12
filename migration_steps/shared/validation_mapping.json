@@ -147,7 +147,51 @@
                 "LEFT JOIN {target_schema}.persons ON persons.id = phonenumbers.person_id"
             ],
             "where_clauses": [
-                "persons.type = 'actor_client'"
+                "persons.type = 'actor_client'",
+                "persons.clientsource = 'CASRECMIGRATION'"
+            ]
+        }
+    },
+    "deputy_persons": {
+        "exclude": [
+            "caserecnumber"
+        ],
+        "overriden": [
+            "caserecnumber"
+        ],
+        "orderby": {
+            "casesubtype": {
+                "mapping_table": "cases.casesubtype",
+                "direction": "ASC"
+            },
+            "orderdate": {
+                "mapping_table": "cases.orderdate",
+                "direction": "ASC"
+            }
+        },
+        "casrec": {
+            "from_table": "deputyship",
+            "overriden": {
+                "caserecnumber": "casrec_csv.deputyship.\"Case\""
+            },
+            "joins": [
+                "LEFT JOIN casrec_csv.order ON casrec_csv.order.\"Order No\" = casrec_csv.deputyship.\"Order No\"",
+                "LEFT JOIN casrec_csv.deputy ON casrec_csv.deputyship.\"Deputy No\" = casrec_csv.deputy.\"Deputy No\""
+            ],
+            "where_clauses": []
+        },
+        "sirius": {
+            "from_table": "order_deputy",
+            "overriden": {
+                "caserecnumber":  "cases.caserecnumber"
+            },
+            "joins": [
+                "LEFT JOIN cases ON cases.id = order_deputy.order_id",
+                "LEFT JOIN persons ON persons.id = order_deputy.deputy_id"
+            ],
+            "where_clauses": [
+                "persons.type = 'actor_deputy'",
+                "persons.clientsource = 'CASRECMIGRATION'"
             ]
         }
     }
