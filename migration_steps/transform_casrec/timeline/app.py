@@ -52,16 +52,9 @@ allowed_entities = [k for k, v in config.ENABLED_ENTITIES.items() if v is True]
     default=False,
     help="Clear existing database tables: True or False",
 )
-@click.option(
-    "--chunk_size",
-    prompt=False,
-    type=int,
-    help="Defaults to 10,000 but can be changed for dev",
-    default=10000,
-)
 @mem_tracker
 @timer
-def main(clear, chunk_size):
+def main(clear):
     allowed_entities = [k for k, v in config.ENABLED_ENTITIES.items() if v is True]
 
     log.info(log_title(message="Migration Step: Timeline"))

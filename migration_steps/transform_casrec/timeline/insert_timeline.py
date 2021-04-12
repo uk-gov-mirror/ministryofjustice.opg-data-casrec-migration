@@ -27,7 +27,7 @@ TIMELINE_TABLE_COLS = {
 }
 
 
-def prep_timeline_data(timeline_dict, db_config):
+def prep_timeline_data(timeline_dict, db_config, chunk_details=None):
 
     cols = ", ".join(
         f'"{col}" as "{alias}"' for col, alias in timeline_dict["timeline_cols"].items()
@@ -35,8 +35,12 @@ def prep_timeline_data(timeline_dict, db_config):
 
     timeline_data_query = f"""
         SELECT {cols}, casrec_row_id
-        FROM {db_config['source_schema']}.{timeline_dict['casrec_table']};
+        FROM {db_config['source_schema']}.{timeline_dict['casrec_table']}
     """
+    if chunk_details:
+        timeline_data_query += f"""
+        ORDER BY casrec_row_id LIMIT {chunk_details["chunk_size"]} OFFSET {chunk_details["offset"]};
+        """
 
     timeline_data_df = pd.read_sql_query(
         sql=timeline_data_query, con=db_config["db_connection_string"]
@@ -135,7 +139,9 @@ def create_table(timeline_table_name, db_config, target_db):
             conn.execute(create_timeline_table_statement)
 
     except Exception as e:
-        print("TERRIBLE ERRORROROROR creating the table - probs already exists")
+        log.error(
+            f"table {timeline_table_name} could not be created (probably already exists)"
+        )
         print(f"e: {e}")
 
 
@@ -147,16 +153,28 @@ def create_insert_statement(db_config, timeline_table_name, df):
         VALUES
     """
 
-    sample = df.sample(2)
+    # df = df.sample(2)
 
-    for i, row in enumerate(sample.values.tolist()):
+    for i, row in enumerate(df.values.tolist()):
         row = [str(x) for x in row]
+        row = [
+            str(
+                x.replace("'", "''")
+                .replace("NaT", "")
+                .replace("nan", "")
+                .replace("<NA>", "")
+                .replace("&", "and")
+                .replace(";", "-")
+                .replace("%", "percent")
+            )
+            for x in row
+        ]
         row = [f"'{str(x)}'" if str(x) != "" else "NULL" for x in row]
         single_row = ", ".join(row)
 
         insert_statement += f"({single_row})"
 
-        if i + 1 < len(sample):
+        if i + 1 < len(df):
             insert_statement += ",\n"
         else:
             insert_statement += ";\n\n\n"
@@ -166,6 +184,9 @@ def create_insert_statement(db_config, timeline_table_name, df):
 
 def insert_timeline(db_config, timeline_file_name):
     config = get_config(env=os.environ.get("ENVIRONMENT"))
+    chunk_size = config.DEFAULT_CHUNK_SIZE
+    offset = 0
+    chunk_no = 1
 
     allowed_entities = [k for k, v in config.ENABLED_ENTITIES.items() if v is True]
 
@@ -189,26 +210,39 @@ def insert_timeline(db_config, timeline_file_name):
         target_db=target_db_engine,
     )
 
-    timeline_data_df = prep_timeline_data(
-        timeline_dict=timeline_dict, db_config=db_config
-    )
+    while True:
+        try:
+            timeline_data_df = prep_timeline_data(
+                timeline_dict=timeline_dict,
+                db_config=db_config,
+                chunk_details={"chunk_size": chunk_size, "offset": offset},
+            )
 
-    timeline_data_df = format_event(df=timeline_data_df)
-    timeline_data_df = format_other_cols(df=timeline_data_df)
+            timeline_data_df = format_event(df=timeline_data_df)
+            timeline_data_df = format_other_cols(df=timeline_data_df)
 
-    insert_statement = create_insert_statement(
-        db_config=db_config,
-        timeline_table_name=timeline_table_name,
-        df=timeline_data_df,
-    )
+            insert_statement = create_insert_statement(
+                db_config=db_config,
+                timeline_table_name=timeline_table_name,
+                df=timeline_data_df,
+            )
 
-    try:
+            try:
 
-        with target_db_engine.begin() as conn:
+                with target_db_engine.begin() as conn:
+                    log.debug(f"inserting chunk no {chunk_no}")
+                    inserted = conn.execute(insert_statement)
+                    log.debug(
+                        f"inserted {inserted.rowcount} rows into {timeline_table_name}"
+                    )
 
-            inserted = conn.execute(insert_statement)
-            log.debug(f"inserted {inserted.rowcount} rows into {timeline_table_name}")
+            except Exception as e:
+                log.error("TERRIBLE ERRORROROROR inserting into the table")
+                print(f"e: {e}")
 
-    except Exception as e:
-        log.error("TERRIBLE ERRORROROROR inserting into the table")
-        print(f"e: {e}")
+            offset += chunk_size
+            chunk_no += 1
+
+        except Exception:
+
+            break

@@ -62,6 +62,8 @@ class BaseConfig:
             f"/{self.db_config[db]['name']}"
         )  # pragma: allowlist secret
 
+    DEFAULT_CHUNK_SIZE = 10000
+
     ENABLED_ENTITIES = {
         "clients": True,
         "cases": True,
