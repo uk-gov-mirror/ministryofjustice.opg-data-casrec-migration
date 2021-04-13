@@ -334,7 +334,7 @@ def build_validation_statements(mapping_name):
         sql_add(f"{join}", 2)
 
     # WHERE
-    sql_add('WHERE pat."Case" IS NOT NULL', 2)
+    sql_add('WHERE True', 2)
     for where_clause in validation_dict[mapping_name]["casrec"]["where_clauses"]:
         sql_add(f"AND {where_clause}", 2)
 
@@ -380,7 +380,7 @@ def build_validation_statements(mapping_name):
         sql_add(f"{join}", 2)
 
     # WHERE
-    sql_add("WHERE clientsource = 'CASRECMIGRATION'", 2)
+    sql_add("WHERE True", 2)
     for where_clause in validation_dict[mapping_name]["sirius"]["where_clauses"]:
         sql_add(f"AND {where_clause}", 2)
 
@@ -401,20 +401,20 @@ def write_column_validation_sql(
     mapping_name, mapped_item_name, col_source_casrec, col_source_sirius
 ):
     order_by = ",\n        ".join(
-        ["caserecnumber ASC"] + list(validation_dict[mapping_name]["orderby"].keys())
+        ["exc_caserecnumber ASC"] + list(validation_dict[mapping_name]["orderby"].keys())
     )
 
     sql_add(f"-- {mapping_name} / {mapped_item_name}")
     sql_add(f"UPDATE {get_exception_table(mapping_name)}")
     sql_add(f"SET vary_columns = array_append(vary_columns, '{mapped_item_name}')")
     sql_add("WHERE caserecnumber IN (")
-    sql_add(f"SELECT caserecnumber FROM (", 1)
+    sql_add(f"SELECT exc_caserecnumber FROM (", 1)
 
     # casrec half
     sql_add("SELECT * FROM(", 2)
     sql_add("SELECT", 3)
     # caserecnumber
-    sql_add("exc_table.caserecnumber AS caserecnumber,", 4)
+    sql_add("exc_table.caserecnumber AS exc_caserecnumber,", 4)
     # forced order cols
     for order_mapped_item_name, order_mapped_item in validation_dict[mapping_name][
         "orderby"
@@ -433,9 +433,9 @@ def write_column_validation_sql(
     # WHERE
     sql_add("WHERE exc_table.caserecnumber IS NOT NULL", 3)
     for where_clause in validation_dict[mapping_name]["casrec"]["where_clauses"]:
-        sql_add(f"AND {where_clause}", 2)
+        sql_add(f"AND {where_clause}", 4)
 
-    sql_add(f"ORDER BY {order_by}", 2)
+    sql_add(f"ORDER BY {order_by}", 3)
     sql_add(") as csv_data", 2)
 
     sql_add("EXCEPT", 2)
@@ -444,7 +444,7 @@ def write_column_validation_sql(
     sql_add("SELECT * FROM(", 2)
     sql_add("SELECT", 3)
     # caserecnumber
-    sql_add("exc_table.caserecnumber AS caserecnumber,", 4)
+    sql_add("exc_table.caserecnumber AS exc_caserecnumber,", 4)
     # forced order cols
     for order_mapped_item_name, order_mapped_item in validation_dict[mapping_name][
         "orderby"
@@ -464,8 +464,8 @@ def write_column_validation_sql(
     # WHERE
     sql_add("WHERE exc_table.caserecnumber IS NOT NULL", 3)
     for where_clause in validation_dict[mapping_name]["sirius"]["where_clauses"]:
-        sql_add(f"AND {where_clause}", 2)
-    sql_add(f"ORDER BY {order_by}", 2)
+        sql_add(f"AND {where_clause}", 4)
+    sql_add(f"ORDER BY {order_by}", 3)
     sql_add(") as sirius_data", 2)
 
     sql_add(") as vary", 1)
