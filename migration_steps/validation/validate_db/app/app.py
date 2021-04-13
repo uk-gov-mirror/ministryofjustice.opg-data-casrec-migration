@@ -175,8 +175,7 @@ def build_lookup_functions():
     sql_add("")
 
 
-def get_wrapped_sirius_col(col, mapped_item):
-    col_definition = get_col_definition(mapped_item)
+def get_wrapped_sirius_col(col, col_definition):
     datatype = col_definition["sirius_details"]["data_type"]
     if datatype == "str":
         col = f"NULLIF(TRIM({col}), '')"
@@ -185,8 +184,7 @@ def get_wrapped_sirius_col(col, mapped_item):
     return col
 
 
-def get_sirius_col_name(mapped_item):
-    col_definition = get_col_definition(mapped_item)
+def get_sirius_col_name(mapped_item, col_definition):
     col_table = col_definition["sirius_details"]["table_name"]
     mapped_item_name = mapped_item
     if isinstance(mapped_item, dict):
@@ -198,11 +196,11 @@ def get_sirius_col_name(mapped_item):
 def sirius_wrap(mapped_item):
     col = get_sirius_col_name(mapped_item)
     col = get_wrapped_sirius_col(col, mapped_item)
+        col_definition = get_col_definition(mapped_item)
     return col
 
 
-def get_wrapped_casrec_col(col, mapped_item):
-    col_definition = get_col_definition(mapped_item)
+def get_wrapped_casrec_col(col, col_definition):
     datatype = col_definition["sirius_details"]["data_type"]
     calculated = col_definition["transform_casrec"]["calculated"]
 
@@ -271,9 +269,8 @@ def get_col_definition(mapped_item):
     return col_definition
 
 
-def get_casrec_col_source(mapped_item):
+def get_casrec_col_source(mapped_item, col_definition):
     col = ""
-    col_definition = get_col_definition(mapped_item)
     col_definition = col_definition["transform_casrec"]
     if col_definition["casrec_table"]:
         col = get_casrec_column_name(mapped_item)
@@ -291,6 +288,7 @@ def get_casrec_col_source(mapped_item):
 def casrec_wrap(mapped_item):
     col = get_casrec_col_source(mapped_item)
     col = get_wrapped_casrec_col(col, mapped_item)
+        col_definition = get_col_definition(mapped_item)
     return col
 
 
