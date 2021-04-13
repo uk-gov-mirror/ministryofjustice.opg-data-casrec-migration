@@ -226,13 +226,6 @@ def get_wrapped_casrec_col(col, col_definition):
     return col
 
 
-def get_casrec_column_name(mapped_item):
-    col_definition = get_col_definition(mapped_item)
-    casrec_col_table = col_definition["transform_casrec"]["casrec_table"].lower()
-    casrec_col_name = col_definition["transform_casrec"]["casrec_column_name"]
-    return f'{source_schema}.{casrec_col_table}."{casrec_col_name}"'
-
-
 def get_casrec_default_value(mapped_item):
     default_value = mapping_dict[mapped_item]["transform_casrec"]["default_value"]
     data_type = mapping_dict[mapped_item]["sirius_details"]["data_type"]
@@ -273,7 +266,9 @@ def get_casrec_col_source(mapped_item, col_definition):
     col = ""
     col_definition = col_definition["transform_casrec"]
     if col_definition["casrec_table"]:
-        col = get_casrec_column_name(mapped_item)
+        table = col_definition["casrec_table"].lower()
+        col_name = col_definition["casrec_column_name"]
+        col = f'{source_schema}.{table}."{col_name}"'
         if "" != col_definition["lookup_table"]:
             db_lookup_func = col_definition["lookup_table"]
             col = f"{source_schema}.{db_lookup_func}({col})"
@@ -403,15 +398,15 @@ def sql_add(sql, indent_level=0, line_breaks=1):
 
 
 def write_column_validation_sql(
-    mapping_name, mapped_item, col_source_casrec, col_source_sirius
+    mapping_name, mapped_item_name, col_source_casrec, col_source_sirius
 ):
     order_by = ",\n        ".join(
         ["caserecnumber ASC"] + list(validation_dict[mapping_name]["orderby"].keys())
     )
 
-    sql_add(f"-- {mapping_name} / {mapped_item}")
+    sql_add(f"-- {mapping_name} / {mapped_item_name}")
     sql_add(f"UPDATE {get_exception_table(mapping_name)}")
-    sql_add(f"SET vary_columns = array_append(vary_columns, '{mapped_item}')")
+    sql_add(f"SET vary_columns = array_append(vary_columns, '{mapped_item_name}')")
     sql_add("WHERE caserecnumber IN (")
     sql_add(f"SELECT caserecnumber FROM (", 1)
 
@@ -426,7 +421,7 @@ def write_column_validation_sql(
     ].items():
         sql_add(f"{casrec_wrap(order_mapped_item)} AS {order_mapped_item_name},", 4)
     # tested column
-    sql_add(f"{col_source_casrec} AS {mapped_item}", 4)
+    sql_add(f"{col_source_casrec} AS {mapped_item_name}", 4)
     sql_add(
         f"FROM {source_schema}.{validation_dict[mapping_name]['casrec']['from_table']}",
         3,
@@ -456,7 +451,7 @@ def write_column_validation_sql(
     ].items():
         sql_add(f"{sirius_wrap(order_mapped_item)} AS {order_mapped_item_name},", 4)
     # tested column
-    sql_add(f"{col_source_sirius} AS {mapped_item}", 4)
+    sql_add(f"{col_source_sirius} AS {mapped_item_name}", 4)
     sql_add(
         f"FROM {target_schema}.{validation_dict[mapping_name]['sirius']['from_table']}",
         3,
@@ -497,13 +492,13 @@ def build_column_validation_statements(mapping_name):
         )
 
     # test regular columns
-    for mapped_item in mapping_dict.keys():
-        if mapped_item not in validation_dict[mapping_name]["exclude"]:
+    for mapped_item_name in mapping_dict.keys():
+        if mapped_item_name not in validation_dict[mapping_name]["exclude"]:
             write_column_validation_sql(
                 mapping_name,
-                mapped_item,
-                casrec_wrap(mapped_item),
-                sirius_wrap(mapped_item),
+                mapped_item_name,
+                casrec_wrap(mapped_item_name),
+                sirius_wrap(mapped_item_name),
             )
 
 
