@@ -194,9 +194,12 @@ def get_sirius_col_name(mapped_item, col_definition):
 
 
 def sirius_wrap(mapped_item):
-    col = get_sirius_col_name(mapped_item)
-    col = get_wrapped_sirius_col(col, mapped_item)
+    if isinstance(mapped_item, dict) and "sirius" in mapped_item:
+        col = mapped_item["sirius"]
+    else:
         col_definition = get_col_definition(mapped_item)
+        col = get_sirius_col_name(mapped_item, col_definition)
+        col = get_wrapped_sirius_col(col, col_definition)
     return col
 
 
@@ -256,6 +259,8 @@ def get_col_definition(mapped_item):
             include_pk=False,
         )
         col_definition = col_mapping[pieces[1]]
+    elif isinstance(mapped_item, dict):
+        col_definition = mapped_item
     else:
         col_definition = mapping_dict[mapped_item]
 
@@ -281,9 +286,12 @@ def get_casrec_col_source(mapped_item, col_definition):
 
 
 def casrec_wrap(mapped_item):
-    col = get_casrec_col_source(mapped_item)
-    col = get_wrapped_casrec_col(col, mapped_item)
+    if isinstance(mapped_item, dict) and "casrec" in mapped_item:
+        col = mapped_item["casrec"]
+    else:
         col_definition = get_col_definition(mapped_item)
+        col = get_casrec_col_source(mapped_item, col_definition)
+        col = get_wrapped_casrec_col(col, col_definition)
     return col
 
 
