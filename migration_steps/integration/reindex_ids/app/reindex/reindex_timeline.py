@@ -74,7 +74,7 @@ def update_timeline_json(db_config, table):
     schema = "transform"
 
     timeline_table_query = f"""
-        SELECT event, c_sirius_table_id FROM {schema}.{table};
+        SELECT event, c_sirius_table_id, transformation_schema_id FROM {schema}.{table};
     """
     timeline_table_df = pd.read_sql_query(
         sql=timeline_table_query, con=db_config["db_connection_string"]
