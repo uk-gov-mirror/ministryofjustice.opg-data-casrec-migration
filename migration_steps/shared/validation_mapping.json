@@ -33,7 +33,9 @@
                 "LEFT JOIN {target_schema}.cases ON cases.id = bonds.order_id",
                 "LEFT JOIN {target_schema}.persons ON persons.id = cases.client_id"
             ],
-            "where_clauses": []
+            "where_clauses": [
+                "persons.clientsource = 'CASRECMIGRATION'"
+            ]
         }
     },
     "cases": {
@@ -75,6 +77,7 @@
             ],
             "where_clauses": [
                 "persons.type = 'actor_client'",
+                "persons.clientsource = 'CASRECMIGRATION'",
                 "cases.casetype = 'ORDER'"
             ]
         }
@@ -107,7 +110,8 @@
                 "LEFT JOIN {target_schema}.persons ON persons.id = addresses.person_id"
             ],
             "where_clauses": [
-                "persons.type = 'actor_client'"
+                "persons.type = 'actor_client'",
+                "persons.clientsource = 'CASRECMIGRATION'"
             ]
         }
     },
@@ -130,7 +134,8 @@
             "from_table": "persons",
             "joins": [],
             "where_clauses": [
-                "persons.type = 'actor_client'"
+                "persons.type = 'actor_client'",
+                "persons.clientsource = 'CASRECMIGRATION'"
             ]
         }
     },
