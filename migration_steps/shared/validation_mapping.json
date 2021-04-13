@@ -3,7 +3,11 @@
         "exclude": [
             "order_id"
         ],
-        "overriden": [],
+        "forced": {
+            "caserecnumber": {
+                "mapping_table": "client_persons.caserecnumber"
+            }
+        },
         "orderby": {
             "casesubtype": {
                 "mapping_table": "cases.casesubtype",
@@ -16,7 +20,6 @@
         },
         "casrec": {
             "from_table": "order",
-            "overriden": {},
             "joins": [
                 "LEFT JOIN casrec_csv.pat ON casrec_csv.pat.\"Case\" = casrec_csv.order.\"Case\""
             ],
@@ -26,7 +29,6 @@
         },
         "sirius": {
             "from_table": "bonds",
-            "overriden": {},
             "joins": [
                 "LEFT JOIN {target_schema}.cases ON cases.id = bonds.order_id",
                 "LEFT JOIN {target_schema}.persons ON persons.id = cases.client_id"
@@ -44,7 +46,11 @@
             "feepayer_id",
             "person_id"
         ],
-        "overriden": [],
+        "forced": {
+            "caserecnumber": {
+                "mapping_table": "client_persons.caserecnumber"
+            }
+        },
         "orderby": {
             "casesubtype": {
                 "mapping_table": "cases.casesubtype",
@@ -57,7 +63,6 @@
         },
         "casrec": {
             "from_table": "order",
-            "overriden": {},
             "joins": [
                 "LEFT JOIN casrec_csv.pat ON casrec_csv.pat.\"Case\" = casrec_csv.order.\"Case\""
             ],
@@ -65,7 +70,6 @@
         },
         "sirius": {
             "from_table": "cases",
-            "overriden": {},
             "joins": [
                 "LEFT JOIN {target_schema}.persons ON persons.id = cases.client_id"
             ],
@@ -82,23 +86,23 @@
             "town",
             "county"
         ],
-        "overriden": [
-            "address_lines"
-        ],
+        "forced": {
+            "caserecnumber": {
+                "mapping_table": "client_persons.caserecnumber"
+            },
+            "address_lines": {
+                "casrec": "getCasrecAddress(\"Adrs1\", \"Adrs2\", \"Adrs3\", \"Adrs4\")",
+                "sirius": "getSiriusAddress(addresses.address_lines, addresses.town, addresses.county)"
+            }
+        },
         "orderby": {},
         "casrec": {
             "from_table": "pat",
-            "overriden": {
-                "address_lines":  "getCasrecAddress(\"Adrs1\", \"Adrs2\", \"Adrs3\", \"Adrs4\")"
-            },
             "joins": [],
             "where_clauses": []
         },
         "sirius": {
             "from_table": "addresses",
-            "overriden": {
-                "address_lines":  "getSiriusAddress(addresses.address_lines, addresses.town, addresses.county)"
-            },
             "joins": [
                 "LEFT JOIN {target_schema}.persons ON persons.id = addresses.person_id"
             ],
@@ -111,17 +115,19 @@
         "exclude": [
             "caserecnumber"
         ],
-        "overriden": [],
+        "forced": {
+            "caserecnumber": {
+                "mapping_table": "client_persons.caserecnumber"
+            }
+        },
         "orderby": {},
         "casrec": {
             "from_table": "pat",
-            "overriden": {},
             "joins": [],
             "where_clauses": []
         },
         "sirius": {
             "from_table": "persons",
-            "overriden": {},
             "joins": [],
             "where_clauses": [
                 "persons.type = 'actor_client'"
@@ -132,17 +138,19 @@
         "exclude": [
             "person_id"
         ],
-        "overriden": [],
+        "forced": {
+            "caserecnumber": {
+                "mapping_table": "client_persons.caserecnumber"
+            }
+        },
         "orderby": {},
         "casrec": {
             "from_table": "pat",
-            "overriden": {},
             "joins": [],
             "where_clauses": []
         },
         "sirius": {
             "from_table": "phonenumbers",
-            "overriden": {},
             "joins": [
                 "LEFT JOIN {target_schema}.persons ON persons.id = phonenumbers.person_id"
             ],
@@ -156,9 +164,6 @@
         "exclude": [
             "caserecnumber"
         ],
-        "overriden": [
-            "caserecnumber"
-        ],
         "orderby": {
             "casesubtype": {
                 "mapping_table": "cases.casesubtype",
@@ -169,11 +174,13 @@
                 "direction": "ASC"
             }
         },
+        "forced": {
+            "caserecnumber": {
+                "mapping_table": "cases.caserecnumber"
+            }
+        },
         "casrec": {
             "from_table": "deputyship",
-            "overriden": {
-                "caserecnumber": "casrec_csv.deputyship.\"Case\""
-            },
             "joins": [
                 "LEFT JOIN casrec_csv.order ON casrec_csv.order.\"Order No\" = casrec_csv.deputyship.\"Order No\"",
                 "LEFT JOIN casrec_csv.deputy ON casrec_csv.deputyship.\"Deputy No\" = casrec_csv.deputy.\"Deputy No\""
@@ -182,9 +189,6 @@
         },
         "sirius": {
             "from_table": "order_deputy",
-            "overriden": {
-                "caserecnumber":  "cases.caserecnumber"
-            },
             "joins": [
                 "LEFT JOIN cases ON cases.id = order_deputy.order_id",
                 "LEFT JOIN persons ON persons.id = order_deputy.deputy_id"

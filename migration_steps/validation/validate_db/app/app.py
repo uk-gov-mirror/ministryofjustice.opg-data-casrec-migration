@@ -127,10 +127,9 @@ def build_exception_table(mapping_name):
 
     sql_add(f"-- {mapping_name}")
     sql_add(f"CREATE TABLE {get_exception_table(mapping_name)}(")
-    sql_add("caserecnumber text default NULL,", 1)
 
     # overridden cols (normally run through plsql transform routines)
-    for col in validation_dict[mapping_name]["overriden"]:
+    for col in list(validation_dict[mapping_name]["forced"].keys()):
         sql_add(f"{col} text default NULL,", 1)
 
     # forced order cols
@@ -309,11 +308,12 @@ def build_validation_statements(mapping_name):
     # CASREC half
     sql_add("SELECT * FROM(", 1)
     sql_add("SELECT DISTINCT", 2)
-    sql_add('pat."Case" AS caserecnumber,', 3)
 
-    # overridden cols (normally run through plsql transform routines)
-    for colname, col in validation_dict[mapping_name]["casrec"]["overriden"].items():
-        sql_add(f"{col} AS {colname},", 3)
+    # overridden cols(eg run through transformations or inserting casrec no. as first column)
+    for overridden_mapped_item_name, overridden_mapped_item in validation_dict[mapping_name][
+        "forced"
+    ].items():
+        sql_add(f"{casrec_wrap(overridden_mapped_item)} AS {overridden_mapped_item_name},", 3)
 
     # forced order cols
     for order_mapped_item_name, order_mapped_item in validation_dict[mapping_name][
@@ -353,11 +353,12 @@ def build_validation_statements(mapping_name):
     # SIRIUS half
     sql_add("SELECT * FROM(", 1)
     sql_add("SELECT DISTINCT", 2)
-    sql_add(f"persons.caserecnumber AS caserecnumber,", 3)
 
-    # overridden cols (normally run through plsql transform routines)
-    for colname, col in validation_dict[mapping_name]["sirius"]["overriden"].items():
-        sql_add(f"{col} AS {colname},", 3)
+    # overridden cols(eg run through transformations or inserting casrec no. as first column)
+    for overridden_mapped_item_name, overridden_mapped_item in validation_dict[mapping_name][
+        "forced"
+    ].items():
+        sql_add(f"{sirius_wrap(overridden_mapped_item)} AS {overridden_mapped_item_name},", 3)
 
     # forced order cols
     for order_mapped_item_name, order_mapped_item in validation_dict[mapping_name][
@@ -489,12 +490,12 @@ def build_column_validation_statements(mapping_name):
     )
 
     # test overridden columns
-    for overridden_col in validation_dict[mapping_name]["overriden"]:
+    for mapped_item_name, mapped_item in validation_dict[mapping_name]["forced"].items():
         write_column_validation_sql(
             mapping_name,
-            overridden_col,
-            validation_dict[mapping_name]["casrec"]["overriden"][overridden_col],
-            validation_dict[mapping_name]["sirius"]["overriden"][overridden_col],
+            mapped_item_name,
+            casrec_wrap(mapped_item),
+            sirius_wrap(mapped_item)
         )
 
     # test regular columns
