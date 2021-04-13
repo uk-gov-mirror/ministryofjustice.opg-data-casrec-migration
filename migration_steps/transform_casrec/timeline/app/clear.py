@@ -10,7 +10,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
-sys.path.insert(0, str(current_path) + "/../../shared")
+sys.path.insert(0, str(current_path) + "/../../../shared")
 from helpers import get_timeline_dict
 
 

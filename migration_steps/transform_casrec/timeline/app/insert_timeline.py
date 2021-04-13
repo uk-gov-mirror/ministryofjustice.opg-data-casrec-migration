@@ -14,7 +14,7 @@ from helpers import get_timeline_dict, get_config
 
 log = logging.getLogger("root")
 
-DEFAULT_USER_ID = 1
+DEFAULT_USER_ID = 2
 TIMELINE_TABLE_COLS = {
     "id": "int",
     "user_id": "int",

@@ -6,7 +6,7 @@ from clear import clear_tables
 from insert_timeline import insert_timeline
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
-sys.path.insert(0, str(current_path) + "/../../shared")
+sys.path.insert(0, str(current_path) + "/../../../shared")
 
 import logging
 import time

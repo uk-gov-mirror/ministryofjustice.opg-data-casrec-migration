@@ -46,14 +46,20 @@ db_config = {
 }
 target_db_engine = create_engine(db_config["db_connection_string"])
 result = None
-tables_list = table_helpers.get_table_list(table_helpers.get_table_file())
-enabled_tables_list = table_helpers.get_table_list(
-    table_helpers.get_enabled_table_details()
-)
+# all_tables_list = table_helpers.get_table_list(table_helpers.get_table_file())
+all_tables_list = table_helpers.get_table_file()
+all_timeline_tables_list = table_helpers.get_table_file(file_name="timeline_tables")
+all_tables_dict = {**all_tables_list, **all_timeline_tables_list}
+
+
+table_details = table_helpers.get_enabled_table_details()
+timeline_tables = table_helpers.get_enabled_table_details(file_name="timeline_tables")
+enabled_tables_list = {**table_details, **timeline_tables}
+
 
 def clear_tables():
     empty_target_tables(
-        db_config=db_config, db_engine=target_db_engine, tables=tables_list[:]
+        db_config=db_config, db_engine=target_db_engine, tables=all_tables_dict
     )
 
     global result

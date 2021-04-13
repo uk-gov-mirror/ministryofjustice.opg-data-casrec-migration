@@ -37,16 +37,23 @@ def generate_inserts(db_config, db_engine, tables):
     tables_list = tables
     extra_cols_to_move_to_staging = ["method"]
 
-    for i, table in enumerate(tables_list):
+    for i, (table, details) in enumerate(tables_list.items()):
+
         log.info(f"Inserting {table} into {db_config['target_schema']}")
 
         log.debug(f"This is table number {i+1}")
+
+        try:
+            target_table = details["pk_table"]
+        except KeyError:
+            target_table = table
+        print(f"target_table: {target_table}")
 
         get_source_cols_query = get_columns_query(
             table=table, schema=db_config["source_schema"]
         )
         get_target_cols_query = get_columns_query(
-            table=table, schema=db_config["target_schema"]
+            table=target_table, schema=db_config["target_schema"]
         )
 
         source_columns = [
@@ -67,17 +74,18 @@ def generate_inserts(db_config, db_engine, tables):
 
         if len(columns_missing_from_target) > 0:
             alter_target_query = add_missing_columns_query(
-                table=table,
+                table=target_table,
                 schema=db_config["target_schema"],
                 columns=columns_missing_from_target,
             )
-
+            print(f"alter_target_query: {alter_target_query}")
             db_engine.execute(alter_target_query)
 
         query = f"""
-        INSERT INTO {db_config["target_schema"]}.{table} ({', '.join(cols_to_move)})
+        INSERT INTO {db_config["target_schema"]}.{target_table} ({', '.join(cols_to_move)})
         SELECT {', '.join(cols_to_move)} FROM {db_config["source_schema"]}.{table};
         """
+        print(f"query: {query}")
 
         try:
             with db_engine.begin() as conn:

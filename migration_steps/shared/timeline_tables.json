@@ -1,0 +1,24 @@
+{
+  "timeline_event_clients_persons": {
+    "entities": {
+      "base_entities": [
+        "clients"
+      ]
+    },
+    "table_type": "timeline",
+    "pk": "id",
+    "pk_table": "timeline_event",
+      "fks": [
+          {
+              "column":"c_sirius_table_id",
+              "parent_table" : "persons",
+              "parent_column": "id"
+          }],
+    "sequences": [],
+    "order_by": [
+      "id"
+    ],
+    "source_table": "persons",
+    "source_column": "id"
+  }
+}

@@ -31,7 +31,7 @@ def get_enabled_table_details(file_name="tables"):
 
     dirname = get_current_directory()
     file_path = os.path.join(dirname, f"{file_name}.json")
-
+    print(f"file_path: {file_path}")
     with open(file_path) as tables_json:
         tables_dict = json.load(tables_json, object_pairs_hook=OrderedDict)
 
