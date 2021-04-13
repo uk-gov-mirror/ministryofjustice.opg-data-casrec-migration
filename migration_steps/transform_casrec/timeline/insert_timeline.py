@@ -24,7 +24,7 @@ TIMELINE_TABLE_COLS = {
     "c_casrec_row_id": "int",
     "c_sirius_table": "text",
     "c_sirius_table_id": "int",
-    "transformation_schema_id": "int",
+    # "transformation_schema_id": "int",
 }
 
 
