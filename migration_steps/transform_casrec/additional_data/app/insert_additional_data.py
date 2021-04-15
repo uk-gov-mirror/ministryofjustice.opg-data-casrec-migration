@@ -208,7 +208,7 @@ def insert_additional_data_records(db_config, additional_data_file_name):
         )
         return False
 
-    additional_data_table_name = f"additional_data_event_{additional_data_dict['entity']}_{additional_data_dict['sirius_table']}"
+    additional_data_table_name = f"additional_data_{additional_data_dict['entity']}_{additional_data_dict['sirius_table']}"
 
     create_table(
         additional_data_table_name=additional_data_table_name,

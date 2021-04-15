@@ -22,7 +22,7 @@ def clear_tables(db_config, files):
         additional_data_dict = get_additional_data_dict(
             file_name=additional_data_file_name
         )
-        additional_data_table_name = f"additional_data_event_{additional_data_dict['entity']}_{additional_data_dict['sirius_table']}"
+        additional_data_table_name = f"additional_data_{additional_data_dict['entity']}_{additional_data_dict['sirius_table']}"
 
         target_db_engine = create_engine(db_config["db_connection_string"])
 
