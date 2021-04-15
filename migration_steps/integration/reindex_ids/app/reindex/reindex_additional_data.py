@@ -9,15 +9,16 @@ from helpers import format_error_message
 log = logging.getLogger("root")
 
 
-def update_timeline_json(db_config, table):
-    log.debug("update_timeline_json")
+def update_additional_data_json(db_config, table):
+    log.debug("update_additional_data_json")
     schema = db_config["target_schema"]
 
-    timeline_table_query = f"""
+    additional_data_table_query = f"""
         SELECT id, event, c_sirius_table_id, transformation_schema_c_sirius_table_id FROM {schema}.{table};
     """
-    timeline_table_df = pd.read_sql_query(
-        sql=timeline_table_query, con=db_config["db_connection_string"]
+
+    additional_data_table_df = pd.read_sql_query(
+        sql=additional_data_table_query, con=db_config["db_connection_string"]
     )
 
     def add_key(row, new_thing):
@@ -26,15 +27,15 @@ def update_timeline_json(db_config, table):
                 value["sirius_table_id"] = new_thing
         return row["event"]
 
-    timeline_table_df["event"] = timeline_table_df.apply(
+    additional_data_table_df["event"] = additional_data_table_df.apply(
         lambda x: add_key(row=x, new_thing=x["c_sirius_table_id"]), axis=1
     )
 
-    return timeline_table_df
+    return additional_data_table_df
 
 
-def update_timeline_json_statement(db_config, table, df):
-    log.debug("update_timeline_json_statement")
+def update_additional_data_json_statement(db_config, table, df):
+    log.debug("update_additional_data_json_statement")
 
     update_statement = ""
 
@@ -54,14 +55,14 @@ def update_timeline_json_statement(db_config, table, df):
     return update_statement
 
 
-def reindex_timeline(db_config, table, table_details):
-    log.info(f"Reindexing timeline table '{table}'")
+def reindex_additional_data(db_config, table, table_details):
+    log.info(f"Reindexing additional_data table '{table}'")
     target_db_engine = create_engine(db_config["db_connection_string"])
 
-    timeline_df = update_timeline_json(db_config, table)
+    additional_data_df = update_additional_data_json(db_config, table)
 
-    update_statement = update_timeline_json_statement(
-        db_config=db_config, table=table, df=timeline_df
+    update_statement = update_additional_data_json_statement(
+        db_config=db_config, table=table, df=additional_data_df
     )
 
     try:
@@ -72,7 +73,7 @@ def reindex_timeline(db_config, table, table_details):
     except Exception as e:
 
         log.error(
-            f"Errorrrrr",
+            f"Errorrrrr {e}",
             extra={
                 "file_name": "",
                 "error": format_error_message(e=e),

@@ -48,8 +48,10 @@ target_db_engine = create_engine(db_config["db_connection_string"])
 result = None
 # all_tables_list = table_helpers.get_table_list(table_helpers.get_table_file())
 all_tables_list = table_helpers.get_table_file()
-all_timeline_tables_list = table_helpers.get_table_file(file_name="timeline_tables")
-all_tables_dict = {**all_tables_list, **all_timeline_tables_list}
+all_additional_data_tables_list = table_helpers.get_table_file(
+    file_name="timeline_tables"
+)
+all_tables_dict = {**all_tables_list, **all_additional_data_tables_list}
 
 
 table_details = table_helpers.get_enabled_table_details()

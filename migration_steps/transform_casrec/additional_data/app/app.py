@@ -2,12 +2,12 @@ import os
 import sys
 from pathlib import Path
 
-from clear import clear_tables
-from insert_timeline import insert_timeline
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, str(current_path) + "/../../../shared")
 
+from clear import clear_tables
+from insert_additional_data import insert_additional_data_records
 import logging
 import time
 import click
@@ -57,7 +57,7 @@ allowed_entities = [k for k, v in config.ENABLED_ENTITIES.items() if v is True]
 def main(clear):
     allowed_entities = [k for k, v in config.ENABLED_ENTITIES.items() if v is True]
 
-    log.info(log_title(message="Migration Step: Timeline"))
+    log.info(log_title(message="Migration Step: additional_data"))
     log.info(
         log_title(
             message=f"Source: {db_config['source_schema']} Target: {db_config['target_schema']}"
@@ -71,18 +71,20 @@ def main(clear):
         f"Using JSON def version '{version_details['version_id']}' last updated {version_details['last_modified']}"
     )
 
-    if "timeline" not in allowed_entities:
+    if "additional_data" not in allowed_entities:
 
-        log.info("Timeline entity not enabled, exiting")
+        log.info("additional_data entity not enabled, exiting")
         return False
 
-    all_files = [x[:-5] for x in helpers.get_all_timeline_files()]
+    all_files = [x[:-5] for x in helpers.get_all_additional_data_files()]
 
     if clear:
         clear_tables(db_config=db_config, files=all_files)
 
     for file in all_files:
-        insert_timeline(db_config=db_config, timeline_file_name=file)
+        insert_additional_data_records(
+            db_config=db_config, additional_data_file_name=file
+        )
 
 
 if __name__ == "__main__":
