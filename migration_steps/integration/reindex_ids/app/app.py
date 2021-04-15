@@ -9,10 +9,10 @@ from existing_data.match_existing_data import match_existing_data
 from reindex.move_by_table import move_all_tables, create_schema
 from reindex.reindex_foreign_keys import update_fks
 from reindex.reindex_primary_keys import update_pks
-from reindex.reindex_timeline import (
-    update_timeline_json,
-    reindex_timeline,
-    update_timeline_json_statement,
+from reindex.reindex_additional_data import (
+    update_additional_data_json,
+    reindex_additional_data,
+    update_additional_data_json_statement,
 )
 from utilities.clear_database import clear_tables
 
@@ -86,10 +86,10 @@ def main(clear):
         clear_tables(db_config)
 
     table_details = table_helpers.get_enabled_table_details()
-    timeline_tables = table_helpers.get_enabled_table_details(
+    additional_data_tables = table_helpers.get_enabled_table_details(
         file_name="timeline_tables"
     )
-    all_tables = {**table_details, **timeline_tables}
+    all_tables = {**table_details, **additional_data_tables}
 
     log.info(
         f"Moving data from '{db_config['source_schema']}' schema to '{db_config['target_schema']}' schema"
@@ -104,8 +104,10 @@ def main(clear):
     log.info(f"Reindex all foreign keys")
     update_fks(db_config=db_config, table_details=all_tables)
 
-    for table, table_details in timeline_tables.items():
-        reindex_timeline(db_config=db_config, table=table, table_details=table_details)
+    for table, table_details in additional_data_tables.items():
+        reindex_additional_data(
+            db_config=db_config, table=table, table_details=table_details
+        )
 
 
 if __name__ == "__main__":

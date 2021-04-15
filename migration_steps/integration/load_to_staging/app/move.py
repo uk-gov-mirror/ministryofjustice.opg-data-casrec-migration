@@ -47,7 +47,6 @@ def generate_inserts(db_config, db_engine, tables):
             target_table = details["pk_table"]
         except KeyError:
             target_table = table
-        print(f"target_table: {target_table}")
 
         get_source_cols_query = get_columns_query(
             table=table, schema=db_config["source_schema"]
@@ -78,14 +77,13 @@ def generate_inserts(db_config, db_engine, tables):
                 schema=db_config["target_schema"],
                 columns=columns_missing_from_target,
             )
-            print(f"alter_target_query: {alter_target_query}")
+
             db_engine.execute(alter_target_query)
 
         query = f"""
         INSERT INTO {db_config["target_schema"]}.{target_table} ({', '.join(cols_to_move)})
         SELECT {', '.join(cols_to_move)} FROM {db_config["source_schema"]}.{table};
         """
-        print(f"query: {query}")
 
         try:
             with db_engine.begin() as conn:

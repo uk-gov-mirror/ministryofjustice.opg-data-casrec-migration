@@ -10,12 +10,12 @@ from sqlalchemy import create_engine
 
 current_path = Path(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, str(current_path) + "/../../shared")
-from helpers import get_timeline_dict, get_config
+from helpers import get_additional_data_dict, get_config
 
 log = logging.getLogger("root")
 
 DEFAULT_USER_ID = 2
-TIMELINE_TABLE_COLS = {
+additional_data_TABLE_COLS = {
     "id": "int",
     "user_id": "int",
     "timestamp": "timestamp(0)",
@@ -28,53 +28,57 @@ TIMELINE_TABLE_COLS = {
 }
 
 
-def prep_timeline_data(timeline_dict, db_config, chunk_details=None):
+def prep_additional_data_data(additional_data_dict, db_config, chunk_details=None):
 
     cols = ", ".join(
-        f'"{col}" as "{alias}"' for col, alias in timeline_dict["timeline_cols"].items()
+        f'"{col}" as "{alias}"'
+        for col, alias in additional_data_dict["timeline_cols"].items()
     )
 
-    timeline_data_query = f"""
+    additional_data_data_query = f"""
         SELECT {cols}, casrec_row_id
-        FROM {db_config['source_schema']}.{timeline_dict['casrec_table']}
+        FROM {db_config['source_schema']}.{additional_data_dict['casrec_table']}
     """
+
     if chunk_details:
-        timeline_data_query += f"""
+        additional_data_data_query += f"""
         ORDER BY casrec_row_id LIMIT {chunk_details["chunk_size"]} OFFSET {chunk_details["offset"]};
         """
 
-    timeline_data_df = pd.read_sql_query(
-        sql=timeline_data_query, con=db_config["db_connection_string"]
+    additional_data_data_df = pd.read_sql_query(
+        sql=additional_data_data_query, con=db_config["db_connection_string"]
     )
 
-    important_cols = [v for k, v in timeline_dict["timeline_cols"].items()]
+    important_cols = [v for k, v in additional_data_dict["timeline_cols"].items()]
 
-    timeline_data_df = timeline_data_df.replace("", np.nan)
-    timeline_data_df = timeline_data_df.dropna(subset=important_cols, thresh=1)
-    timeline_data_df = timeline_data_df.replace(np.nan, "")
+    additional_data_data_df = additional_data_data_df.replace("", np.nan)
+    additional_data_data_df = additional_data_data_df.dropna(
+        subset=important_cols, thresh=1
+    )
+    additional_data_data_df = additional_data_data_df.replace(np.nan, "")
 
     base_data_query = f"""
         SELECT id, cast(casrec_row_id as int)
-        FROM {db_config['target_schema']}.{timeline_dict['sirius_table']}
+        FROM {db_config['target_schema']}.{additional_data_dict['sirius_table']}
     """
 
     base_data_df = pd.read_sql_query(
         sql=base_data_query, con=db_config["db_connection_string"]
     )
 
-    timeline_data_with_id = timeline_data_df.merge(
+    additional_data_data_with_id = additional_data_data_df.merge(
         base_data_df, how="left", left_on="casrec_row_id", right_on="casrec_row_id"
     )
 
-    timeline_data_with_id = timeline_data_with_id.rename(
+    additional_data_data_with_id = additional_data_data_with_id.rename(
         columns={"id": "sirius_table_id"}
     )
 
-    timeline_data_with_id["sirius_table"] = timeline_dict["sirius_table"]
-    timeline_data_with_id["casrec_table"] = timeline_dict["casrec_table"]
-    timeline_data_with_id["entity"] = timeline_dict["entity"]
+    additional_data_data_with_id["sirius_table"] = additional_data_dict["sirius_table"]
+    additional_data_data_with_id["casrec_table"] = additional_data_dict["casrec_table"]
+    additional_data_data_with_id["entity"] = additional_data_dict["entity"]
 
-    return timeline_data_with_id
+    return additional_data_data_with_id
 
 
 def format_event(df):
@@ -108,7 +112,7 @@ def format_event(df):
 
 
 def format_other_cols(df):
-    cols_required = [x for x in TIMELINE_TABLE_COLS]
+    cols_required = [x for x in additional_data_TABLE_COLS]
 
     df.insert(0, "id", range(1, 1 + len(df)))
     df["user_id"] = DEFAULT_USER_ID
@@ -127,32 +131,32 @@ def format_other_cols(df):
     return formatted_df
 
 
-def create_table(timeline_table_name, db_config, target_db):
+def create_table(additional_data_table_name, db_config, target_db):
 
-    cols_to_create = [f"{k} {v}" for k, v in TIMELINE_TABLE_COLS.items()]
+    cols_to_create = [f"{k} {v}" for k, v in additional_data_TABLE_COLS.items()]
 
-    create_timeline_table_statement = f"""
-        CREATE TABLE {db_config['target_schema']}.{timeline_table_name} (
+    create_additional_data_table_statement = f"""
+        CREATE TABLE {db_config['target_schema']}.{additional_data_table_name} (
             {', '.join(cols_to_create)}
                );
     """
 
     try:
         with target_db.begin() as conn:
-            conn.execute(create_timeline_table_statement)
+            conn.execute(create_additional_data_table_statement)
 
     except Exception as e:
         log.error(
-            f"table {timeline_table_name} could not be created (probably already exists)"
+            f"table {additional_data_table_name} could not be created (probably already exists)"
         )
         print(f"e: {e}")
 
 
-def create_insert_statement(db_config, timeline_table_name, df):
-    cols = [x for x in TIMELINE_TABLE_COLS]
+def create_insert_statement(db_config, additional_data_table_name, df):
+    cols = [x for x in additional_data_TABLE_COLS]
 
     insert_statement = f"""
-        INSERT INTO {db_config['target_schema']}.{timeline_table_name} ({', '.join(cols)})
+        INSERT INTO {db_config['target_schema']}.{additional_data_table_name} ({', '.join(cols)})
         VALUES
     """
 
@@ -185,7 +189,8 @@ def create_insert_statement(db_config, timeline_table_name, df):
     return insert_statement
 
 
-def insert_timeline(db_config, timeline_file_name):
+def insert_additional_data_records(db_config, additional_data_file_name):
+
     config = get_config(env=os.environ.get("ENVIRONMENT"))
     chunk_size = config.DEFAULT_CHUNK_SIZE
     offset = 0
@@ -195,39 +200,39 @@ def insert_timeline(db_config, timeline_file_name):
 
     target_db_engine = create_engine(db_config["db_connection_string"])
 
-    timeline_dict = get_timeline_dict(file_name=timeline_file_name)
+    additional_data_dict = get_additional_data_dict(file_name=additional_data_file_name)
 
-    if not timeline_dict["entity"] in allowed_entities:
+    if not additional_data_dict["entity"] in allowed_entities:
         log.info(
-            f"{timeline_file_name} is party of entity '{timeline_dict['entity']}'  which is not enabled, moving on"
+            f"{additional_data_file_name} is party of entity '{additional_data_dict['entity']}'  which is not enabled, moving on"
         )
         return False
 
-    timeline_table_name = (
-        f"timeline_event_{timeline_dict['entity']}_{timeline_dict['sirius_table']}"
-    )
+    additional_data_table_name = f"additional_data_{additional_data_dict['entity']}_{additional_data_dict['sirius_table']}"
 
     create_table(
-        timeline_table_name=timeline_table_name,
+        additional_data_table_name=additional_data_table_name,
         db_config=db_config,
         target_db=target_db_engine,
     )
 
     while True:
+
         try:
-            timeline_data_df = prep_timeline_data(
-                timeline_dict=timeline_dict,
+
+            additional_data_data_df = prep_additional_data_data(
+                additional_data_dict=additional_data_dict,
                 db_config=db_config,
                 chunk_details={"chunk_size": chunk_size, "offset": offset},
             )
 
-            timeline_data_df = format_event(df=timeline_data_df)
-            timeline_data_df = format_other_cols(df=timeline_data_df)
+            additional_data_data_df = format_event(df=additional_data_data_df)
+            additional_data_data_df = format_other_cols(df=additional_data_data_df)
 
             insert_statement = create_insert_statement(
                 db_config=db_config,
-                timeline_table_name=timeline_table_name,
-                df=timeline_data_df,
+                additional_data_table_name=additional_data_table_name,
+                df=additional_data_data_df,
             )
 
             try:
@@ -236,7 +241,7 @@ def insert_timeline(db_config, timeline_file_name):
                     log.debug(f"inserting chunk no {chunk_no}")
                     inserted = conn.execute(insert_statement)
                     log.debug(
-                        f"inserted {inserted.rowcount} rows into {timeline_table_name}"
+                        f"inserted {inserted.rowcount} rows into {additional_data_table_name}"
                     )
 
             except Exception as e:
