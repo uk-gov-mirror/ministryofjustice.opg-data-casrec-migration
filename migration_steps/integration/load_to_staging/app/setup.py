@@ -10,6 +10,7 @@ log = logging.getLogger("root")
 
 
 def insert_base_data(db_config, db_engine):
+    log.info("inserting base data")
 
     # insert default user into assignees
     base_data = {
@@ -30,6 +31,16 @@ def insert_base_data(db_config, db_engine):
                 (186,'Deputy Bond Services (DBS)',21000.00,null,null,'https://www.deputybondservices.co.uk','DBS_dev'),
                 (187,'Marsh',16000.00,null,null,null,'MARSH_dev'),
                 (43745,'OTHER',null,null,null,null,'OTHER_dev');
+        """,
+        "casrec_extra_data": f"""
+            CREATE TABLE IF NOT EXISTS {db_config['target_schema']}.casrec_extra_data (
+                id serial primary key,
+                entity text,
+                sirius_table text,
+                sirius_pk_column text,
+                sirius_pk int,
+                details json
+            )
         """,
     }
     for name, statement in base_data.items():

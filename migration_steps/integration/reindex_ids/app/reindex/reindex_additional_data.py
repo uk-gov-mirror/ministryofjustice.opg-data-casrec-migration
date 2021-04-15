@@ -47,7 +47,7 @@ def update_additional_data_json_statement(db_config, table, df):
 
         row_statement = f"""
             UPDATE {db_config['target_schema']}.{table}
-            SET event = '{json_field}'
+            SET details = '{json_field}'
             WHERE id = {row[0]};
         """
         update_statement += row_statement

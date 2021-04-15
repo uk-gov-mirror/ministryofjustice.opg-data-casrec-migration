@@ -13,6 +13,8 @@ log = logging.getLogger("root")
 
 @timer
 def match_existing_data(db_config, table_details):
+    print(table_details)
+
     """
     This is a placeholder for now. Just setting everything as new data for now
     The real matchy script will look WAY more complicated than this!

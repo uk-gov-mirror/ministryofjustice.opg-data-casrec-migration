@@ -17,13 +17,12 @@ log = logging.getLogger("root")
 DEFAULT_USER_ID = 2
 additional_data_TABLE_COLS = {
     "id": "int",
-    "user_id": "int",
-    "timestamp": "timestamp(0)",
-    "eventtype": "varchar(255)",
-    "event": "json",
+    "entity": "varchar(255)",
+    "details": "json",
+    "sirius_table": "text",
+    "sirius_pk_column": "text",
+    "sirius_pk": "int",
     "c_casrec_row_id": "int",
-    "c_sirius_table": "text",
-    "c_sirius_table_id": "int",
     # "transformation_schema_id": "int",
 }
 
@@ -97,16 +96,16 @@ def format_event(df):
     event_dict = df[[x for x in event_columns]].to_dict("records")
 
     # this is a hack, format needs working out
-    eventtype_list = [str(list(set(df[x].values))[0]) for x in standard_cols]
-    eventtype = "_".join(eventtype_list)
+    # eventtype_list = [str(list(set(df[x].values))[0]) for x in standard_cols]
+    # eventtype = "_".join(eventtype_list)
 
     new_df = df[[x for x in standard_cols]].copy()
-    new_df["eventtype"] = eventtype
-    new_df["event"] = event_dict
-    new_df["event"] = new_df["event"].apply(
-        lambda x: {"class": eventtype, "payload": x}
-    )
-    new_df["event"] = new_df["event"].apply(lambda x: json.dumps(x))
+    # new_df["eventtype"] = eventtype
+    new_df["details"] = event_dict
+    # new_df["details"] = new_df["event"].apply(
+    #     lambda x: {"class": eventtype, "payload": x}
+    # )
+    new_df["details"] = new_df["details"].apply(lambda x: json.dumps(x))
 
     return new_df
 
@@ -120,13 +119,16 @@ def format_other_cols(df):
     df = df.rename(
         columns={
             "casrec_row_id": "c_casrec_row_id",
-            "sirius_table": "c_sirius_table",
-            "sirius_table_id": "c_sirius_table_id",
+            "sirius_table": "sirius_table",
+            # "sirius_column": "sirius_pk_column",
+            "sirius_table_id": "sirius_pk",
         }
     )
-    df["transformation_schema_id"] = df["c_sirius_table_id"]
+    df["transformation_schema_id"] = df["sirius_pk"]
+    df["sirius_pk_column"] = "id"
 
     formatted_df = df[[x for x in cols_required]]
+    print(formatted_df)
 
     return formatted_df
 

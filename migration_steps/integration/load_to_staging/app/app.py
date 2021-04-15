@@ -54,9 +54,11 @@ all_additional_data_tables_list = table_helpers.get_table_file(
 all_tables_dict = {**all_tables_list, **all_additional_data_tables_list}
 
 
-table_details = table_helpers.get_enabled_table_details()
-timeline_tables = table_helpers.get_enabled_table_details(file_name="timeline_tables")
-enabled_tables_list = {**table_details, **timeline_tables}
+enabled_table_details = table_helpers.get_enabled_table_details()
+enabled_additional_tables = table_helpers.get_enabled_table_details(
+    file_name="timeline_tables"
+)
+all_enabled_tables_dict = {**enabled_table_details, **enabled_additional_tables}
 
 
 def clear_tables():
@@ -76,7 +78,7 @@ def base_data():
 
 def inserts():
     generate_inserts(
-        db_config=db_config, db_engine=target_db_engine, tables=enabled_tables_list
+        db_config=db_config, db_engine=target_db_engine, tables=all_enabled_tables_dict
     )
     global result
     result = "inserts complete"
@@ -96,6 +98,7 @@ def update():
     help="Clear existing database tables: True or False",
 )
 def main(clear):
+    allowed_entities = [k for k, v in config.ENABLED_ENTITIES.items() if v is True]
 
     log.info(log_title(message="Integration Step: Load to Staging"))
     log.info(
@@ -103,11 +106,7 @@ def main(clear):
             message=f"Source: {db_config['source_schema']} Target: {db_config['target_schema']}"
         )
     )
-    log.info(
-        log_title(
-            message=f"Enabled entities: {', '.join(k for k, v in config.ENABLED_ENTITIES.items() if v is True)}"
-        )
-    )
+    log.info(log_title(message=f"Enabled entities: {', '.join(allowed_entities)}"))
     log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
 
     work = [base_data, inserts]

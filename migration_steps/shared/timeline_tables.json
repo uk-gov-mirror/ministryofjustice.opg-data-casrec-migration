@@ -7,10 +7,10 @@
     },
     "table_type": "timeline",
     "pk": "id",
-    "pk_table": "timeline_event",
+    "pk_table": "casrec_extra_data",
       "fks": [
           {
-              "column":"c_sirius_table_id",
+              "column":"sirius_pk",
               "parent_table" : "persons",
               "parent_column": "id"
           }],

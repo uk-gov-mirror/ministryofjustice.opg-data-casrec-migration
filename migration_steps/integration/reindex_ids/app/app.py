@@ -60,6 +60,7 @@ target_db_engine = create_engine(db_config["db_connection_string"])
     help="Clear existing database tables: True or False",
 )
 def main(clear):
+    allowed_entities = [k for k, v in config.ENABLED_ENTITIES.items() if v is True]
 
     log.info(
         log_title(message="Integration Step: Reindex migrated data based on Sirius ids")
@@ -69,11 +70,7 @@ def main(clear):
             message=f"Source: {db_config['source_schema']} Target: {db_config['target_schema']}"
         )
     )
-    log.info(
-        log_title(
-            message=f"Enabled entities: {', '.join(k for k, v in config.ENABLED_ENTITIES.items() if v is True)}"
-        )
-    )
+    log.info(log_title(message=f"Enabled entities: {', '.join(allowed_entities)}"))
     log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
 
     log.info(f"Creating schema '{db_config['target_schema']}' if it doesn't exist")
@@ -97,17 +94,22 @@ def main(clear):
     move_all_tables(db_config=db_config, table_list=all_tables)
 
     log.info(f"Merge new data with existing data in Sirius")
-    match_existing_data(db_config=db_config, table_details=all_tables)
+    match_existing_data(db_config=db_config, table_details=table_details)
 
     log.info(f"Reindex all primary keys")
-    update_pks(db_config=db_config, table_details=all_tables)
+    update_pks(db_config=db_config, table_details=table_details)
     log.info(f"Reindex all foreign keys")
-    update_fks(db_config=db_config, table_details=all_tables)
+    update_fks(db_config=db_config, table_details=table_details)
 
-    for table, table_details in additional_data_tables.items():
-        reindex_additional_data(
-            db_config=db_config, table=table, table_details=table_details
-        )
+    if "additional_data" not in allowed_entities:
+
+        log.info("additional_data entity not enabled, exiting")
+        return False
+
+    # for table, table_details in additional_data_tables.items():
+    #     reindex_additional_data(
+    #         db_config=db_config, table=table, table_details=additional_data_tables
+    #     )
 
 
 if __name__ == "__main__":

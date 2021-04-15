@@ -68,6 +68,7 @@ def generate_inserts(db_config, db_engine, tables):
                 + extra_cols_to_move_to_staging
             )
         )
+        print(f"cols_to_move: {cols_to_move}")
 
         columns_missing_from_target = extra_cols_to_move_to_staging
 
@@ -84,6 +85,7 @@ def generate_inserts(db_config, db_engine, tables):
         INSERT INTO {db_config["target_schema"]}.{target_table} ({', '.join(cols_to_move)})
         SELECT {', '.join(cols_to_move)} FROM {db_config["source_schema"]}.{table};
         """
+        print(f"query: {query}")
 
         try:
             with db_engine.begin() as conn:
