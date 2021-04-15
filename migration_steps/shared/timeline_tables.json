@@ -1,5 +1,5 @@
 {
-  "additional_data_event_clients_persons": {
+  "additional_data_clients_persons": {
     "entities": {
       "base_entities": [
         "clients"
