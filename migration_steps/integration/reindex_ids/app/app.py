@@ -55,6 +55,7 @@ target_db_engine = create_engine(db_config["db_connection_string"])
     help="Clear existing database tables: True or False",
 )
 def main(clear):
+    allowed_entities = [k for k, v in config.ENABLED_ENTITIES.items() if v is True]
 
     log.info(
         log_title(message="Integration Step: Reindex migrated data based on Sirius ids")
@@ -64,11 +65,7 @@ def main(clear):
             message=f"Source: {db_config['source_schema']} Target: {db_config['target_schema']}"
         )
     )
-    log.info(
-        log_title(
-            message=f"Enabled entities: {', '.join(k for k, v in config.ENABLED_ENTITIES.items() if v is True)}"
-        )
-    )
+    log.info(log_title(message=f"Enabled entities: {', '.join(allowed_entities)}"))
     log.debug(f"Working in environment: {os.environ.get('ENVIRONMENT')}")
 
     log.info(f"Creating schema '{db_config['target_schema']}' if it doesn't exist")
@@ -80,20 +77,31 @@ def main(clear):
     if clear:
         clear_tables(db_config)
 
-    table_details = table_helpers.get_enabled_table_details()
+    enabled_tables = table_helpers.get_enabled_table_details()
+    if "additional_data" not in allowed_entities:
+
+        log.info("additional_data entity not enabled, exiting")
+        enabled_extra_tables = {}
+
+    else:
+        enabled_extra_tables = table_helpers.get_enabled_table_details(
+            file_name="additional_data_tables"
+        )
+
+    all_enabled_tables = {**enabled_tables, **enabled_extra_tables}
 
     log.info(
         f"Moving data from '{db_config['source_schema']}' schema to '{db_config['target_schema']}' schema"
     )
-    move_all_tables(db_config=db_config, table_list=table_details)
+    move_all_tables(db_config=db_config, table_list=all_enabled_tables)
 
     log.info(f"Merge new data with existing data in Sirius")
-    match_existing_data(db_config=db_config, table_details=table_details)
+    match_existing_data(db_config=db_config, table_details=all_enabled_tables)
 
     log.info(f"Reindex all primary keys")
-    update_pks(db_config=db_config, table_details=table_details)
+    update_pks(db_config=db_config, table_details=enabled_tables)
     log.info(f"Reindex all foreign keys")
-    update_fks(db_config=db_config, table_details=table_details)
+    update_fks(db_config=db_config, table_details=all_enabled_tables)
 
 
 if __name__ == "__main__":

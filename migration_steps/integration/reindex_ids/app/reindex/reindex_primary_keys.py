@@ -47,7 +47,6 @@ def get_max_pk_dict(db_connection_string, max_val_query):
     finally:
         cursor.close()
         conn.commit()
-
     return result_dict
 
 
