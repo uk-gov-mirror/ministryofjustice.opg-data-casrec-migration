@@ -151,13 +151,6 @@ def build_exception_table(mapping_name):
 
 
 def build_lookup_functions():
-    # drop all the lookup tables from last run
-    for lookup_name, lookup in helpers.get_all_lookup_dicts().items():
-        sql_add(
-            f"DROP FUNCTION IF EXISTS {source_schema}.{lookup_name}(character varying);"
-        )
-    sql_add("")
-
     for lookup_name, lookup in helpers.get_all_lookup_dicts().items():
 
         firstval = lookup[list(lookup)[0]]['sirius_mapping']
@@ -167,6 +160,9 @@ def build_lookup_functions():
         elif isinstance(firstval, int):
             datatype = "INT"
 
+        sql_add(
+            f"DROP FUNCTION IF EXISTS {source_schema}.{lookup_name}(character varying);"
+        )
         sql_add(
             f"CREATE OR REPLACE FUNCTION {source_schema}.{lookup_name}(lookup_key varchar default null) RETURNS {datatype} AS"
         )
