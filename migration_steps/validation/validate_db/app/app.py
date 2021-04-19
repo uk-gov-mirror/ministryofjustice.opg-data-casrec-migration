@@ -159,17 +159,28 @@ def build_lookup_functions():
     sql_add("")
 
     for lookup_name, lookup in helpers.get_all_lookup_dicts().items():
+
+        firstval = lookup[list(lookup)[0]]['sirius_mapping']
+        datatype = "TEXT"
+        if isinstance(firstval, bool):
+            datatype = "BOOLEAN"
+        elif isinstance(firstval, int):
+            datatype = "INT"
+
         sql_add(
-            f"CREATE OR REPLACE FUNCTION {source_schema}.{lookup_name}(lookup_key varchar default null) RETURNS TEXT AS"
+            f"CREATE OR REPLACE FUNCTION {source_schema}.{lookup_name}(lookup_key varchar default null) RETURNS {datatype} AS"
         )
         sql_add(f"$$")
         sql_add(f"SELECT CASE", 1)
         for k, v in lookup.items():
             try:
-                sirius_value = v["sirius_mapping"].replace("'", "''")
+                escape_quotes = v["sirius_mapping"].replace("'", "''")
             except AttributeError:
-                sirius_value = v["sirius_mapping"]
-            sql_add(f"WHEN ($1 = '{k}') THEN '{sirius_value}'", 2)
+                escape_quotes = v["sirius_mapping"]
+
+            value = f"'{escape_quotes}'" if isinstance(escape_quotes, str) else escape_quotes
+            sql_add(f"WHEN ($1 = '{k}') THEN {value}", 2)
+
         sql_add("END", 1)
         sql_add("$$ LANGUAGE sql;", 0, 2)
     sql_add("")
