@@ -28,7 +28,6 @@ class StepFunctionRunner:
             if machine["name"] == step_function_name:
                 print(f'Setting ARN to: {machine["stateMachineArn"]}')
                 self.sf_arn = machine["stateMachineArn"]
-                # return machine["stateMachineArn"]
             else:
                 print("No state machine of given name exists")
                 os._exit(1)
@@ -86,7 +85,6 @@ class StepFunctionRunner:
 
         for execution in executions["executions"]:
             self.execution_arn = execution["executionArn"]
-            # return execution["executionArn"]
 
     def refresh_creds(self):
         " Refresh tokens by calling assume_role again "

@@ -46,14 +46,30 @@ db_config = {
 }
 target_db_engine = create_engine(db_config["db_connection_string"])
 result = None
+
+allowed_entities = [k for k, v in config.ENABLED_ENTITIES.items() if v is True]
 tables_list = table_helpers.get_table_list(table_helpers.get_table_file())
-enabled_tables_list = table_helpers.get_table_list(
-    table_helpers.get_enabled_table_details()
-)
+
+enabled_tables = table_helpers.get_enabled_table_details()
+if "additional_data" not in allowed_entities:
+
+    log.info("additional_data entity not enabled, exiting")
+    enabled_extra_tables = {}
+
+else:
+    enabled_extra_tables = table_helpers.get_enabled_table_details(
+        file_name="additional_data_tables"
+    )
+
+all_enabled_tables = {**enabled_tables, **enabled_extra_tables}
+
 
 def clear_tables():
     empty_target_tables(
-        db_config=db_config, db_engine=target_db_engine, tables=tables_list[:]
+        db_config=db_config,
+        db_engine=target_db_engine,
+        tables=tables_list[:],
+        extra_tables=enabled_extra_tables,
     )
 
     global result
@@ -68,7 +84,10 @@ def base_data():
 
 def inserts():
     generate_inserts(
-        db_config=db_config, db_engine=target_db_engine, tables=enabled_tables_list
+        db_config=db_config,
+        db_engine=target_db_engine,
+        tables=enabled_tables,
+        extra_tables=enabled_extra_tables,
     )
     global result
     result = "inserts complete"
