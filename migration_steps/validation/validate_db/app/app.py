@@ -443,8 +443,8 @@ def write_column_validation_sql(
     )
     for join in validation_dict[mapping_name]["casrec"]["joins"]:
         sql_add(f"{join}", 3)
-    sql_add(f"LEFT JOIN {get_exception_table(mapping_name)} exc_table", 3)
-    sql_add('ON exc_table.caserecnumber = pat."Case"', 4)
+    exception_table_join = validation_dict[mapping_name]["casrec"]["exception_table_join"]
+    sql_add(f"{exception_table_join}", 3)
     # WHERE
     sql_add("WHERE exc_table.caserecnumber IS NOT NULL", 3)
     for where_clause in validation_dict[mapping_name]["casrec"]["where_clauses"]:
@@ -474,8 +474,8 @@ def write_column_validation_sql(
     for join in validation_dict[mapping_name]["sirius"]["joins"]:
         join = join.replace("{target_schema}", str(target_schema))
         sql_add(f"{join}", 3)
-    sql_add(f"LEFT JOIN {get_exception_table(mapping_name)} exc_table", 3)
-    sql_add("ON exc_table.caserecnumber = persons.caserecnumber", 4)
+    exception_table_join = validation_dict[mapping_name]["sirius"]["exception_table_join"]
+    sql_add(f"{exception_table_join}", 3)
     # WHERE
     sql_add("WHERE exc_table.caserecnumber IS NOT NULL", 3)
     for where_clause in validation_dict[mapping_name]["sirius"]["where_clauses"]:
