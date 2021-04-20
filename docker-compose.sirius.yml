@@ -40,7 +40,7 @@ services:
       SIRIUS_DB_PASSWORD: api # pragma: allowlist secret
       SIRIUS_DB_NAME: api
       SIRIUS_DB_HOST: docker.for.mac.localhost
-      SIRIUS_DB_PORT: 7777
+      SIRIUS_DB_PORT: 5432
       ENVIRONMENT: local
       SIRIUS_ACCOUNT: NA
     depends_on: [casrec_db]
@@ -84,7 +84,7 @@ services:
       SIRIUS_DB_PASSWORD: api # pragma: allowlist secret
       SIRIUS_DB_NAME: api
       SIRIUS_DB_HOST: docker.for.mac.localhost
-      SIRIUS_DB_PORT: 7777
+      SIRIUS_DB_PORT: 5432
       ENVIRONMENT: local
     depends_on: [casrec_db]
   validation:
@@ -101,7 +101,7 @@ services:
       SIRIUS_DB_PASSWORD: api # pragma: allowlist secret
       SIRIUS_DB_NAME: api
       SIRIUS_DB_HOST: docker.for.mac.localhost
-      SIRIUS_DB_PORT: 7777
+      SIRIUS_DB_PORT: 5432
       ENVIRONMENT: local
       SIRIUS_ACCOUNT: NA
       RUN_API_TESTS: "True"
@@ -124,6 +124,6 @@ services:
       SIRIUS_DB_PASSWORD: api # pragma: allowlist secret
       SIRIUS_DB_NAME: api
       SIRIUS_DB_HOST: docker.for.mac.localhost
-      SIRIUS_DB_PORT: 7777
+      SIRIUS_DB_PORT: 5432
       ENVIRONMENT: local
     depends_on: [casrec_db]
