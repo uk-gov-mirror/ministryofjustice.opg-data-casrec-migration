@@ -75,11 +75,49 @@ docker-compose run --rm load_to_target python3 app.py
 docker-compose run --rm validation validation/validate.sh
 ```
 
-You will be asked if you want to resynch your data from development s3. You can just hit enter if you don't.
+You will be asked if you want to resync your data from development s3. You can just hit enter if
+you don't or type "y" if you do. If you do then you will need to enter your aws vault password and 2FA so you
+can connect to aws dev s3.
 
-If you do then you will need to enter your aws vault password and 2FA.
+You will be asked if you want to skip reload to s3. This step takes all your local files and puts them in the S3
+of your localstack. The default is to do it on each run but if you like
+then you can type "y" and it will skip this step. Obviously you can only skip this step if you have
+already done an initial run that has loaded into s3!
 
-Running the steps (Non-dockerised):
+#### Local issues
+
+- I am getting unexpected data based failures:
+    - Try running the migrate script with resync.
+    It is possible someone else has updated something that needs a different data set.
+
+- I am getting weird docker issues:
+    - Sometimes when switching between branches or when devs have modified paths to files then your existing
+    images and containers will need refreshing as the code will be expecting one thing whilst the container
+    volumes will have something else. If you can't immediately see the issue then it might be best to
+    refresh everything. There's a helper script in root called `reset_local_env.sh` that you can run that will do
+    a pretty hard cleanup for you without destroying other environments images (like sirius).
+
+- I am still getting weird issues where it's saying files don't exist
+    - Try and check the volume mounts are all correct in both the Dockerfiles (found in migration_steps folder) and
+    in the dynamic volume entries in the `docker-compose.override.yml` file.
+
+#### Pipeline based issues
+
+- I am seeing issues with finding the task as part of the reset sirius job:
+    - Check the time. If it's after 8pm then the env has been taken down.
+    All sirius envs get taken down overnight to save money. If it's not then it is likely that the ECR
+    images have been cleared up. We should be refreshing our sirius at least monthly.
+    To do this:
+        - Go to https://jenkins.opg.service.justice.gov.uk/job/Sirius/job/Create_Development_Environment/
+        - Click on `build with parameters`
+        - Enter `casmigrate` into the target_environment field
+        - Pick 4 hours in drop down and leave other fields blank
+        - Click build and wait for it to finish
+        - Now in AWS sirius dev account, go to dynamo db and look for the WorkspaceCleanup table
+        - Go to the items tab, find casmigrate and edit to epoch timestamp to be waaaaay in the future.
+        This will stop it being deleted by cleanup jobs
+
+#### Running the steps (Non-dockerised):
 
 Note - the steps rely on data passed forward by the chain, so your safest bet is to run ./migrate  - but for debugging.
 
@@ -178,31 +216,12 @@ You can re-run make dev-setup if it fails, without doing a make-clean
 You should be able to view Sirius FE at http://localhost:8080
 You should also be able to log in as case.manager@opgtest.com / Password1
 
-If you can't log in, or if the site doesn't appear at all, but your containers seem to be up ok, It sometimes helps to turn it off and on again:
+If you can't log in, or if the site doesn't appear at all, but your containers seem to be up ok,
+it sometimes helps to turn it off and on again:
 
 ```
 make dev-stop
 make dev-up
-```
-
-You could have changed the DB ports before bringing everything up but if you're new to setting up sirius it's good
-to bring it up as per the sirius docs before touching anything. As such we now need to bring it down and swap a port around.
-
-```
-make dev-stop
-```
-
-Add the following in the docker-compose file on the sirius side directly under postgres-api:
-
-```
-ports:
-  - 7777:5432
-```
-
-Then run:
-
-```
-make dev-start
 ```
 
 Then run this from the root of this repo:
@@ -221,8 +240,23 @@ docker-compose run --rm queue scripts/elasticsearch/setup.sh
 ```
 
 Now you can run validation again and API tests will work:
+
 ```
 docker-compose -f docker-compose.sirius.yml -f docker-compose.override.yml run --rm validation validation/validate.sh "$@"
+```
+
+To rerun again, you should reset the sirius databases. On the sirius side run the
+following commands before rerunning your jobs:
+
+```
+make dev-up
+```
+
+This seems to restore from the last backup. If you have issues with this you may need to run these first:
+
+```
+make reset-databases
+make ingest
 ```
 
 ## The Migration Pipeline

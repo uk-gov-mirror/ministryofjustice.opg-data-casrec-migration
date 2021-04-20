@@ -1,16 +1,28 @@
 #!/bin/bash
 set -e
-# Whether to skip all the casrec loading.
-# Change to true to reload (only do this if sure the data in casrec_csv schema is correct)
-if [ "${CI}" != "true" ]
-then
-  read -p "Do you want to resynch? (y/n) [n]: " RESYNCH
-  RESYNCH=${RESYNCH:-n}
-  echo $RESYNCH
-fi
 
 NO_RELOAD=false
 GENERATE_DOCS=false
+
+if [ "${CI}" != "true" ]
+then
+  read -p "Do you want to resync? (y/n) [n]: " RESYNC
+  RESYNC=${RESYNC:-n}
+  echo $RESYNC
+  # Only do this if sure the data in casrec_csv schema is correct)
+  read -p "Do you want to skip reload into localstack? (y/n) [n]: " NO_RELOAD
+  NO_RELOAD=${NO_RELOAD:-n}
+  echo $NO_RELOAD
+  if [ ${NO_RELOAD} == "y" ]
+  then
+    NO_RELOAD="true"
+    echo "IN HERE"
+    echo $NO_RELOAD
+  fi
+fi
+
+START_TIME=`date +%s`
+
 if [ "${NO_RELOAD}" == "true" ]
   then
   echo "=== Setting no reload settings ==="
@@ -27,7 +39,7 @@ if [ "${NO_RELOAD}" != "true" ]
 then
   if [ "${CI}" != "true" ]
   then
-      if [ ${RESYNCH} == "y" ]
+      if [ ${RESYNC} == "y" ]
       then
         aws-vault exec identity -- docker-compose run --rm load_s3 ./local_s3.sh -s TRUE
       else
@@ -71,3 +83,8 @@ if [ "${GENERATE_DOCS}" == "true" ]
   python3 docs/create_report/run.py
 fi
 echo "=== FINISHED! ==="
+
+END_TIME=`date +%s`
+RUN_TIME=$((END_TIME-START_TIME))
+
+echo "Total Run Time: ${RUN_TIME} seconds"
