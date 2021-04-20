@@ -93,6 +93,8 @@ def get_entity_ids(session, entity, search_field, search_value, csv_type):
         "size": 5,
     }
 
+    # print(f"data_raw: {data_raw}")
+
     response = session["sess"].post(
         f'{session["base_url"]}/api/advanced-search',
         headers=full_headers,
@@ -101,10 +103,12 @@ def get_entity_ids(session, entity, search_field, search_value, csv_type):
 
     search_result = json.loads(response.text)
 
+    # print(f"search_result: {search_result}")
+
     ids = []
 
     if search_result["hits"]["total"] > 0:
-        if csv_type == "clients":
+        if csv_type in ["clients", "deputies"]:
             entity_id = search_result["hits"]["hits"][0]["_id"]
             ids.append(entity_id)
         elif csv_type == "orders":
@@ -112,6 +116,7 @@ def get_entity_ids(session, entity, search_field, search_value, csv_type):
             for case in cases:
                 if case["caseType"] == "ORDER":
                     ids.append(case["id"])
+
     return ids
 
 
@@ -172,12 +177,15 @@ def flat_dict(d, ignore_list):
     return final_dict
 
 
-@pytest.mark.parametrize("csv", ["orders", "clients"])
+# @pytest.mark.parametrize("csv", ["orders", "clients"])
+@pytest.mark.parametrize("csv", ["deputies"])
 def test_csvs(csv, create_a_session):
     s3_csv_path = f"validation/csvs/{csv}.csv"
+    print(f"s3_csv_path: {s3_csv_path}")
 
     obj = create_a_session["s3_sess"].get_object(Bucket=bucket_name, Key=s3_csv_path)
     csv_data = pd.read_csv(io.BytesIO(obj["Body"].read()), dtype=str)
+    # print(csv_data.sample(5).to_markdown())
     count = 0
     # Iterate over rows in the input spreadheet
     for index, row in csv_data.iterrows():
@@ -206,6 +214,7 @@ def test_csvs(csv, create_a_session):
         # Because some of our searches may bring back multiple entities we need an object to aggregate them
         response_struct = {}
         for entity_id in entity_ids:
+
             endpoint_final = str(endpoint).replace("{id}", str(entity_id))
             print(f"Checking responses from: {endpoint_final}")
             response = create_a_session["sess"].get(
@@ -213,6 +222,7 @@ def test_csvs(csv, create_a_session):
                 headers=create_a_session["headers_dict"],
             )
             json_obj = json.loads(response.text)
+            print(f"json_obj: {json_obj}")
 
             for header in headers_to_check:
                 var_to_eval = f"json_obj{header}"
@@ -254,9 +264,11 @@ def test_csvs(csv, create_a_session):
     print(f"Ran happy path tests against {count} cases in {csv}")
 
 
+@pytest.mark.skip()
 @pytest.mark.parametrize("csv", ["fail"])
 def test_fail_csvs(csv, create_a_session):
     s3_csv_path = f"validation/csvs/{csv}.csv"
+    print(f"s3_csv_path: {s3_csv_path}")
 
     obj = create_a_session["s3_sess"].get_object(Bucket=bucket_name, Key=s3_csv_path)
     csv_data = pd.read_csv(io.BytesIO(obj["Body"].read()), dtype=str)
