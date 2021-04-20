@@ -137,6 +137,7 @@ There are two flags:
 - `version` is to decide whether to pull in specific version (defaults to latest)
 
 ## Install Sirius project (optional)
+
 In order to see the results of a migration in the Sirius Front end you'll need the actual Sirius project:
 
 Installing Sirius in a nutshell (refer to Sirius docs for more):
@@ -144,13 +145,35 @@ Installing Sirius in a nutshell (refer to Sirius docs for more):
 ```
 git clone git@github.com:ministryofjustice/opg-sirius.git
 cd opg-sirius
+```
 
-# authenticate with AWS (get ops to help you set this up if you haven't got aws-vault)
+#### Authenticate with AWS
+
+To authenticate, first make sure you have a sirius dev profile with operator level access. This is used
+to assume permissions in management to pull from management ECR (our repository for sirius images).
+
+To check this, go into `~/.aws/config` and check if you have something that looks like
+the following (with your name at the end):
+
+```
+[profile sirius-dev-operator]
+region=eu-west-1
+role_arn=arn:aws:iam::288342028542:role/operator
+source_profile=identity
+mfa_serial=arn:aws:iam::631181914621:mfa/firstname.lastname
+```
+
 aws-vault exec sirius-dev-operator -- make ecr_login
 
-make clean && make dev-setup
-# (you can re-run make dev-setup if it fails, without doing a make-clean)
+Setup sirius. *** Note *** Don't do the clean if you already have a recent setup or it will wipe it!!!
+
+It is a surefire way to correct any drift in sirius though...
+
 ```
+make clean && make dev-setup
+```
+You can re-run make dev-setup if it fails, without doing a make-clean
+
 
 You should be able to view Sirius FE at http://localhost:8080
 You should also be able to log in as case.manager@opgtest.com / Password1
@@ -162,14 +185,24 @@ make dev-stop
 make dev-up
 ```
 
-You can now bring up our side using a different migrate script. You should bring everything down first. Run these commands in this repo:
+You could have changed the DB ports before bringing everything up but if you're new to setting up sirius it's good
+to bring it up as per the sirius docs before touching anything. As such we now need to bring it down and swap a port around.
 
-You need to make one further change. You need to expose port 7777 on the sirius DB so that we can connect to it with our setup.
+```
+make dev-stop
+```
+
 Add the following in the docker-compose file on the sirius side directly under postgres-api:
 
 ```
 ports:
   - 7777:5432
+```
+
+Then run:
+
+```
+make dev-start
 ```
 
 Then run this from the root of this repo:
@@ -179,12 +212,17 @@ docker-compose down
 ./migrate_to_sirius.sh
 ```
 
+The API tests will fail due to reindexing issues. This is expected. I can't currently think of a good way of calling
+the reindex job from our job locally so just reindex as below (you will need this to perform searches anyway):
 
-Re-index elastic search after migration
-
-```bash
+```
 # (In Sirius local dev root)
 docker-compose run --rm queue scripts/elasticsearch/setup.sh
+```
+
+Now you can run validation again and API tests will work:
+```
+docker-compose -f docker-compose.sirius.yml -f docker-compose.override.yml run --rm validation validation/validate.sh "$@"
 ```
 
 ## The Migration Pipeline
