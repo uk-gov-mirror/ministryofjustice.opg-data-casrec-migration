@@ -3,7 +3,11 @@
         "exclude": [
             "order_id"
         ],
-        "overriden": [],
+        "forced": {
+            "caserecnumber": {
+                "mapping_table": "client_persons.caserecnumber"
+            }
+        },
         "orderby": {
             "casesubtype": {
                 "mapping_table": "cases.casesubtype",
@@ -16,22 +20,24 @@
         },
         "casrec": {
             "from_table": "order",
-            "overriden": {},
             "joins": [
                 "LEFT JOIN casrec_csv.pat ON casrec_csv.pat.\"Case\" = casrec_csv.order.\"Case\""
             ],
+            "exception_table_join": "LEFT JOIN casrec_csv.exceptions_bonds exc_table ON exc_table.caserecnumber = pat.\"Case\"\n",
             "where_clauses": [
                 "casrec_csv.order.\"Bond No.\" != ''"
             ]
         },
         "sirius": {
             "from_table": "bonds",
-            "overriden": {},
             "joins": [
                 "LEFT JOIN {target_schema}.cases ON cases.id = bonds.order_id",
                 "LEFT JOIN {target_schema}.persons ON persons.id = cases.client_id"
             ],
-            "where_clauses": []
+            "exception_table_join": "LEFT JOIN casrec_csv.exceptions_bonds exc_table ON exc_table.caserecnumber = persons.caserecnumber",
+            "where_clauses": [
+                "persons.clientsource = 'CASRECMIGRATION'"
+            ]
         }
     },
     "cases": {
@@ -44,7 +50,11 @@
             "feepayer_id",
             "person_id"
         ],
-        "overriden": [],
+        "forced": {
+            "caserecnumber": {
+                "mapping_table": "client_persons.caserecnumber"
+            }
+        },
         "orderby": {
             "casesubtype": {
                 "mapping_table": "cases.casesubtype",
@@ -57,20 +67,21 @@
         },
         "casrec": {
             "from_table": "order",
-            "overriden": {},
             "joins": [
                 "LEFT JOIN casrec_csv.pat ON casrec_csv.pat.\"Case\" = casrec_csv.order.\"Case\""
             ],
+            "exception_table_join": "LEFT JOIN casrec_csv.exceptions_cases exc_table ON exc_table.caserecnumber = pat.\"Case\"",
             "where_clauses": []
         },
         "sirius": {
             "from_table": "cases",
-            "overriden": {},
             "joins": [
                 "LEFT JOIN {target_schema}.persons ON persons.id = cases.client_id"
             ],
+            "exception_table_join": "LEFT JOIN casrec_csv.exceptions_cases exc_table ON exc_table.caserecnumber = persons.caserecnumber",
             "where_clauses": [
                 "persons.type = 'actor_client'",
+                "persons.clientsource = 'CASRECMIGRATION'",
                 "cases.casetype = 'ORDER'"
             ]
         }
@@ -82,28 +93,31 @@
             "town",
             "county"
         ],
-        "overriden": [
-            "address_lines"
-        ],
+        "forced": {
+            "caserecnumber": {
+                "mapping_table": "client_persons.caserecnumber"
+            },
+            "address_lines": {
+                "casrec": "getCasrecAddress(\"Adrs1\", \"Adrs2\", \"Adrs3\", \"Adrs4\")",
+                "sirius": "getSiriusAddress(addresses.address_lines, addresses.town, addresses.county)"
+            }
+        },
         "orderby": {},
         "casrec": {
             "from_table": "pat",
-            "overriden": {
-                "address_lines":  "getCasrecAddress(\"Adrs1\", \"Adrs2\", \"Adrs3\", \"Adrs4\")"
-            },
             "joins": [],
+            "exception_table_join": "LEFT JOIN casrec_csv.exceptions_client_addresses exc_table ON exc_table.caserecnumber = pat.\"Case\"",
             "where_clauses": []
         },
         "sirius": {
             "from_table": "addresses",
-            "overriden": {
-                "address_lines":  "getSiriusAddress(addresses.address_lines, addresses.town, addresses.county)"
-            },
             "joins": [
                 "LEFT JOIN {target_schema}.persons ON persons.id = addresses.person_id"
             ],
+            "exception_table_join": "LEFT JOIN casrec_csv.exceptions_client_addresses exc_table ON exc_table.caserecnumber = persons.caserecnumber",
             "where_clauses": [
-                "persons.type = 'actor_client'"
+                "persons.type = 'actor_client'",
+                "persons.clientsource = 'CASRECMIGRATION'"
             ]
         }
     },
@@ -111,20 +125,25 @@
         "exclude": [
             "caserecnumber"
         ],
-        "overriden": [],
+        "forced": {
+            "caserecnumber": {
+                "mapping_table": "client_persons.caserecnumber"
+            }
+        },
         "orderby": {},
         "casrec": {
             "from_table": "pat",
-            "overriden": {},
             "joins": [],
+            "exception_table_join": "LEFT JOIN casrec_csv.exceptions_client_persons exc_table ON exc_table.caserecnumber = pat.\"Case\"",
             "where_clauses": []
         },
         "sirius": {
             "from_table": "persons",
-            "overriden": {},
             "joins": [],
+            "exception_table_join": "LEFT JOIN casrec_csv.exceptions_client_persons exc_table ON exc_table.caserecnumber = persons.caserecnumber",
             "where_clauses": [
-                "persons.type = 'actor_client'"
+                "persons.type = 'actor_client'",
+                "persons.clientsource = 'CASRECMIGRATION'"
             ]
         }
     },
@@ -132,22 +151,70 @@
         "exclude": [
             "person_id"
         ],
-        "overriden": [],
+        "forced": {
+            "caserecnumber": {
+                "mapping_table": "client_persons.caserecnumber"
+            }
+        },
         "orderby": {},
         "casrec": {
             "from_table": "pat",
-            "overriden": {},
             "joins": [],
+            "exception_table_join": "LEFT JOIN casrec_csv.exceptions_client_phonenumbers exc_table ON exc_table.caserecnumber = pat.\"Case\"",
             "where_clauses": []
         },
         "sirius": {
             "from_table": "phonenumbers",
-            "overriden": {},
             "joins": [
                 "LEFT JOIN {target_schema}.persons ON persons.id = phonenumbers.person_id"
             ],
+            "exception_table_join": "LEFT JOIN casrec_csv.exceptions_client_phonenumbers exc_table ON exc_table.caserecnumber = persons.caserecnumber",
             "where_clauses": [
-                "persons.type = 'actor_client'"
+                "persons.type = 'actor_client'",
+                "persons.clientsource = 'CASRECMIGRATION'"
+            ]
+        }
+    },
+    "deputy_persons": {
+        "exclude": [
+            "caserecnumber"
+        ],
+        "orderby": {
+            "casesubtype": {
+                "mapping_table": "cases.casesubtype",
+                "direction": "ASC"
+            },
+            "orderdate": {
+                "mapping_table": "cases.orderdate",
+                "direction": "ASC"
+            }
+        },
+        "forced": {
+            "caserecnumber": {
+                "mapping_table": "cases.caserecnumber"
+            }
+        },
+        "casrec": {
+            "from_table": "deputyship",
+            "joins": [
+                "LEFT JOIN casrec_csv.order ON casrec_csv.order.\"Order No\" = casrec_csv.deputyship.\"Order No\"",
+                "LEFT JOIN casrec_csv.deputy ON casrec_csv.deputyship.\"Deputy No\" = casrec_csv.deputy.\"Deputy No\"",
+                "LEFT JOIN casrec_csv.pat ON casrec_csv.pat.\"Case\" = casrec_csv.order.\"Case\""
+            ],
+            "exception_table_join": "LEFT JOIN casrec_csv.exceptions_deputy_persons exc_table\n    ON exc_table.caserecnumber = pat.\"Case\"\n    AND exc_table.casesubtype = casrec_csv.order_type_lookup(casrec_csv.order.\"Ord Type\")\n    AND exc_table.orderdate = casrec_csv.order.\"Made Date\"",
+            "where_clauses": []
+        },
+        "sirius": {
+            "from_table": "order_deputy",
+            "joins": [
+                "LEFT JOIN {target_schema}.cases ON cases.id = order_deputy.order_id",
+                "LEFT JOIN {target_schema}.persons ON persons.id = order_deputy.deputy_id",
+                "LEFT JOIN {target_schema}.persons AS client ON client.id = cases.client_id"
+            ],
+            "exception_table_join": "LEFT JOIN casrec_csv.exceptions_deputy_persons exc_table\n    ON exc_table.caserecnumber = client.caserecnumber\n    AND exc_table.casesubtype = cases.casesubtype\n    AND CAST(exc_table.orderdate AS DATE) = cases.orderdate",
+            "where_clauses": [
+                "persons.type = 'actor_deputy'",
+                "persons.clientsource = 'CASRECMIGRATION'"
             ]
         }
     }

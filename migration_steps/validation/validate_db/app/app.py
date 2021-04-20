@@ -54,6 +54,7 @@ def get_mappings():
         "clients": ["client_addresses", "client_persons", "client_phonenumbers"],
         "cases": ["cases"],
         "bonds": ["bonds"],
+        "deputies": ["deputy_persons"],
     }
 
     for entity, mapping in all_mappings.items():
@@ -126,10 +127,9 @@ def build_exception_table(mapping_name):
 
     sql_add(f"-- {mapping_name}")
     sql_add(f"CREATE TABLE {get_exception_table(mapping_name)}(")
-    sql_add("caserecnumber text default NULL,", 1)
 
     # overridden cols (normally run through plsql transform routines)
-    for col in validation_dict[mapping_name]["overriden"]:
+    for col in list(validation_dict[mapping_name]["forced"].keys()):
         sql_add(f"{col} text default NULL,", 1)
 
     # forced order cols
@@ -151,32 +151,38 @@ def build_exception_table(mapping_name):
 
 
 def build_lookup_functions():
-    # drop all the lookup tables from last run
     for lookup_name, lookup in helpers.get_all_lookup_dicts().items():
+
+        firstval = lookup[list(lookup)[0]]['sirius_mapping']
+        datatype = "TEXT"
+        if isinstance(firstval, bool):
+            datatype = "BOOLEAN"
+        elif isinstance(firstval, int):
+            datatype = "INT"
+
         sql_add(
             f"DROP FUNCTION IF EXISTS {source_schema}.{lookup_name}(character varying);"
         )
-    sql_add("")
-
-    for lookup_name, lookup in helpers.get_all_lookup_dicts().items():
         sql_add(
-            f"CREATE OR REPLACE FUNCTION {source_schema}.{lookup_name}(lookup_key varchar default null) RETURNS TEXT AS"
+            f"CREATE OR REPLACE FUNCTION {source_schema}.{lookup_name}(lookup_key varchar default null) RETURNS {datatype} AS"
         )
         sql_add(f"$$")
         sql_add(f"SELECT CASE", 1)
         for k, v in lookup.items():
             try:
-                sirius_value = v["sirius_mapping"].replace("'", "''")
+                escape_quotes = v["sirius_mapping"].replace("'", "''")
             except AttributeError:
-                sirius_value = v["sirius_mapping"]
-            sql_add(f"WHEN ($1 = '{k}') THEN '{sirius_value}'", 2)
+                escape_quotes = v["sirius_mapping"]
+
+            value = f"'{escape_quotes}'" if isinstance(escape_quotes, str) else escape_quotes
+            sql_add(f"WHEN ($1 = '{k}') THEN {value}", 2)
+
         sql_add("END", 1)
         sql_add("$$ LANGUAGE sql;", 0, 2)
     sql_add("")
 
 
-def get_wrapped_sirius_col(col, mapped_item):
-    col_definition = get_col_definition(mapped_item)
+def get_wrapped_sirius_col(col, col_definition):
     datatype = col_definition["sirius_details"]["data_type"]
     if datatype == "str":
         col = f"NULLIF(TRIM({col}), '')"
@@ -185,8 +191,7 @@ def get_wrapped_sirius_col(col, mapped_item):
     return col
 
 
-def get_sirius_col_name(mapped_item):
-    col_definition = get_col_definition(mapped_item)
+def get_sirius_col_name(mapped_item, col_definition):
     col_table = col_definition["sirius_details"]["table_name"]
     mapped_item_name = mapped_item
     if isinstance(mapped_item, dict):
@@ -196,13 +201,16 @@ def get_sirius_col_name(mapped_item):
 
 
 def sirius_wrap(mapped_item):
-    col = get_sirius_col_name(mapped_item)
-    col = get_wrapped_sirius_col(col, mapped_item)
+    if isinstance(mapped_item, dict) and "sirius" in mapped_item:
+        col = mapped_item["sirius"]
+    else:
+        col_definition = get_col_definition(mapped_item)
+        col = get_sirius_col_name(mapped_item, col_definition)
+        col = get_wrapped_sirius_col(col, col_definition)
     return col
 
 
-def get_wrapped_casrec_col(col, mapped_item):
-    col_definition = get_col_definition(mapped_item)
+def get_wrapped_casrec_col(col, col_definition):
     datatype = col_definition["sirius_details"]["data_type"]
     calculated = col_definition["transform_casrec"]["calculated"]
 
@@ -226,13 +234,6 @@ def get_wrapped_casrec_col(col, mapped_item):
         col = f"CAST({col} AS INT)"
 
     return col
-
-
-def get_casrec_column_name(mapped_item):
-    col_definition = get_col_definition(mapped_item)
-    casrec_col_table = col_definition["transform_casrec"]["casrec_table"].lower()
-    casrec_col_name = col_definition["transform_casrec"]["casrec_column_name"]
-    return f'{source_schema}.{casrec_col_table}."{casrec_col_name}"'
 
 
 def get_casrec_default_value(mapped_item):
@@ -265,18 +266,21 @@ def get_col_definition(mapped_item):
             include_pk=False,
         )
         col_definition = col_mapping[pieces[1]]
+    elif isinstance(mapped_item, dict):
+        col_definition = mapped_item
     else:
         col_definition = mapping_dict[mapped_item]
 
     return col_definition
 
 
-def get_casrec_col_source(mapped_item):
+def get_casrec_col_source(mapped_item, col_definition):
     col = ""
-    col_definition = get_col_definition(mapped_item)
     col_definition = col_definition["transform_casrec"]
     if col_definition["casrec_table"]:
-        col = get_casrec_column_name(mapped_item)
+        table = col_definition["casrec_table"].lower()
+        col_name = col_definition["casrec_column_name"]
+        col = f'{source_schema}.{table}."{col_name}"'
         if "" != col_definition["lookup_table"]:
             db_lookup_func = col_definition["lookup_table"]
             col = f"{source_schema}.{db_lookup_func}({col})"
@@ -289,8 +293,12 @@ def get_casrec_col_source(mapped_item):
 
 
 def casrec_wrap(mapped_item):
-    col = get_casrec_col_source(mapped_item)
-    col = get_wrapped_casrec_col(col, mapped_item)
+    if isinstance(mapped_item, dict) and "casrec" in mapped_item:
+        col = mapped_item["casrec"]
+    else:
+        col_definition = get_col_definition(mapped_item)
+        col = get_casrec_col_source(mapped_item, col_definition)
+        col = get_wrapped_casrec_col(col, col_definition)
     return col
 
 
@@ -308,11 +316,12 @@ def build_validation_statements(mapping_name):
     # CASREC half
     sql_add("SELECT * FROM(", 1)
     sql_add("SELECT DISTINCT", 2)
-    sql_add('pat."Case" AS caserecnumber,', 3)
 
-    # overridden cols (normally run through plsql transform routines)
-    for colname, col in validation_dict[mapping_name]["casrec"]["overriden"].items():
-        sql_add(f"{col} AS {colname},", 3)
+    # overridden cols(eg run through transformations or inserting casrec no. as first column)
+    for overridden_mapped_item_name, overridden_mapped_item in validation_dict[mapping_name][
+        "forced"
+    ].items():
+        sql_add(f"{casrec_wrap(overridden_mapped_item)} AS {overridden_mapped_item_name},", 3)
 
     # forced order cols
     for order_mapped_item_name, order_mapped_item in validation_dict[mapping_name][
@@ -340,7 +349,7 @@ def build_validation_statements(mapping_name):
         sql_add(f"{join}", 2)
 
     # WHERE
-    sql_add('WHERE pat."Case" IS NOT NULL', 2)
+    sql_add('WHERE True', 2)
     for where_clause in validation_dict[mapping_name]["casrec"]["where_clauses"]:
         sql_add(f"AND {where_clause}", 2)
 
@@ -352,11 +361,12 @@ def build_validation_statements(mapping_name):
     # SIRIUS half
     sql_add("SELECT * FROM(", 1)
     sql_add("SELECT DISTINCT", 2)
-    sql_add(f"persons.caserecnumber AS caserecnumber,", 3)
 
-    # overridden cols (normally run through plsql transform routines)
-    for colname, col in validation_dict[mapping_name]["sirius"]["overriden"].items():
-        sql_add(f"{col} AS {colname},", 3)
+    # overridden cols(eg run through transformations or inserting casrec no. as first column)
+    for overridden_mapped_item_name, overridden_mapped_item in validation_dict[mapping_name][
+        "forced"
+    ].items():
+        sql_add(f"{sirius_wrap(overridden_mapped_item)} AS {overridden_mapped_item_name},", 3)
 
     # forced order cols
     for order_mapped_item_name, order_mapped_item in validation_dict[mapping_name][
@@ -385,7 +395,7 @@ def build_validation_statements(mapping_name):
         sql_add(f"{join}", 2)
 
     # WHERE
-    sql_add("WHERE clientsource = 'CASRECMIGRATION'", 2)
+    sql_add("WHERE True", 2)
     for where_clause in validation_dict[mapping_name]["sirius"]["where_clauses"]:
         sql_add(f"AND {where_clause}", 2)
 
@@ -403,44 +413,44 @@ def sql_add(sql, indent_level=0, line_breaks=1):
 
 
 def write_column_validation_sql(
-    mapping_name, mapped_item, col_source_casrec, col_source_sirius
+    mapping_name, mapped_item_name, col_source_casrec, col_source_sirius
 ):
     order_by = ",\n        ".join(
-        ["caserecnumber ASC"] + list(validation_dict[mapping_name]["orderby"].keys())
+        ["exc_caserecnumber ASC"] + list(validation_dict[mapping_name]["orderby"].keys())
     )
 
-    sql_add(f"-- {mapping_name} / {mapped_item}")
+    sql_add(f"-- {mapping_name} / {mapped_item_name}")
     sql_add(f"UPDATE {get_exception_table(mapping_name)}")
-    sql_add(f"SET vary_columns = array_append(vary_columns, '{mapped_item}')")
+    sql_add(f"SET vary_columns = array_append(vary_columns, '{mapped_item_name}')")
     sql_add("WHERE caserecnumber IN (")
-    sql_add(f"SELECT caserecnumber FROM (", 1)
+    sql_add(f"SELECT exc_caserecnumber FROM (", 1)
 
     # casrec half
     sql_add("SELECT * FROM(", 2)
     sql_add("SELECT", 3)
     # caserecnumber
-    sql_add("exc_table.caserecnumber AS caserecnumber,", 4)
+    sql_add("exc_table.caserecnumber AS exc_caserecnumber,", 4)
     # forced order cols
     for order_mapped_item_name, order_mapped_item in validation_dict[mapping_name][
         "orderby"
     ].items():
         sql_add(f"{casrec_wrap(order_mapped_item)} AS {order_mapped_item_name},", 4)
     # tested column
-    sql_add(f"{col_source_casrec} AS {mapped_item}", 4)
+    sql_add(f"{col_source_casrec} AS {mapped_item_name}", 4)
     sql_add(
         f"FROM {source_schema}.{validation_dict[mapping_name]['casrec']['from_table']}",
         3,
     )
     for join in validation_dict[mapping_name]["casrec"]["joins"]:
         sql_add(f"{join}", 3)
-    sql_add(f"LEFT JOIN {get_exception_table(mapping_name)} exc_table", 3)
-    sql_add('ON exc_table.caserecnumber = pat."Case"', 4)
+    exception_table_join = validation_dict[mapping_name]["casrec"]["exception_table_join"]
+    sql_add(f"{exception_table_join}", 3)
     # WHERE
     sql_add("WHERE exc_table.caserecnumber IS NOT NULL", 3)
     for where_clause in validation_dict[mapping_name]["casrec"]["where_clauses"]:
-        sql_add(f"AND {where_clause}", 2)
+        sql_add(f"AND {where_clause}", 4)
 
-    sql_add(f"ORDER BY {order_by}", 2)
+    sql_add(f"ORDER BY {order_by}", 3)
     sql_add(") as csv_data", 2)
 
     sql_add("EXCEPT", 2)
@@ -449,14 +459,14 @@ def write_column_validation_sql(
     sql_add("SELECT * FROM(", 2)
     sql_add("SELECT", 3)
     # caserecnumber
-    sql_add("exc_table.caserecnumber AS caserecnumber,", 4)
+    sql_add("exc_table.caserecnumber AS exc_caserecnumber,", 4)
     # forced order cols
     for order_mapped_item_name, order_mapped_item in validation_dict[mapping_name][
         "orderby"
     ].items():
         sql_add(f"{sirius_wrap(order_mapped_item)} AS {order_mapped_item_name},", 4)
     # tested column
-    sql_add(f"{col_source_sirius} AS {mapped_item}", 4)
+    sql_add(f"{col_source_sirius} AS {mapped_item_name}", 4)
     sql_add(
         f"FROM {target_schema}.{validation_dict[mapping_name]['sirius']['from_table']}",
         3,
@@ -464,13 +474,13 @@ def write_column_validation_sql(
     for join in validation_dict[mapping_name]["sirius"]["joins"]:
         join = join.replace("{target_schema}", str(target_schema))
         sql_add(f"{join}", 3)
-    sql_add(f"LEFT JOIN {get_exception_table(mapping_name)} exc_table", 3)
-    sql_add("ON exc_table.caserecnumber = persons.caserecnumber", 4)
+    exception_table_join = validation_dict[mapping_name]["sirius"]["exception_table_join"]
+    sql_add(f"{exception_table_join}", 3)
     # WHERE
     sql_add("WHERE exc_table.caserecnumber IS NOT NULL", 3)
     for where_clause in validation_dict[mapping_name]["sirius"]["where_clauses"]:
-        sql_add(f"AND {where_clause}", 2)
-    sql_add(f"ORDER BY {order_by}", 2)
+        sql_add(f"AND {where_clause}", 4)
+    sql_add(f"ORDER BY {order_by}", 3)
     sql_add(") as sirius_data", 2)
 
     sql_add(") as vary", 1)
@@ -488,22 +498,22 @@ def build_column_validation_statements(mapping_name):
     )
 
     # test overridden columns
-    for overridden_col in validation_dict[mapping_name]["overriden"]:
+    for mapped_item_name, mapped_item in validation_dict[mapping_name]["forced"].items():
         write_column_validation_sql(
             mapping_name,
-            overridden_col,
-            validation_dict[mapping_name]["casrec"]["overriden"][overridden_col],
-            validation_dict[mapping_name]["sirius"]["overriden"][overridden_col],
+            mapped_item_name,
+            casrec_wrap(mapped_item),
+            sirius_wrap(mapped_item)
         )
 
     # test regular columns
-    for mapped_item in mapping_dict.keys():
-        if mapped_item not in validation_dict[mapping_name]["exclude"]:
+    for mapped_item_name in mapping_dict.keys():
+        if mapped_item_name not in validation_dict[mapping_name]["exclude"]:
             write_column_validation_sql(
                 mapping_name,
-                mapped_item,
-                casrec_wrap(mapped_item),
-                sirius_wrap(mapped_item),
+                mapped_item_name,
+                casrec_wrap(mapped_item_name),
+                sirius_wrap(mapped_item_name),
             )
 
 
