@@ -79,10 +79,20 @@ You will be asked if you want to resync your data from development s3. You can j
 you don't or type "y" if you do. If you do then you will need to enter your aws vault password and 2FA so you
 can connect to aws dev s3.
 
-You will be asked if you want to skip reload to s3. This step takes all your local files and puts them in the S3
+You will be asked if you want to skip reload (no_reload) to s3. This step takes all your local files and puts them in the S3
 of your localstack. The default is to do it on each run but if you like
 then you can type "y" and it will skip this step. Obviously you can only skip this step if you have
 already done an initial run that has loaded into s3!
+
+You can also get the pipeline to run with no reload option.
+
+- Add `~nr` somewhere in your commit message.
+
+This is useful in a number of circumstances:
+1) You have done a full run through and need to make a change to your PR
+2) You want to avoid reload on preprod because it takes a very long time
+
+You should not use this in pipeline if previous build didn't finish.
 
 #### Local issues
 
